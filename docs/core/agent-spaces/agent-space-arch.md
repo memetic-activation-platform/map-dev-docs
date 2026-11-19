@@ -39,7 +39,7 @@ Holochain's use of hApp and DNA can refer either to executable artifacts or to a
 
 A HolonSpace can be provisioned and operational before a sovereign BioSocialAgent exists. Its foundational query, transaction, validation, reference and navigation capabilities do not depend on completed sovereign acquisition.
 
-In the initial deployment, the first HolonSpace also serves as MAP.CoreSchemaSpace. Welcome is foundational onboarding capability available under constrained bootstrap authority, rather than an operational Dancer that would depend circularly on sovereignty.
+In the initial deployment, the first personal HolonSpace hosts locally bootstrapped CoreSchema. That hosting role does not prescribe its display name or durable identity; current MAP.CoreSchemaSpace implementation assumptions are reconciled during AS2. Welcome is foundational onboarding capability available under constrained bootstrap authority, rather than an operational Dancer that would depend circularly on sovereignty.
 
 Onboarding prepares identity and authorization evidence. The existing transaction and validation architecture then establishes BioSocialAgent creation, Home Space, the sovereign interior association and corresponding authorization state together. Acquisition preserves the HolonSpace's identity, type and preexisting holons.
 

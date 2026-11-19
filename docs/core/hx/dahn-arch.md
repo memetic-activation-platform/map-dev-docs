@@ -1,4 +1,4 @@
-# DAHN Architecture Specification v0.9
+# DAHN Architecture Specification v0.11
 
 ## Status
 
@@ -7,6 +7,18 @@ Space Navigator architecture document. It defines reusable subsystem authority,
 not the internal experiential grammar of any Dancer or Visualizer.
 
 ## Change Log
+
+### v0.11
+
+Delegates general Slot-specific/cross-cutting preference semantics to DAHN v2.21:
+a preference identifies a Visualizer directly and may carry optional Usage
+configuration, while PersonAgent remains the authorized personal-access anchor.
+
+### v0.10
+
+Connects personal Usage and Slot-preference access to the established PersonAgent
+through the minimal association pairs in DAHN design v2.17. Preserves the distinction
+between personal identity, Space containment, applicability, and occurrence state.
 
 ### v0.9
 
@@ -785,6 +797,17 @@ change descriptor structure, authorization, or semantic availability.
 # 19. Personal and Collective Adaptation
 
 ## 19.1 Personal Adaptation
+
+For the personal-space model, Rust resolves the established PersonAgent from the
+authorized runtime context and accesses its `HasPersonalVisualizerUsage` and
+`HasPersonalVisualizerPreference` collections. Their authoritative declared
+occurrences are `UsageForAgent` on VisualizerUsage and `PreferenceForAgent` on
+VisualizerPreference; see [personal-state associations](dahn-design-spec.md#personagent-associations-for-personal-state).
+This makes DAHN's agent-relative state directly accessible without changing
+`OwnedBy` HolonSpace containment. The [general preference contract](dahn-design-spec.md#general-visualizerpreference)
+distinguishes Slot-specific and cross-cutting scope; Agent access alone does not.
+Personal indexes and reusable absence remain isolated by Agent/context. No
+separate personalization Agent or Value-specific preference type is introduced.
 
 Rust services own persistent preference interpretation and usage matching;
 TypeScript owns immediate presentation response and occurrence state.

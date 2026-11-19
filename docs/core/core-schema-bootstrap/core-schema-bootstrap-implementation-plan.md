@@ -63,3 +63,21 @@ orchestration and storage boundaries before claiming recovery is complete.
 Later-space spawning, qualified transport, trust provisioning, and local mirror
 semantics remain future design. This documentation consolidation does not add
 multi-space support or define mirror cloning.
+
+## First-space discovery progress — 2026-11-15
+
+The AS2 working implementation adds a read-only designation lookup through the
+existing runtime/reference/Dance boundary before choosing Provision versus Open.
+It restricts discovery to the executing cell author, rejects competing or broken
+designations, and rejects absent designations accompanied by authored application
+entries. A fresh host proxy can adopt the existing Space and read retained schema
+content. Ordinary Open no longer replays configured create imports. No acquisition
+authority follows from this lookup.
+
+This replaces the earlier in-memory-ID shortcut with persisted designation and
+supported Core-schema-key checks. It does not yet demonstrate the full manifest
+graph predicate, complete package recovery, acquisition authorization, serialized
+conflict handling or acquisition remediation/resubmission. Existing Incomplete
+Commit behavior is accepted and does not require a rollback redesign. The
+readiness gap above remains open for those checks; neither the current process gate nor the Core key proves full
+bootstrap completeness.

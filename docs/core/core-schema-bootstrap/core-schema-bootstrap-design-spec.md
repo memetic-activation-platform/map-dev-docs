@@ -230,10 +230,18 @@ that a transaction begin with a persisted local-space ID: CoreSchemaSpace does
 not exist before this transaction stages it. Conductora creates this as an
 explicit `BootstrapProvisioning` transaction mode.
 
-Only `BootstrapProvisioning` may cross the host-to-guest boundary without a
-local-space ID. Guest ingress creates an unbound context for that mode and
-must not invoke `ensure_local_holon_space`; the mode is restricted to the
-bootstrap loader, Commit, and fixed infrastructure-anchor flow.
+Only `BootstrapProvisioning` may perform mutation across the host-to-guest
+boundary without a local-space ID. Guest ingress creates an unbound context
+for that mode and must not invoke `ensure_local_holon_space`; the mode is
+restricted to the bootstrap loader, Commit, and fixed infrastructure-anchor flow.
+
+Before selecting Provision versus Open, a dedicated empty local-space discovery
+request may cross the same Dance ingress without an adopted Space ID. It runs
+as a restricted read, grants no bootstrap authority and never creates or ensures
+a Space. It reads the fixed local designation and rejects ambiguous, broken or
+unreadable state. An absent designation accompanied by authored application
+state is incomplete/legacy provisioning, not permission to create a replacement.
+This is an infrastructure discovery exception, not another mutation ingress.
 
 After Commit, Conductora discovers and verifies the persisted CoreSchemaSpace,
 then calls the existing `HolonSpaceBehavior::set_space_holon_id` on the shared
@@ -241,7 +249,8 @@ then calls the existing `HolonSpaceBehavior::set_space_holon_id` on the shared
 existing session envelope carries it as a persisted smart reference and guest
 context initialization binds it before any staging begins.
 
-An ordinary transaction with no current-space ID fails immediately. Lazy
+An ordinary operation with no current-space ID fails immediately, apart from
+the restricted discovery read above. Lazy
 guest-side creation is not a fallback behavior.
 
 ### Ingress gate

@@ -40,6 +40,10 @@ This document owns Space-local relationship-bucket semantic authority, Commit-lo
 authority, cross-direction preparation and persistence, concurrency retry, and the cross-Space
 deferral boundary.
 
+### Lifecycle consumer boundary
+
+Agent Spaces supplies sovereign association declarations, required acquisition effects and domain completion semantics. This specification retains ownership of paired persistence, write authority and conflict/retry guarantees; Client Security owns authorization. A lifecycle consumer does not introduce a competing persistence path or require all future cross-Space coordination. Its complete local acquisition guarantee must be demonstrated across the required write set, not inferred from relationship pairing alone. No new completion-record format or general transaction journal is selected by this ownership allocation.
+
 ## 3. Terms
 
 For a declared relationship descriptor `R`:
@@ -122,12 +126,16 @@ by the source chain executing this Commit — commit processing must:
    it; and
 5. persist both directions in one normal-order zome-call transaction.
 
-Step 5 is what the single-source-chain condition buys. A normal-order zome call is atomic over one
-source chain, so it makes the paired declared and inverse writes succeed or fail together only
-when both land on that chain. A directional source outside this Commit's write authority is not
-covered by that guarantee, and which case applies depends on where that source lives:
+Step 5 places both directions within one source-chain call boundary. An aborted normal-order
+zome call has source-chain rollback semantics; a successful call carrying an Incomplete MAP
+Commit response has not aborted and may retain earlier writes. Complete requires both directions
+to be persisted. Incomplete retains saved work and diagnostics for remediation and resubmission
+under the [runtime transaction contract](transactions-design-spec.md#commit-outcomes-and-resubmission);
+it does not imply whole-Commit rollback. A directional source outside this Commit's write
+authority requires the following separate treatment:
 
-- **same Space, same Commit write authority**: persist both directions atomically, as above;
+- **same Space, same Commit write authority**: persist both directions within the same call;
+  remediate and resubmit Incomplete work until both directions are complete, as above;
 - **same Space, a different cell**: the Section 4 local commitment covers this inverse but cannot
   presently be completed, so Commit fails closed with `RelationshipCoordinationRequired`. It is
   neither deferred nor silently one-sided;

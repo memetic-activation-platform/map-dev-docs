@@ -26,6 +26,7 @@ core/
   transactions/
   core-schema-bootstrap/
   agent-spaces/
+  security/
   validation/
   adaptive-systems/
   performance/
@@ -50,7 +51,8 @@ concepts it defines. The physical TDL source files are organized under
 | `map-queries/` | Query model, query engine, planning, execution, distribution, and query-owned schema | General storage or collection contracts except where consumed by queries |
 | `transactions/` | Transaction lifecycle, staging, commit, rollback, recovery, occurrence persistence, and transaction-owned schema | Descriptor semantics or generic storage implementation |
 | `core-schema-bootstrap/` | First-space Core Schema provisioning, `CoreSchemaSpace` identity and readiness, bootstrap recovery, and later-space Core Schema source contracts | Generic loader mechanics, transaction/commit semantics, descriptor semantics, or storage implementation |
-| `agent-spaces/` | Agent-space topology, activation, trust channels, and agent-space-owned schema | Generic holon-space or reference behavior |
+| `agent-spaces/` | Agent/Space ontology, Local Sovereign Constitution, sovereign lifecycle, domain policy and agent-space-owned schema | Shared client security mechanisms, general transaction/validation or reference behavior |
+| `security/` | MAP Client Security: shared authentication/authorization, trusted execution, credential/capability lifecycle, principal/author/executor/delegation and assurance | AgentSpace ontology, transaction commitment or descriptor validation |
 | `validation/` | Validation architecture, PVL, validation execution, and validation-owned schema | Descriptor-dependent semantics that PVL intentionally excludes |
 | `adaptive-systems/` | Extension-schema usage, observation and usage capture, personalization, adaptive evolution, and supporting background activity | Universal rules governing whether and how schemas may extend one another |
 | `performance/` | Empirical investigations, measurement methodology, experiment results, rejected approaches, and evidence provenance | Normative runtime semantics, validation guarantees, or implementation delivery tracking |
@@ -88,7 +90,9 @@ whole type system or runtime.
 | Validation rule vocabulary and inventory | `validation/validation-schema-design-spec.md` | Core/extension package boundary, rule identities, bindings, and current/target corpus inventory |
 | Commit-validation delivery sequence | `validation/commit-validation-impl-plan.md` | Precursor, vertical capabilities, final coverage/convergence milestone, and branch/merge sequencing |
 | Core Schema bootstrap | `core-schema-bootstrap/core-schema-bootstrap-design-spec.md` | One-time first-space provisioning of `CoreSchemaSpace` and the Core Schema, readiness, recovery, and later-space schema-source contracts |
-| Agent and AgentSpace domain model | `agent-spaces/agent-spaces-design-spec.md` | Initial discussion draft; distinguishes Agent from its I-Space and interaction in a We-Space; proposed/open elements remain unresolved. |
+| Agent and AgentSpace domain model | `agent-spaces/agent-spaces-design-spec.md` | Authoritative Agent/Space semantics, Local Sovereign Constitution and lifecycle; remaining design gates are explicit. |
+| MAP Client Security | `security/map-client-security-design-spec.md` | Shared security authority and required guarantees; minimum local implementation contract remains open. |
+| Client Security delivery | `security/map-client-security-impl-plan.md` | Bounded initial local capability and assurance handoff, separate from later capabilities. |
 | Agent Spaces delivery | `agent-spaces/agent-spaces-impl-plan.md` | Incremental schema, provisioning, Agent-owned personal Usage access, selection profiling, and later identity/governance delivery; records design gates and implementation evidence. |
 | Component behavior and schema | Owning component section | Component-specific design authority |
 

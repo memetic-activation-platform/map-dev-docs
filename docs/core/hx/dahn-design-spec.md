@@ -1,4 +1,4 @@
-# DAHN Design Specification v2.16
+# DAHN Design Specification v2.21
 
 ## Status
 
@@ -9,6 +9,38 @@ This version re-baselines the DAHN design around the architecture that has emerg
 It supersedes the Phase-0-specific visualizer selection, canvas, affordance hierarchy, and dynamic-loading models in v1.4 while preserving still-valid MAP/DAHN boundary decisions.
 
 ## Change Log
+
+### v2.21
+
+- defines one general VisualizerPreference for Slot-specific and cross-cutting personal choices;
+- permits a remembered Visualizer without a Usage, with optional validated configuration;
+- resolves Date matching, per-scope replacement, and preference-dependent invalidation;
+- specifies explicit Slot-preserving conversion from the previous Slot-preference representation.
+
+### v2.20
+
+- defines usable consolidated child-binding metadata with effective configuration and optional Usage;
+- makes confirmed personal absence an invalidatable resolution dependency;
+- distinguishes the unresolved cross-cutting preference representation from resolved PersonAgent access.
+
+### v2.19
+
+- separates schema-backed CompositionActivation and CompositionSubject enums;
+- defines five bounded subject-binding operations and their guest inputs;
+- requires an explicit collection source for initial collection presentation;
+- distinguishes activation, semantic selection, actual-data realization, and invocation.
+
+### v2.18
+
+- defines Slot-owned developer default declarations, optional TypeDescriptor conditions, and deterministic default-tier resolution;
+- separates a matching unusable recommendation from a declaration miss, with explicit failure rather than implicit substitution;
+- preserves personal precedence, semantic eligibility, and preparation without activation or personal Usage creation.
+
+### v2.17
+
+- specifies the minimal PersonAgent associations for existing personal VisualizerUsages and Slot preferences;
+- separates personal association, HolonSpace containment, applicability, and preference scope;
+- retains cross-cutting preferences and Experience Upgrade Sessions as broader design, without generalizing the Slot-preference type or adding a subordinate-Usage hierarchy.
 
 ### v2.16
 
@@ -1194,8 +1226,9 @@ These relationships answer different questions:
 
 - **`Visualizer type —HasSlot→ VisualizerSlot`: “What child slots does this
   Visualizer type define?”** The TDL type declares its child Slot grammar.
-  Inherited roles can be overridden by a nearer type. Declaration does not activate
-  a Slot or choose the concrete Visualizer that will fill it.
+  Inherited roles can be overridden by a nearer type. Declaring a Slot does not
+  activate it. Its steward may separately declare a concrete recommended default;
+  shared Rust still resolves the actual binding under personal precedence and eligibility.
 - **`VisualizerSlot —AcceptsVisualizerType→ Visualizer type descriptor`:
   “What types of Visualizer may fill this slot?”** The target describes the
   child Visualizer, not the data being visualized. For example, a Node slot
@@ -1249,14 +1282,23 @@ subject bindings, and activation rules. Generic shared Rust interprets those
 semantics. Selection must not require Visualizer-specific Rust code or callbacks
 to be installed alongside a contributed Visualizer. The owner declares demand;
 the Visualizer Selection Service resolves concrete Visualizers under common
-eligibility, personal policy, and prepared-binding rules. A Slot or owner does
-not prescribe a concrete child Visualizer.
+eligibility, personal policy, and prepared-binding rules. A Slot or owner
+may declare a concrete preferred default through the Slot, but does not force
+that recommendation or replace shared Rust selection authority.
 
-Activation determines when a Slot requires a selection. It does not establish
-that an executable is materialized, validated, loaded, or mounted. Controlled
-activation and kind vocabulary should use schema-backed enums; owner-local role
-identifiers remain extensible. Subject expansion and activation scope follow
-explicit semantics rather than string conventions.
+Activation determines when a Slot participates. Subject binding determines the
+semantic input it presents. These are independent schema-backed enums:
+
+| Slot property | Enum identity | Members |
+| --- | --- | --- |
+| `CompositionActivation` | `CompositionActivation.MapEnumValueType` | `Presentation`, `Demand` |
+| `CompositionSubject` | `CompositionSubject.MapEnumValueType` | `OwnerSubject`, `ScalarPropertyLabel`, `ScalarPropertyValue`, `AffordedAction`, `SelectedCollection` |
+
+Use the corresponding shared Rust enums in the guest interpreter, not free-form
+string dispatch. `VisualizerKind` remains the separate shared classification for
+Visualizer and Slot participation; `CompositionKind` is not another taxonomy.
+`CompositionRole` remains open for owner-defined role names. Activation does not
+establish that an executable is materialized, validated, loaded, or mounted.
 
 Each Slot declares exactly one enum-backed `VisualizerKind`, using the DAHN-wide
 classification defined in §10. Every accepted Visualizer type must belong to
@@ -1267,13 +1309,46 @@ Visualizer subtypes, but cannot accept a Node Visualizer type. Conflicting kind
 and accepted-type declarations are schema errors; selection must not silently
 reinterpret either declaration.
 
-Subject binding uses a bounded vocabulary of reusable semantic operations
-interpreted by shared Rust. This includes the owner's subject, property-name
-labels, typed property values, afforded actions, and an activated collection.
-Visualizer descriptors compose these operations without requiring contributed
-Rust code. Exact schema names, enum members, and contextual inputs must be
-specified consistently with each operation's semantic subject. A binding is not
-an arbitrary navigation expression or embedded query program.
+#### Subject-binding inputs
+
+Shared Rust interprets the selected owner's effective Slot declarations using
+these bounded operations. The owner here is the selected composition owner, not
+the PersonAgent owning personal records.
+
+| CompositionSubject | Guest interpreter input and semantic binding |
+| --- | --- |
+| `OwnerSubject` | The selected owner's bound subject. |
+| `ScalarPropertyLabel` | The owner subject and each applicable scalar property descriptor. Bind the descriptor's display label, using its established property-name fallback. The label is a String presentation; choosing it does not determine Value selection or retrieve the property's stored value. |
+| `ScalarPropertyValue` | The owner subject and each applicable scalar property descriptor. Select using its declared ValueType and applicable non-value context; bind the actual value during realization. |
+| `AffordedAction` | The owner subject and each applicable Dance affordance identity. Selecting the action presentation does not invoke it; runtime invocation still targets the bound subject through the existing action contract. |
+| `SelectedCollection` | The identity of a collection source within the owner's declared composition, supplied by an initial declaration or a later activation request. No collection population read is required merely to select its Visualizer. |
+
+The property descriptors and affordance identities come from the effective
+semantic surfaces, not a hard-coded Inspector recipe. A collection source identity
+must distinguish the owner's applicable collection declaration and its bound
+source; a bare caption, arbitrary relationship-name string, or submitted target
+population is not a substitute for validating it against the owner. Applicable
+collection metadata may be resolved without reading its member population.
+Visualizer descriptors compose these operations without contributed Rust callbacks,
+arbitrary navigation expressions, or an embedded query program.
+
+#### Presentation and demand activation
+
+`Presentation` participates in the owner's current initial presentation;
+`Demand` remains deferred until an applicable explicit activation request.
+An owner that initially presents a `SelectedCollection` Slot must also declare
+which collection source to activate. `Presentation` alone cannot identify that
+source. The current Holon Inspector declares no initial collection source; a later
+request identifies the collection and Rust validates it against the owner. An
+alternative Inspector may declare one initial collection source and leave the
+others inactive. Both paths use the same guest interpreter and binding/eligibility
+rules. An absent initial source for an initially presented collection is an
+explicit declaration error, not permission to pick the first collection or load
+all populations.
+
+Neither viewport visibility nor a saved child Visualizer choice/configuration
+activates a Slot. Personal activation-policy overrides require a separate contract;
+personal Visualizer choice continues to apply after a Slot is activated.
 
 Value binding selection uses the declared ValueType and applicable non-value
 semantic context, including the Slot contract, role, interaction mode, personal
@@ -1301,16 +1376,16 @@ contract rather than being inferred from Usage associations.
 
 ## 11.1 VisualizerUsage
 
-`VisualizerUsage` is a durable personal choice/configuration anchor in the
-space agent's applicable context. The selected Visualizer fulfills the Slot
+`VisualizerUsage` is a durable personal configuration anchor in the space agent's applicable context. `VisualizerPreference` remembers a Visualizer choice,
+optionally referring to a Usage for configuration. The selected Visualizer fulfills the Slot
 contract; its Usage does not fulfill that contract or represent a live occurrence.
 
 > Rendering through an automatic or inherited default does not by itself create a durable personal usage.
 
-Create a personal Usage when meaningful personal state requires retention: an
-explicit choice beyond the default, personal configuration, an explicit pin, or
-a saved preset. Explicitly remembering or pinning the current default also
-establishes durable personal intent. A temporary choice in an Experience Upgrade
+Create a personal Usage when retained configuration or a configured preset needs
+it. Remembering a Visualizer, including an explicit choice or remembered default,
+can create a preference without a Usage. A configured choice may retain both.
+Pins retain their separate authority and are not implied by remembering a choice. A temporary choice in an Experience Upgrade
 Session remains temporary until that session's acceptance boundary.
 
 An uncustomized default is renderable without a personal Usage. Any transient
@@ -1320,11 +1395,190 @@ creating durable Usages to avoid repeated selection. Personal Usages, live
 occurrences, derived binding caches, automatic results, and interaction/learning
 evidence have separate lifecycles and authority.
 
-Usage belongs in the applicable I-Space or We-Space; agent identity is implicit,
-not a caller-supplied matching parameter. It does not modify the shared Visualizer.
+Usage belongs in the applicable I-Space or We-Space. In the personal-space model,
+the persisted personal record explicitly identifies its PersonAgent; runtime Agent
+identity is implicit in the authorized context, not a caller-supplied matching
+parameter. This does not modify the shared Visualizer or settle collective-space
+personalization.
 One Usage may serve many occurrences with independent navigation, focus, edits,
 and expansion state. Required personal configuration is usable before its
 independent background persistence commits.
+
+### PersonAgent Associations for Personal State
+
+PersonAgent realizes DAHN's existing agent-relative personalization abstraction.
+Personal access uses `VisualizerUsage` and the general `VisualizerPreference`
+type through two declared relationship pairs:
+
+| Declared relationship | Cardinality per source record | Derived inverse on PersonAgent | Inverse cardinality per Agent |
+| --- | --- | --- | --- |
+| `VisualizerUsage —UsageForAgent→ PersonAgent` | Exactly one | `HasPersonalVisualizerUsage` | Zero or more |
+| `VisualizerPreference —PreferenceForAgent→ PersonAgent` | Exactly one | `HasPersonalVisualizerPreference` | Zero or more |
+
+The declared occurrence is authored on the personal record. Commit materializes
+the inverse for access from PersonAgent; the inverse collection is not separately
+authored. Both relationship descriptors in each pair belong to DAHN. DAHN declares
+a direct dependency on the Agent Spaces schema. The endpoint is PersonAgent;
+this model introduces no new Agent abstraction, personal container, or
+subordinate-Usage hierarchy. VisualizerPreference is the canonical general
+preference type, not a Value-specific preference or a subtype of the old
+Slot-preference definition.
+
+The new relationship pairs use lineage target binding: personal records identify
+the PersonAgent lineage, and the inverse collections identify personal-record
+lineages. Ordinary successors remain the same personal principal or record;
+multiple versions of one record are not distinct personal choices. Target binding
+does not by itself supply source-version carry-forward, inverse maintenance,
+authorization, or historical immutability. Those remain responsibilities of the
+shared relationship/reference and execution contracts. This model establishes
+no sovereign-style historical immutability rule for personal associations.
+
+These associations identify whose personal state is accessed. `OwnedBy` continues
+to identify the persistent HolonSpace, not PersonAgent. `UsesVisualizer` and
+`ForSubjectType` retain their configuration semantics; `SelectedForSlot` retains
+its Slot association. `PreferenceForSlot` and `PreferenceForSubjectType` express the general
+preference's Slot/subject scope. `PreferredVisualizer` remembers the choice;
+optional `PreferredUsage` supplies configuration. A Usage's existence alone does
+not make it preferred.
+
+A preference and any populated `PreferredUsage` identify the same PersonAgent.
+Rust resolves that Agent from the authorized runtime context and bulk-loads its
+relevant derived personal collections. Indexes, in-flight lookups, personal
+binding overlays, and confirmed absence remain scoped to the Agent and relevant
+authorized context/dependencies. Caller-supplied identifiers confer no access;
+the subject's Home Space does not redirect personal access. Personal identity
+uses persisted references under the shared identity contracts, not display names
+or name-derived keys.
+
+Accepted personal records and their Agent associations use ordinary transaction
+and persistence semantics. Automatic defaults create no personal records or
+associations. An automatic rendering result is not accepted personal intent;
+attaching a record to an Agent cannot by itself establish that intent.
+
+PersonAgent associations alone establish access, not cross-cutting scope.
+The general preference contract below supplies that scope explicitly. Experience
+Upgrade Session interaction and new subordinate-configuration relationships remain
+separate design concerns.
+
+### General VisualizerPreference
+
+`VisualizerPreference.HolonType` is one DAHN personal-choice record for both
+Slot-specific and cross-cutting preferences. It extends the ordinary HolonType
+root; there is no `ValueVisualizerPreference` type. Date is the first supported
+cross-cutting Value case, not a separate preference ontology.
+
+All following declared occurrences originate on VisualizerPreference. DAHN owns
+the paired descriptors and Commit maintains their inverse collections. Every
+inverse permits zero or more preferences and binds preference lineages.
+
+| Declared relationship | Cardinality for an active personal preference | Derived inverse | Declared target binding |
+| --- | --- | --- | --- |
+| `PreferenceForAgent` → PersonAgent | Exactly one | `HasPersonalVisualizerPreference` | Lineage |
+| `PreferenceForSubjectType` → TypeDescriptor | Exactly one | `HasSubjectVisualizerPreference` | Version |
+| `PreferenceForSlot` → VisualizerSlot | Zero or one | `HasScopedVisualizerPreference` | Lineage |
+| `PreferredVisualizer` → Visualizer | Exactly one | `ChosenByVisualizerPreference` | Version |
+| `PreferredUsage` → VisualizerUsage | Zero or one | `PreferredByVisualizerPreference` | Lineage |
+
+Version-bound subject and Visualizer targets identify the schema/Visualizer
+definitions the choice governs; changed versions are not silently substituted.
+Lineage-bound Agent/Slot targets preserve personal identity and Slot scope across
+ordinary successors. An optional Usage follows its configuration lineage subject
+to current validation. Binding does not substitute for shared successor/inverse
+handling, authorization, or applicability checks.
+
+A new-contract record with a deliberately absent Slot is cross-cutting across
+compatible Slots. A populated Slot makes the choice Slot-specific. Complete
+loading and successful validation of the new type distinguish intentional absence
+from incomplete data; a failed/incomplete lookup never broadens scope. Runtime
+identity comes from the authorized PersonAgent/context, not a supplied Agent ID.
+
+`PreferredVisualizer` permits a remembered choice with no Usage creation. When
+`PreferredUsage` is present, it must belong to the same PersonAgent, configure
+that same version-bound Visualizer through `UsesVisualizer`, and cover the
+preference's declared subject scope through `ForSubjectType`. Configuration may
+have broader applicability than the preference, including an ancestor descriptor;
+that does not broaden the preference. Missing configuration, wrong ownership,
+wrong Visualizer, or insufficient configuration scope is an explicit invalid-record
+or loading diagnostic, not a valid cross-cutting absence. Shared descriptor/Commit
+assessment enforces the applicable record invariants; selection must not invent
+an Agent-specific validator or trust malformed saved state.
+
+#### Matching, replacement, and validity
+
+Apply existing personal precedence: explicit current or applicable local choice,
+then cross-cutting personal preference, then compatible developer default, then
+localized discovery when the default contract permits it. Applicable pins retain
+their governing authority.
+
+For a typed Value request, use the property's declared ValueType. Within the
+cross-cutting tier, examine the exact descriptor and then successive supertypes
+along the supported singular Extends lineage, choosing the most specific valid
+preference whose Visualizer is eligible for the actual Slot and context. Do not
+read actual values or branch on populated/unset state. A valid Date interactor
+preference that cannot fulfill a date-range editing contract yields for that Slot;
+continue the supported preference/default/discovery resolution without changing
+the saved preference. This eligibility miss differs from malformed/conflicting
+records, lookup errors, or a matching unusable developer prescription, which retain
+their explicit diagnostics. Do not use storage order to resolve conflicts.
+
+Within the supported personal context, allow one effective remembered preference
+per PersonAgent lineage, subject-descriptor identity, and Slot scope. Cross-cutting
+scope is a distinct no-Slot scope, not a wildcard equal to every concrete Slot.
+Saving a replacement updates the choice at that scope through ordinary versioned
+mutation; it does not accumulate competing preference records. Multiple conflicting
+records at one scope are an explicit diagnostic, not permission to create another.
+
+Bulk-load through the authorized PersonAgent inverse and index by that scope.
+Saving a choice invalidates affected personal indexes, confirmed absence, and
+prepared bindings, including defaults that relied on there being no preference.
+No saved preference activates an inactive Slot or silently replaces a mounted view.
+Consolidated results include effective configuration/defaults and an optional
+Usage reference; preference-only selection must not manufacture a Usage.
+
+#### Previous Slot-preference conversion
+
+VisualizerPreference supersedes the old VisualizerSlotPreference representation
+for new authoring. Do not derive the general type from the old type or weaken
+its inherited ExactlyOne Slot/Usage constraints. Keep old versioned descriptors
+truthful for identifying their records; use a new canonical type and qualified
+relationship descriptors for the general contract. The original Slot-preference
+model does not acquire cross-cutting semantics by omission.
+
+Explicit conversion of a valid previous Slot preference must:
+
+- Validate its original descriptor, exactly one Slot, subject type, and PreferredUsage,
+  and establish its authorized personal context. A supplied identity is not authority.
+- Preserve that exact Slot and subject scope. Derive PreferredVisualizer through
+  PreferredUsage → UsesVisualizer and validate the Usage/Agent/Visualizer/scope
+  consistency required by the new contract. Establish an Agent association only
+  through the authorized conversion, not by adopting every Usage in the Space.
+- Create a new-contract record with that populated Slot and retained optional Usage.
+  The converted preference is always Slot-specific; no migration infers a cross-cutting
+  choice from a missing Slot, an automatic Usage, or SelectedForSlot history.
+- Detect scope conflicts, preserve the original source until conversion completes,
+  and publish only verified converted personal state. Repeating conversion reuses
+  an equivalent already-converted scope or diagnoses a conflict; it does not append
+  duplicates. Invalid or incompletely loaded source records require diagnostics/remediation.
+
+Use the existing explicit schema/data transition and transaction/Commit mechanisms.
+Rejected or Incomplete conversion work remains available for ordinary remediation
+and resubmission; transport success or partial writes are not conversion completion.
+Do not mix old and new records into a permissive optional-Slot reader or present
+unconverted state as confirmed absence. After the explicit transition, ordinary
+Open consumes the canonical records without repeating migration or graph verification.
+No general legacy-deployment framework, new journal, or automatic store reset is
+introduced. Fresh resources use the new contract; supported conversion is bounded
+to retained old Slot-preference records.
+
+#### Date acceptance case
+
+One cross-cutting Date preference can name a Visualizer with no Usage. Two
+compatible compositions honor it using their actual Slot eligibility. Adding an
+optional personal configuration Usage makes both use those settings. A Slot-specific
+override affects only its composition's Slot scope; the other retains the Date
+preference. An incompatible date-range Slot resolves normally without changing the
+saved Date choice. Converting an old valid Slot preference preserves its Slot scope.
+The example requires no new calendar widget or experience-edit session UI.
 
 ### Initial Usage Applicability
 
@@ -1335,7 +1589,7 @@ space identity does not establish authorization.
 
 The intended access path is:
 
-    Agent/context -> personal choices and usages -> applicable binding/configuration
+    Authorized runtime / Focal Space -> PersonAgent -> personal Usages and VisualizerPreferences -> applicable binding/configuration
 
 Rust bulk-loads relevant personal records through authorized agent/context access
 and indexes them. Ownership/access and applicability are separate: the subject's
@@ -1345,10 +1599,11 @@ relationships at every subject ancestor for every rendered slot.
 
 A Usage identifies its Visualizer and configuration's subject-descriptor scope;
 `SelectedForSlot` / `HasSelectedUsage` express established Slot-use associations.
-They do not by themselves define the agent/context access relationship or all
-preference scopes. Exact access relationships, scope representation, and index
-keys remain open schema work; this required direct access behavior does not
-invent finalized relationship names.
+They do not by themselves define personal access or all preference scopes. The
+PersonAgent association pairs above establish personal access for the existing
+Usage and general-preference types. The general preference contract above
+resolves Slot-specific versus cross-cutting choice scope; broader configuration
+hierarchies and internal index layout remain separate concerns.
 
 Match configuration against the actual subject's lineage, bounded by the selected
 Visualizer's relevant direct applicability declaration. More specific existing
@@ -1373,29 +1628,31 @@ cross-context registry of pending creations or automatic duplicate repair.
 
 ### Slot Choice and Usage Selection
 
-Ordinary rendering resolves personal intent under §14.5.2's precedence before
-discovering the broader Visualizer candidate population. Applicable Usages
-associated with the actual Slot are one source of established choices, not the
-exclusive personalization boundary. The existing
-`SelectedForSlot` / `HasSelectedUsage` relationship pair provides the semantic
-association. Rust validates the actual owner/Slot membership and agent context,
+Ordinary rendering resolves explicit personal intent through the general
+VisualizerPreference contract and §14.5.2 precedence before discovering the broader
+candidate population. `SelectedForSlot` / `HasSelectedUsage` retain established
+Usage associations, but history alone neither creates a remembered preference nor
+outranks one. A governing preference's optional PreferredUsage identifies its
+configuration. With no Usage reference, realize the selected Visualizer's effective
+default configuration; do not invent a Usage or adopt an unrelated historical
+configuration merely because it was used in the Slot. Rust validates the actual owner/Slot membership and agent context,
 subject applicability, accepted Visualizer types, required/offered Operators,
 Theme, declared runtime compatibility, and authorization for reuse. An association never
 waives current eligibility.
 
-| Applicable, eligible Slot Usages within the governing precedence tier | Ordinary resolution |
+| Governing preference/configuration state | Ordinary resolution |
 | --- | --- |
-| None | Apply cross-cutting preferences and compatible service-prepared defaults before localized discovery; default rendering requires no personal Usage. |
-| One | Reuse its Visualizer and configuration without reconstructing the broader candidate population. |
-| More than one | Apply the authoritative selection policy within those Usages and their Visualizers only; do not discover previously unused Visualizers to break the tie. |
+| No governing local preference | Apply the most specific eligible cross-cutting preference, then the developer default/discovery contract as appropriate. |
+| Valid preference, no PreferredUsage | Reuse PreferredVisualizer with effective default configuration; no Usage is required. |
+| Valid preference with PreferredUsage | Reuse the validated Visualizer/configuration without reconstructing the candidate population. |
+| Conflicting remembered choices at the same scope or inconsistent configuration | Diagnose explicitly; no storage-order choice, invented record, or broad discovery to conceal the conflict. |
 
 A set of raw associations whose members are all inapplicable or ineligible is a
 miss after validation; lookup or evaluation failures are errors, not misses.
-Multiple Usages do not by themselves authorize another creation. Selection among
-distinct Visualizers remains separate from ambiguity among configurations of one
-Visualizer. Existing explicit configuration-ambiguity rules continue to apply;
-this contract does not invent arbitrary ordering, random configuration choice,
-or a new ranking algorithm. Explicit exploration can broaden discovery under
+Multiple Usages do not by themselves authorize another creation. General
+preference scope uniqueness governs remembered choice, separately from any
+configuration ambiguity among retained Usages. No arbitrary ordering, random
+configuration choice, or new ranking algorithm is introduced. Explicit exploration can broaden discovery under
 the experience-design contract rather than during routine reuse.
 
 The agent/context index bulk-loads relevant Usages and supports cross-cutting
@@ -2282,6 +2539,123 @@ directly without enumerating alternatives. When discovery is necessary,
 sole-candidate selection and explicit ambiguity under §14.4 remain valid;
 storage order and hard-coded concrete fallbacks are not policy.
 
+### Developer-Prescribed Slot Defaults
+
+The steward of a VisualizerSlot may recommend concrete child Visualizers through
+`VisualizerSlotDefault` declaration records. A declaration recommends a candidate;
+shared Rust resolves the actual binding. It neither activates the Slot nor narrows
+its contract to that candidate, and independently contributed eligible alternatives
+remain available through the ordinary choice/discovery contract.
+
+#### Declaration model
+
+`VisualizerSlotDefault.HolonType` is a DAHN declaration-record type. DAHN owns
+both sides of each following relationship pair. Declared occurrences are authored
+on the default record; Commit materializes the inverse occurrences. The Slot's
+`HasDefaultDeclaration` collection is therefore its steward-authored default
+vocabulary, not a separately authored inverse map.
+
+| Declared relationship | Cardinality per declaration | Derived inverse | Inverse cardinality per target | Declared target binding |
+| --- | --- | --- | --- | --- |
+| `VisualizerSlotDefault —DefaultForSlot→ VisualizerSlot` | Exactly one | `HasDefaultDeclaration` | Zero or more | Lineage |
+| `VisualizerSlotDefault —RecommendsVisualizer→ Visualizer` | Exactly one | `RecommendedBySlotDefault` | Zero or more | Version |
+| `VisualizerSlotDefault —DefaultForSubjectType→ TypeDescriptor` | Zero or one | `HasConditionalSlotDefault` | Zero or more | Version |
+
+Inverse targets identify declaration lineages. Binding the owning Slot by lineage
+keeps a declaration attached to that Slot across ordinary version evolution; a
+replacement Slot lineage is a different owner. The recommended Visualizer and
+optional condition identify explicit versioned definitions. A new definition
+version is not silently substituted for either target. Updated declarations and
+relevant dependency changes refresh the affected prepared products. Binding
+requires the shared source-version/inverse behavior; these declarations do not
+introduce a separate version-adoption mechanism.
+
+For each Slot's effective current declaration collection, permit at most one
+declaration for each subject-type condition and at most one unconditional general
+default. Absence of `DefaultForSubjectType` denotes that general default. Compare
+conditions using the existing descriptor definition identity for the bound schema,
+not display names or storage order. Multiple versions of one declaration are not
+independent defaults; unresolved competing versions or duplicate conditions are
+explicit diagnostics. Cardinality alone does not enforce uniqueness across records.
+No `MatchDescriptor`, condition-expression language, or general decision-rule engine
+is introduced.
+
+#### Subject matching and precedence
+
+The Slot's subject-binding operation supplies the descriptor used for matching.
+A typed Value Slot uses the property's declared ValueType, including when its
+value is unset. Default resolution does not retrieve actual values or use value
+contents/populated state as conditions.
+
+Personal precedence applies first: explicit current or applicable local choice,
+then an applicable cross-cutting personal preference under its own contract,
+with existing pin and eligibility rules. The default tier is reached only when
+no governing personal choice resolves the request. Declaring defaults does not
+require implementation of a broader personal preference representation.
+
+At the default tier, consider declarations in this order:
+
+1. The exact supplied subject descriptor.
+2. Its nearest matching ancestor, walking the supported singular `Extends` lineage
+   to its root. This is the subject/ValueType lineage, not the owning Visualizer's
+   type lineage or the lineage of its Slot contract. Do not truncate it at a
+   recommendation's `ApplicableToType` boundary: recommendation matching precedes
+   that candidate's eligibility assessment.
+3. The Slot's general default, only if no conditional declaration matched.
+
+Only declarations belonging to the actual effective Slot participate; this
+contract adds no independent inheritance of defaults through parent compositions.
+Cycles, unsupported multiple-parent ancestry, and duplicate/conflicting declarations
+at the selected specificity are errors, not arbitrary tie-break opportunities.
+
+A condition answers when to consider a recommendation. Its target is an existing
+TypeDescriptor; it does not establish Visualizer applicability. Validate the
+recommended Visualizer against the actual request's subject applicability,
+`AcceptsVisualizerType`, required/offered Operators, Theme/MDS, declared runtime
+compatibility, and authorization. A general default is unconditional only as a
+recommendation and still requires all eligibility checks. A valid recommendation
+resolves directly without enumerating other candidates, even if broad discovery
+would find several alternatives. Local artifact presence, validation/loaded status,
+and loadability do not participate in semantic selection.
+
+#### Miss, unusable recommendation, and realization
+
+No matching conditional declaration and no general default is a declaration miss;
+continue to ordinary localized discovery/selection. A matching declaration whose
+recommended Visualizer fails eligibility is an unusable-default diagnostic,
+identifying the Slot, declaration, recommendation, matched condition/general tier,
+and failed eligibility requirement. Lookup/evaluation failures remain errors,
+not declaration misses.
+
+An unusable recommendation stops the current binding-resolution attempt. Do not
+try a farther ancestor, the general default, or broad discovery as silent recovery.
+There is no automatic recovery or candidate-exclusion/retry protocol in this
+bounded contract. Corrected declarations or changed authoritative inputs may be
+resolved by a later request; broader recovery interaction is a separate contract.
+Host materialization/loading failures remain subsequent realization failures and
+do not relabel an eligible recommendation as absent.
+
+#### Preparation and example
+
+Prepare shared declaration indexes, compatibility metadata, or bindings before a
+personal visit when the relevant Slot/default/Visualizer/schema dependencies are
+available. Reuse them only while their dependency and request-context evidence
+remains valid. A default record requires no personal Usage or preference. Preparation
+neither activates a child, loads its subject population/data, materializes its
+executable, nor creates a durable Usage. Activation remains a separate contract.
+
+For example, a PropertyMap Value Slot can declare Calendar Interactor for the
+`Date` ValueType and Generic Value Visualizer as its general default:
+
+- An eligible Date recommendation resolves directly without broad discovery.
+- An unset Date uses the same conditional recommendation as a populated Date when
+  the other selection inputs agree.
+- A governing eligible personal Date choice takes precedence.
+- A non-Date subject with no conditional match may use the eligible general default.
+- An ineligible Calendar Interactor produces an unusable Date recommendation;
+  it does not fall through to Generic Value Visualizer or discovery.
+- Neither default creates durable personal state merely by rendering.
+
 ### 14.5.2 Reuse and personal preference
 
 After validating eligibility for the actual request, ordinary resolution uses:
@@ -2289,7 +2663,9 @@ After validating eligibility for the actual request, ordinary resolution uses:
 1. An explicit current choice or applicable occurrence/composition-specific personal choice.
 2. An applicable cross-cutting personal preference.
 3. A compatible service-prepared default binding.
-4. Localized discovery and selection when no usable established choice exists.
+4. Localized discovery and selection when no usable established choice exists
+   and the default tier has no matching declaration. A matching unusable
+   recommendation fails as specified in [developer defaults](#developer-prescribed-slot-defaults).
 
 Within the applicable precedence tier, use §11.1's associated Usage population
 rule: a usable personal choice avoids broad discovery; multiple usable associated
@@ -2316,9 +2692,9 @@ slot and candidate eligibility. Visualizer choice and configuration resolution
 remain distinct: §11.1 resolves configuration actual-type first and shares an
 ancestor-bound Usage until a more specific configuration or explicit selection
 applies. Sharing configuration must not widen a subtype-specific preference.
-Preference representation and adaptive scoring remain separate schema concerns;
-prepared default reuse does not depend on candidate profiles, collective voting,
-or a complete adaptive-control system. Different agent policies need not select
+The general preference contract in §11.1 supplies the supported representation;
+adaptive scoring remains separate. Prepared default reuse does not depend on
+candidate profiles, collective voting, or a complete adaptive-control system. Different agent policies need not select
 a universal collective winner.
 
 ### 14.5.3 Matching context and state ownership
@@ -2377,8 +2753,54 @@ artifact verification, materialization, and runtime admission remain. A consolid
 resolution boundary must supply sufficient authorized binding/configuration
 metadata for useful consumption through the existing reference/SDK architecture,
 or explicitly identify remaining reads. Returning references alone and repeating
-all metadata reads on the host does not demonstrate improvement. The exact
-consolidated result representation remains design work, not a new transfer format.
+all metadata reads on the host does not demonstrate improvement.
+
+#### Consolidated child-binding result
+
+For each child requested by the selected owner, return a usable semantic binding:
+
+| Result content | Required meaning |
+| --- | --- |
+| Owner and Slot identities | The actual authorized composition owner and requested Slot, preserving request correlation. |
+| Actual subject binding | The resolved operation and its semantic input/source: bound subject, relevant property descriptor, affordance/target, or collection source as applicable. An identity for subject content does not require fetching that content during selection. |
+| Selected Visualizer version | The specific selected semantic definition, not a key/name for the host to rediscover. |
+| Effective contract and implementation metadata | The selected binding's effective participation and declared runtime/implementation information needed for host realization, without repeating the selection-time semantic read cascade or consulting host readiness during selection. |
+| Effective configuration and optional Usage | The authorized effective configuration needed by realization, whether from a personal Usage or defaults. The Usage reference is optional; its absence does not mean missing configuration and does not require creating a transient or durable Usage as a substitute. |
+| Choice reason | A small explanation such as personal preference, prescribed default, or discovery; identify the governing record/declaration when applicable without returning a complete search trace. |
+
+Share repeated descriptor, contract, implementation, and configuration metadata
+across the result rather than duplicating it per occurrence. Preserve independent
+occurrence state. The encoding uses the existing Commands/SDK projection boundary;
+bound runtime handles are not serialized. Exact batching/table layout is an
+implementation choice, not a new semantic model or global Canvas mount plan.
+No child binding is returned merely because an inactive Slot exists.
+
+The host still reads uncached subject content and executable bytes as needed,
+verifies the artifact, and admits the callable implementation. These are realization
+responsibilities, not reasons to repeat selection or semantic metadata discovery.
+A verification, materialization/loading, or callable-admission failure is reported
+and stops that realization attempt. This bounded contract introduces no local
+fallback selector, candidate-exclusion mechanism, or automatic retry cycle.
+
+#### Dependency validity and confirmed absence
+
+Reuse follows revisions or equivalent validity evidence for what governed the
+answer: effective owner/Slot declarations and defaults, relevant subject descriptors
+and ancestry, governing candidate and implementation declarations, Theme/runtime
+context, authorization, and the PersonAgent's applicable preference/configuration
+state. A reason based on discovery also carries the relevant candidate-population
+evidence. Do not require enumeration of unrelated candidates merely to validate a
+prescribed default or personal choice.
+
+Confirmed absence is itself a dependency. A result using a default because no
+applicable personal preference existed must carry the relevant PersonAgent/context
+absence evidence. Saving the first applicable preference invalidates that answer
+for subsequent resolution. Similarly, a general default's reuse must account for
+changes to conditional declarations that could govern it. Failed/incomplete
+lookups never establish absence. Invalidate affected bindings and absence entries
+without recreating the per-child read cascade. Invalidation does not silently
+replace an already mounted valid experience; existing replacement/publication
+contracts still govern active views.
 
 Preparation carries dependency versions or equivalent validity evidence for
 contracts, subject applicability and Type ancestry, Visualizers, implementations,
@@ -3900,8 +4322,9 @@ Runtime collaboration separates these responsibilities:
 5. Each selected child directs its own composition in turn.
 
 Owners do not reimplement shared resolution policy. Resolution does not construct
-executable UI or return a global Canvas mount plan. Precise activation and subject-expansion semantics
-remain open as specified in §14.5.1.
+executable UI or return a global Canvas mount plan. The bounded activation and subject-binding
+contract is specified in §11's declarative composition demand; richer expressions
+and personal activation policy remain separate work.
 
 ---
 
@@ -4151,11 +4574,18 @@ introduced progressively without replacing typed request and eligibility
 contracts. Implementation plans record delivered capabilities and deferred
 steps; they must not present future learning or persistence as existing behavior.
 
-Open representation questions include precise activation and subject-expansion semantics,
-agent/context access relationships, composition-subordinate configuration,
-precise applicability/index scope keys, and migration of existing Usage records.
-Their required behavior is specified above; this document does not finalize
-those schemas or claim runtime delivery.
+The minimum personal access pairs in §11.1 are settled. Open representation
+questions include precise internal applicability/index scope keys and encoding of
+the settled semantic products. The developer-default contract, bounded activation/
+subject-binding enums and inputs, initial-collection semantics, and consolidated
+binding contents/validity are settled above. Their descriptor and transport encoding
+must preserve those contracts without adding a general query or activation-policy
+engine. The general VisualizerPreference contract now resolves cross-cutting
+choice representation and bounded previous-record conversion. PersonAgent access
+alone does not supply those semantics; the explicit preference scope does. Broader cross-cutting
+preferences, composition-subordinate configuration relationships, and the full
+Experience Upgrade Session interaction remain separate design concerns. Required
+behavior is specified above; approved relationship design is not runtime delivery.
 
 Open adaptive design questions include richer context matching beyond §11.1, explicit-choice
 and pin scope, inherited-policy conflict handling, passive-default evidence,

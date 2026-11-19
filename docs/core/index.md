@@ -48,3 +48,11 @@ A slot owner defines its contract and subject binding; the selected Visualizer
 owns its internal experience. Kind contracts and concrete designs have separate
 authority. The example Space Navigator → Path Inspector → Holon Inspector →
 Table composition is substitutable, not a mandatory DAHN hierarchy.
+
+## Client Security
+
+The [MAP Client Security specification](security/map-client-security-design-spec.md)
+owns shared client authentication, authorization, credentials and trusted enforcement.
+Its [implementation plan](security/map-client-security-impl-plan.md) separates the
+minimum initial local capability from later security work. Agent Spaces consumes
+these contracts while owning sovereign lifecycle behavior.

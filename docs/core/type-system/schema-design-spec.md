@@ -849,6 +849,16 @@ the lineage lookup mappings maintained by a lineage-bound relationship.
 - **Key comparison and shape.** Compare exactly, without normalization or case folding. Keyed
   results must be nonempty, NUL-free, and within the existing `MAX_CANONICAL_KEY_BYTES` limit.
   Do not duplicate or change that limit.
+- **Property requiredness and key inputs.** Referencing a property in a key rule MUST NOT require
+  its descriptor to declare `IsValueRequired true`, and MUST NOT change that property's
+  requiredness. Property conformance and composition-input requirements are separate contracts.
+  The selected key rule's declared semantics determine whether an absent input prevents
+  composition or has an explicitly defined representation. Merely referencing an optional
+  property does not automatically permit omission. Rendering an absent optional input MUST NOT
+  populate or default the subject property, and does not excuse a missing required property.
+  For example, the approved [PersonAgent name/key contract](../agent-spaces/agent-spaces-design-spec.md#222-approved-personagent-name-and-key-contract)
+  currently selects NoneRule and requires no name rendering. General-purpose positional
+  rendering and absence policies remain part of the shared FormatRule design tracked in [map-dev-docs #87](https://github.com/memetic-activation-platform/map-dev-docs/issues/87).
 - **Template spelling.** Use `{0}`, `{1}`, … with `{{` / `}}` for literal braces. The `$0`
   spelling is not accepted. Parameter rendering has a specified canonical representation, not a
   generic `Display` implementation.
