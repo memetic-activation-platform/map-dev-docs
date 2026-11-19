@@ -339,6 +339,20 @@ AllOf(
 )
 ```
 
+A bounded range is a composition of ordered comparisons, not a range operator:
+
+```text
+AllOf(
+  GreaterThanOrEqual(PageCount, 100),
+  LessThan(PageCount, 200)
+)
+```
+
+Each end is an ordinary comparison leaf, so the operator chosen for that end
+determines whether it is inclusive, and either end may be omitted. No
+cross-operand rule applies. A range whose bounds are reversed is a valid
+predicate that no value satisfies.
+
 Composition scope is explicit regardless of the author's presentation. Predicate
 child relationships are not `Next`; `Next` remains collection-expression
 continuation. A composite child must be a `QueryPredicate` or a subtype. Cycle
@@ -363,8 +377,8 @@ Operators belong to ValueTypes. Predicate execution and authoring reuse
 introduce a filtering-specific operator registry or comparison implementation.
 
 Execution arity and authored operand count are different. Equals has two input
-values but one authored operand when the property supplies its subject;
-Between has a subject plus two authored bounds. An authorable operator exposes
+values but one authored operand when the property supplies its subject. An
+authorable operator exposes
 an ordered set of operand specifications, each identifying its semantic role,
 required ValueType, and human-facing label where needed. The contract must
 resolve those ValueTypes for the selected subject ValueType; inherited generic
@@ -387,13 +401,15 @@ Specifications are ordered by relationship position, not a second index property
 For a fixed-arity operator, specification count equals Arity minus one; unary
 operators therefore permit zero specifications.
 
-Equals and LessThan each declare one SameAsSubject specification with role
-ComparisonValue. Contains declares one FixedValueType specification with role
-Substring, label Substring, and OperandValueType pointing to
-MapStringValueType.StringValueType. Its subject is an eligible MapStringValueType
-or descendant, but its substring need not satisfy the subject's specialized
-constraints. Each literal still satisfies its own declared type and the required
-operand type. Core metadata has no dependency on Query's LiteralOperand type.
+Equals and each ordered comparison (LessThan, GreaterThan, LessThanOrEqual,
+GreaterThanOrEqual) declare one SameAsSubject specification with role
+ComparisonValue. Contains, StartsWith, and EndsWith each declare one
+FixedValueType specification, with role and label Substring, Prefix, and Suffix
+respectively, and OperandValueType pointing to MapStringValueType.StringValueType.
+Their subject is an eligible MapStringValueType or descendant, but the authored
+text need not satisfy the subject's specialized constraints. Each literal still
+satisfies its own declared type and the required operand type. Core metadata has
+no dependency on Query's LiteralOperand type.
 
 Arity and OperatorCategory alone do not fulfill this contract. Operator categories
 remain extensible beyond equality and ordering.
@@ -445,7 +461,7 @@ or locale tailoring; matching-operator policy does not change equality.
 
 #### String matching operators
 
-The string ValueType family affords three distinct matching operators through
+The string ValueType family affords these distinct matching operators through
 the ordinary inherited `AffordsOperator` relationship. Each has a string subject,
 exactly one authored scalar string operand, and a Boolean result. They belong
 to the `Matching` operator category, distinct from Equality and Ordering:
@@ -453,10 +469,16 @@ to the `Matching` operator category, distinct from Equality and Ordering:
 | Operator | Authored operand | Meaning |
 | --- | --- | --- |
 | `Contains` | Literal text | The subject contains the supplied text as a literal substring. Pattern metacharacters have no special meaning. |
+| `StartsWith` | Literal text | The subject begins with the supplied text, compared literally. |
+| `EndsWith` | Literal text | The subject ends with the supplied text, compared literally. |
 | `Like` | Wildcard pattern | The subject matches a wildcard pattern under the operator's declared wildcard and escaping rules. This is not regex syntax. |
 | `MatchesRegex` | Regular expression | The subject matches a regular expression under the operator's declared regex dialect, flags, and match-scope rules. |
 
-These are distinct string-family affordances. The detailed pattern contracts
+These are distinct string-family affordances. Contains, StartsWith, and EndsWith
+are the literal matching operators; they differ only in where the literal must
+occur. StartsWith and EndsWith are string-value operators, unrelated to the
+storage layer's canonical-key prefix selection, and share none of its encoding
+or empty-prefix rules. The detailed pattern contracts
 remain open design decisions: Like requires a wildcard alphabet, escaping,
 and whole-value versus partial-match rules; MatchesRegex requires a dialect,
 flags, match scope, and invalid-pattern/resource-limit error behavior. No
@@ -470,26 +492,39 @@ or MatchesRegex execution fails explicitly rather than falling back to Contains.
 
 CaseMatching is Core-owned operator metadata with enum values CaseSensitive and
 UnicodeDefaultCaseFold. It is not category metadata, a Predicate property, a
-Search parameter, or a change to Equals/LessThan. The Contains descriptor declares
-UnicodeDefaultCaseFold as its default effective mode. A separately afforded
-operator descriptor using the supported Contains ancestor contract may declare
-CaseSensitive. Resolve the effective policy through shared descriptor facilities;
-missing, ambiguous, unknown, or unsupported effective modes are explicit errors.
+Search parameter, or a change to Equals or the ordered comparisons. The canonical
+Contains, StartsWith, and EndsWith descriptors each declare UnicodeDefaultCaseFold
+as their default effective mode. A separately afforded operator descriptor
+extending one of them may declare CaseSensitive, and otherwise inherits its
+ancestor's mode. Resolve the effective policy through shared descriptor
+facilities; missing, ambiguous, unknown, or unsupported effective modes are
+explicit errors.
 
-CaseSensitive performs literal substring matching on the original scalar sequence.
-UnicodeDefaultCaseFold applies Unicode 17.0.0 full default case folding to both
-complete strings, then performs literal substring matching on the folded strings.
+CaseSensitive performs the operator's literal match (substring, prefix, or
+suffix) on the original scalar sequences. Under UnicodeDefaultCaseFold:
+
+1. Both the complete subject and the complete literal undergo Unicode 17.0.0 full
+   default case folding before any matching.
+2. The operator's literal match is performed on the folded scalar sequences,
+   never on the original strings.
+3. A match is not constrained to original grapheme or character boundaries. One
+   original character can fold to several scalars, and a match may cover part
+   or all of that expansion, at either boundary.
+4. Contains, StartsWith, and EndsWith share these folding semantics and one
+   implementation; they differ only in where the folded literal must occur.
+5. The folding data is pinned to the identified Unicode version below.
+
 Use the C and F mappings in that version's CaseFolding.txt; do not use simple-only
 S mappings or Turkic T tailoring. Code points without a mapping remain unchanged.
 Do not normalize, strip accents, apply locale/browser rules, or perform wildcard
 or regex interpretation. Folding does not mutate stored strings or authored values.
 
-Matching is defined over the folded scalar sequences, including expansions; it
-is not constrained to original grapheme or character boundaries. For example,
-Straße matches STRASSE, and a substring s also matches the folded ss contributed
-by ß. Greek final sigma and ordinary sigma fold alike. Composed and decomposed
-accented spellings are not guaranteed to match; canonical equivalence is not part
-of this contract. Empty literals retain the substring semantics below.
+For example, Straße contains STRASSE. Because ß folds to ss, the literals `s` and
+`ss` each satisfy StartsWith on ßeta and EndsWith on Fuß, and a substring `s`
+matches within Straße. Greek final sigma and ordinary sigma fold alike.
+Composed and decomposed accented spellings are not guaranteed to match;
+canonical equivalence is not part of this contract. Empty literals retain the
+literal semantics below.
 
 The Unicode version is part of the matching contract, not an implicit property of
 the compiler or selected dependency. Implementations must use those exact tables
@@ -499,8 +534,9 @@ Dependency selection must preserve this policy rather than silently substituting
 std lowercasing or another Unicode release. Like and MatchesRegex must separately
 define interaction with this policy; do not lowercase their patterns implicitly.
 
-An explicitly authored Contains with an empty literal follows substring semantics
-and matches every present valid string. It remains a predicate application.
+An explicitly authored Contains, StartsWith, or EndsWith with an empty literal
+follows its literal semantics and matches every present valid string, including
+the empty string. It remains a predicate application.
 A consumer wishing to express no filtering omits its predicate/filter instead.
 
 ### Shared validation and evaluation
