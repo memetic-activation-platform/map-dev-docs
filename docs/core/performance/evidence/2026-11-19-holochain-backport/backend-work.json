@@ -1,0 +1,346 @@
+{
+  "operation_counts": [
+    {
+      "name": "query_relationships",
+      "baseline": 169,
+      "current": 401,
+      "delta": 232
+    },
+    {
+      "name": "get_holon_by_id",
+      "baseline": 66,
+      "current": 132,
+      "delta": 66
+    },
+    {
+      "name": "fetch_all_related_holons",
+      "baseline": 0,
+      "current": 7,
+      "delta": 7
+    },
+    {
+      "name": "resolve_visualizer_usage",
+      "baseline": 11,
+      "current": 11,
+      "delta": 0
+    },
+    {
+      "name": "get_holons_by_ids",
+      "baseline": 2,
+      "current": 1,
+      "delta": -1
+    },
+    {
+      "name": "get_saved_holon_by_key",
+      "baseline": 41,
+      "current": 37,
+      "delta": -4
+    },
+    {
+      "name": "canonical",
+      "baseline": 10,
+      "current": 3,
+      "delta": -7
+    }
+  ],
+  "relationship_counts": [
+    {
+      "name": "Extends",
+      "baseline": 25,
+      "current": 93,
+      "delta": 68
+    },
+    {
+      "name": "UsesVisualizer",
+      "baseline": 0,
+      "current": 40,
+      "delta": 40
+    },
+    {
+      "name": "ForSubjectType",
+      "baseline": 0,
+      "current": 40,
+      "delta": 40
+    },
+    {
+      "name": "SelectedForSlot",
+      "baseline": 0,
+      "current": 34,
+      "delta": 34
+    },
+    {
+      "name": "SourceOf",
+      "baseline": 0,
+      "current": 21,
+      "delta": 21
+    },
+    {
+      "name": "ApplicableToType",
+      "baseline": 0,
+      "current": 20,
+      "delta": 20
+    },
+    {
+      "name": "AffordsDance",
+      "baseline": 7,
+      "current": 16,
+      "delta": 9
+    },
+    {
+      "name": "DescribedBy",
+      "baseline": 3,
+      "current": 11,
+      "delta": 8
+    },
+    {
+      "name": "InstanceRelationships",
+      "baseline": 0,
+      "current": 3,
+      "delta": 3
+    },
+    {
+      "name": "InstanceProperties",
+      "baseline": 8,
+      "current": 9,
+      "delta": 1
+    },
+    {
+      "name": "ConsumesDesignToken",
+      "baseline": 8,
+      "current": 8,
+      "delta": 0
+    },
+    {
+      "name": "HasSlot",
+      "baseline": 6,
+      "current": 6,
+      "delta": 0
+    },
+    {
+      "name": "PresentationOperator",
+      "baseline": 4,
+      "current": 4,
+      "delta": 0
+    },
+    {
+      "name": "ForMetaDesignSystem",
+      "baseline": 10,
+      "current": 10,
+      "delta": 0
+    },
+    {
+      "name": "HasSelectedUsage",
+      "baseline": 12,
+      "current": 12,
+      "delta": 0
+    },
+    {
+      "name": "ImplementedBy",
+      "baseline": 16,
+      "current": 16,
+      "delta": 0
+    },
+    {
+      "name": "AcceptsVisualizerType",
+      "baseline": 6,
+      "current": 6,
+      "delta": 0
+    },
+    {
+      "name": "OffersTheme",
+      "baseline": 1,
+      "current": 1,
+      "delta": 0
+    },
+    {
+      "name": "AdditionalNodeActions",
+      "baseline": 1,
+      "current": 1,
+      "delta": 0
+    },
+    {
+      "name": "RequestType",
+      "baseline": 1,
+      "current": 1,
+      "delta": 0
+    },
+    {
+      "name": "HasExperienceVisualizerSlot",
+      "baseline": 3,
+      "current": 3,
+      "delta": 0
+    },
+    {
+      "name": "ResponseBody",
+      "baseline": 1,
+      "current": 1,
+      "delta": 0
+    },
+    {
+      "name": "RequiresOperator",
+      "baseline": 11,
+      "current": 11,
+      "delta": 0
+    },
+    {
+      "name": "InputType",
+      "baseline": 4,
+      "current": 4,
+      "delta": 0
+    },
+    {
+      "name": "OfferedByHolonSpace",
+      "baseline": 1,
+      "current": 1,
+      "delta": 0
+    },
+    {
+      "name": "UsesNodeActionsContract",
+      "baseline": 1,
+      "current": 1,
+      "delta": 0
+    },
+    {
+      "name": "StandardNodeActions",
+      "baseline": 1,
+      "current": 1,
+      "delta": 0
+    },
+    {
+      "name": "DefinesDesignToken",
+      "baseline": 8,
+      "current": 8,
+      "delta": 0
+    },
+    {
+      "name": "Response",
+      "baseline": 1,
+      "current": 1,
+      "delta": 0
+    },
+    {
+      "name": "OffersOperator",
+      "baseline": 9,
+      "current": 9,
+      "delta": 0
+    },
+    {
+      "name": "ValueType",
+      "baseline": 4,
+      "current": 4,
+      "delta": 0
+    },
+    {
+      "name": "ResultType",
+      "baseline": 4,
+      "current": 4,
+      "delta": 0
+    },
+    {
+      "name": "TargetType",
+      "baseline": 1,
+      "current": 0,
+      "delta": -1
+    },
+    {
+      "name": "HasImplementation",
+      "baseline": 3,
+      "current": 1,
+      "delta": -2
+    },
+    {
+      "name": "HasApplicableVisualizer",
+      "baseline": 9,
+      "current": 0,
+      "delta": -9
+    }
+  ],
+  "relationship_commands": [
+    {
+      "name": "select_visualizer",
+      "baseline": 80,
+      "current": 215,
+      "delta": 135
+    },
+    {
+      "name": "select_visualizer_usage",
+      "baseline": 22,
+      "current": 94,
+      "delta": 72
+    },
+    {
+      "name": "unattributed",
+      "baseline": 0,
+      "current": 14,
+      "delta": 14
+    },
+    {
+      "name": "dance_v2",
+      "baseline": 34,
+      "current": 41,
+      "delta": 7
+    },
+    {
+      "name": "get_effective_descriptor",
+      "baseline": 0,
+      "current": 4,
+      "delta": 4
+    },
+    {
+      "name": "get_available_relationships_from_effective",
+      "baseline": 1,
+      "current": 1,
+      "delta": 0
+    },
+    {
+      "name": "get_property_is_array",
+      "baseline": 5,
+      "current": 5,
+      "delta": 0
+    },
+    {
+      "name": "get_related_holons",
+      "baseline": 20,
+      "current": 20,
+      "delta": 0
+    },
+    {
+      "name": "holon_write",
+      "baseline": 7,
+      "current": 7,
+      "delta": 0
+    }
+  ],
+  "exact_holon_phase_counts": [
+    {
+      "name": "clone_saved_usage",
+      "baseline": 0,
+      "current": 74,
+      "delta": 74
+    },
+    {
+      "name": "unattributed",
+      "baseline": 45,
+      "current": 58,
+      "delta": 13
+    },
+    {
+      "name": "resolve_saved_inputs",
+      "baseline": 3,
+      "current": 0,
+      "delta": -3
+    },
+    {
+      "name": "initialize_defaults",
+      "baseline": 18,
+      "current": 0,
+      "delta": -18
+    }
+  ],
+  "current_usage_resolution": {
+    "cloned_saved": 7,
+    "reused_transient": 7,
+    "initialized_new": 0
+  },
+  "interpretation": "Strong evidence for a different persisted-Usage/data-state path, plus intervening policy changes. The unrecorded subject IDs and absence of a paired current-code store control prevent exact causal allocation of every extra read."
+}
