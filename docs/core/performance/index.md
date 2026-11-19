@@ -12,7 +12,7 @@ replace the owning design specifications. See the
 |---|---|---|
 | [Application startup and Canvas](startup-and-canvas.md) | Regression and recovery observed | Nov 19 retained-store capture: Canvas 18.790 s and first/repeat navigation 3.721/0.274 s; faster than Nov 4 with more backend calls and non-matched conditions |
 | [Caching lessons](caching.md) | Implemented policies and future options | Cache lifetime and descriptor lookup cost differ fundamentally between host and guest |
-| [Core Schema load](schema-load.md) | Open; September and November 2026 captures | November: 3.45 s MAP validation and 146.37 s after coordinator return for a larger 1,162-candidate bootstrap; no matched change attribution |
+| [Core Schema loading](schema-load.md) | Fresh Welcome measured November 19 | Load command 81.852 s versus latest UI baseline 79.629 s; approximately 1.5% more holons/links, with 35.116 s still between loader completion and host round-trip report |
 | [Commit performance: Issue 816](issue-816-findings.md) | Bounded experiments; generalization remains open | VisualizerUsage Commit fell from 13.85 s to 4.33 s by narrowing validation preparation; membership caching works within a call |
 | [Holochain invocation overhead and link reads](holochain-link-read-findings.md) | Matched 0.6.3/0.7.1 experiments, October 21, 2026 | Authenticated relationship calls rose from 53.8 ms to 188.0 ms despite much faster HDK link retrieval; added time lies outside the measured MAP adapter interval |
 

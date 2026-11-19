@@ -186,3 +186,11 @@ specified; the run occurred on November 19 in America/Denver.
 | [publication-warning-bursts.json](publication-warning-bursts.json) | Fixed-snapshot warning counts, timestamps and repeated location-set checks |
 | [selected-backend-markers.txt](selected-backend-markers.txt) | Launch/filter and first/last warning markers per burst |
 | [provenance.json](provenance.json) | Observed settings, input hashes and raw-log retention limits |
+
+## Subsequent fresh Welcome capture
+
+The separate [fresh Welcome run](../2026-11-19-fresh-welcome/README.md) measures
+Core Schema provisioning: 81.852 s with 1,180 holons, approximately unchanged
+against the historical matching command timer. A 35.116 s interval remains
+after loader completion before the host round-trip report. This cold-store
+measurement complements the retained-store startup/navigation results above.
