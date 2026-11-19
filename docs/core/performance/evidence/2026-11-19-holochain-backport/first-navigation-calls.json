@@ -1,0 +1,3928 @@
+[
+  {
+    "t": "2026-11-19T12:53:54.228871Z",
+    "op": "query_relationships",
+    "ms": 15.708375,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForMetaDesignSystem",
+      "in map_profile::relationship_read with relationship: ForMetaDesignSystem",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 555"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:54.239692Z",
+    "op": "query_relationships",
+    "ms": 10.648959,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: DefinesDesignToken",
+      "in map_profile::relationship_read with relationship: DefinesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 555"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:54.243274Z",
+    "op": "query_relationships",
+    "ms": 3.1444170000000002,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: DescribedBy",
+      "in map_profile::relationship_read with relationship: DescribedBy",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 555"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:54.246275Z",
+    "op": "query_relationships",
+    "ms": 2.884208,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 555"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:54.280153Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 33.748167,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 555"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:54.282073Z",
+    "op": "query_relationships",
+    "ms": 1.819417,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 555"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:54.283797Z",
+    "op": "query_relationships",
+    "ms": 1.6468330000000002,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 555"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:54.285430Z",
+    "op": "query_relationships",
+    "ms": 1.560167,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 555"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:54.287437Z",
+    "op": "query_relationships",
+    "ms": 1.937125,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 555"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:54.289808Z",
+    "op": "query_relationships",
+    "ms": 2.281417,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 555"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:54.291380Z",
+    "op": "query_relationships",
+    "ms": 1.502791,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 555"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:54.294846Z",
+    "op": "query_relationships",
+    "ms": 3.3852919999999997,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 555"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:54.297472Z",
+    "op": "query_relationships",
+    "ms": 2.477333,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 555"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:54.299762Z",
+    "op": "query_relationships",
+    "ms": 2.183584,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: OffersOperator",
+      "in map_profile::relationship_read with relationship: OffersOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 555"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:54.301374Z",
+    "op": "query_relationships",
+    "ms": 1.518458,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 555"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:54.303028Z",
+    "op": "query_relationships",
+    "ms": 1.588084,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: InputType",
+      "in map_profile::relationship_read with relationship: InputType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 555"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:54.304674Z",
+    "op": "query_relationships",
+    "ms": 1.575958,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ResultType",
+      "in map_profile::relationship_read with relationship: ResultType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 555"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:54.307038Z",
+    "op": "query_relationships",
+    "ms": 2.3,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ConsumesDesignToken",
+      "in map_profile::relationship_read with relationship: ConsumesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 555"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:54.308813Z",
+    "op": "query_relationships",
+    "ms": 1.616375,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 555"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:54.355280Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 45.966125,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 555"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:54.762569Z",
+    "op": "canonical",
+    "ms": 403.61924999999997,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_effective_descriptor\"",
+      "in map_profile::ipc.dispatch with request_id: 557"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:54.907145Z",
+    "op": "query_relationships",
+    "ms": 141.11220899999998,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ValueType",
+      "in map_profile::relationship_read with relationship: ValueType",
+      "in map_profile::ipc.execute with command: \"get_property_is_array\"",
+      "in map_profile::ipc.dispatch with request_id: 560"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.052471Z",
+    "op": "query_relationships",
+    "ms": 143.968292,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ValueType",
+      "in map_profile::relationship_read with relationship: ValueType",
+      "in map_profile::ipc.execute with command: \"get_property_is_array\"",
+      "in map_profile::ipc.dispatch with request_id: 561"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.198584Z",
+    "op": "query_relationships",
+    "ms": 144.117542,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ValueType",
+      "in map_profile::relationship_read with relationship: ValueType",
+      "in map_profile::ipc.execute with command: \"get_property_is_array\"",
+      "in map_profile::ipc.dispatch with request_id: 563"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.347588Z",
+    "op": "query_relationships",
+    "ms": 147.12062500000002,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ValueType",
+      "in map_profile::relationship_read with relationship: ValueType",
+      "in map_profile::ipc.execute with command: \"get_property_is_array\"",
+      "in map_profile::ipc.dispatch with request_id: 565"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.435556Z",
+    "op": "canonical",
+    "ms": 87.52825,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_is_array\"",
+      "in map_profile::ipc.dispatch with request_id: 565"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.576956Z",
+    "op": "query_relationships",
+    "ms": 139.797167,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ValueType",
+      "in map_profile::relationship_read with relationship: ValueType",
+      "in map_profile::ipc.execute with command: \"get_property_is_array\"",
+      "in map_profile::ipc.dispatch with request_id: 566"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.708916Z",
+    "op": "query_relationships",
+    "ms": 130.78,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ValueType",
+      "in map_profile::relationship_read with relationship: ValueType",
+      "in map_profile::ipc.execute with command: \"get_property_is_array\"",
+      "in map_profile::ipc.dispatch with request_id: 567"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.723668Z",
+    "op": "get_holons_by_ids",
+    "ms": 2.277084,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_available_relationships_from_effective\"",
+      "in map_profile::ipc.dispatch with request_id: 589"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.774249Z",
+    "op": "query_relationships",
+    "ms": 3.9900409999999997,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForMetaDesignSystem",
+      "in map_profile::relationship_read with relationship: ForMetaDesignSystem",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 696"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.777692Z",
+    "op": "query_relationships",
+    "ms": 3.351292,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: DefinesDesignToken",
+      "in map_profile::relationship_read with relationship: DefinesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 696"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.779848Z",
+    "op": "query_relationships",
+    "ms": 1.80725,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 696"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.815670Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 35.764083,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 696"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.817528Z",
+    "op": "query_relationships",
+    "ms": 1.754583,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 696"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.819131Z",
+    "op": "query_relationships",
+    "ms": 1.514875,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 696"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.820636Z",
+    "op": "query_relationships",
+    "ms": 1.431,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 696"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.822077Z",
+    "op": "query_relationships",
+    "ms": 1.377709,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 696"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.823620Z",
+    "op": "query_relationships",
+    "ms": 1.48275,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 696"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.825214Z",
+    "op": "query_relationships",
+    "ms": 1.5347080000000002,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 696"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.827326Z",
+    "op": "query_relationships",
+    "ms": 2.01075,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: OffersOperator",
+      "in map_profile::relationship_read with relationship: OffersOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 696"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.828721Z",
+    "op": "query_relationships",
+    "ms": 1.346125,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 696"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.830568Z",
+    "op": "query_relationships",
+    "ms": 1.8075,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ConsumesDesignToken",
+      "in map_profile::relationship_read with relationship: ConsumesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 696"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.832251Z",
+    "op": "query_relationships",
+    "ms": 1.562625,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 696"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.858337Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 25.61225,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 696"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.871099Z",
+    "op": "get_holon_by_id",
+    "ms": 2.461292,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 712"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.876819Z",
+    "op": "query_relationships",
+    "ms": 3.58625,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForMetaDesignSystem",
+      "in map_profile::relationship_read with relationship: ForMetaDesignSystem",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 716"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.881640Z",
+    "op": "query_relationships",
+    "ms": 4.728208,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: DefinesDesignToken",
+      "in map_profile::relationship_read with relationship: DefinesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 716"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.883462Z",
+    "op": "query_relationships",
+    "ms": 1.477875,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 716"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.893158Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 9.640333,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 716"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.894736Z",
+    "op": "query_relationships",
+    "ms": 1.503458,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 716"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.896226Z",
+    "op": "query_relationships",
+    "ms": 1.418042,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 716"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.897687Z",
+    "op": "query_relationships",
+    "ms": 1.407792,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 716"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.899179Z",
+    "op": "query_relationships",
+    "ms": 1.421416,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 716"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.900890Z",
+    "op": "query_relationships",
+    "ms": 1.6490420000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 716"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.902319Z",
+    "op": "query_relationships",
+    "ms": 1.3767079999999998,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 716"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.903782Z",
+    "op": "query_relationships",
+    "ms": 1.386541,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 716"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.905211Z",
+    "op": "query_relationships",
+    "ms": 1.333666,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: OffersOperator",
+      "in map_profile::relationship_read with relationship: OffersOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 716"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.906651Z",
+    "op": "query_relationships",
+    "ms": 1.393083,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 716"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.908330Z",
+    "op": "query_relationships",
+    "ms": 1.629875,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ConsumesDesignToken",
+      "in map_profile::relationship_read with relationship: ConsumesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 716"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.909772Z",
+    "op": "query_relationships",
+    "ms": 1.3702079999999999,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 716"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.955037Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 44.774665999999996,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 716"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.962910Z",
+    "op": "query_relationships",
+    "ms": 3.56875,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForMetaDesignSystem",
+      "in map_profile::relationship_read with relationship: ForMetaDesignSystem",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.967492Z",
+    "op": "query_relationships",
+    "ms": 4.495667,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: DefinesDesignToken",
+      "in map_profile::relationship_read with relationship: DefinesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.970229Z",
+    "op": "query_relationships",
+    "ms": 2.41425,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.996639Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 26.348834,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.998165Z",
+    "op": "query_relationships",
+    "ms": 1.447375,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:55.999689Z",
+    "op": "query_relationships",
+    "ms": 1.4626249999999998,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.001160Z",
+    "op": "query_relationships",
+    "ms": 1.407375,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.002559Z",
+    "op": "query_relationships",
+    "ms": 1.351666,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.004086Z",
+    "op": "query_relationships",
+    "ms": 1.4580000000000002,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.005496Z",
+    "op": "query_relationships",
+    "ms": 1.349208,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.006963Z",
+    "op": "query_relationships",
+    "ms": 1.402875,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.008372Z",
+    "op": "query_relationships",
+    "ms": 1.346958,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.009736Z",
+    "op": "query_relationships",
+    "ms": 1.303292,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.011221Z",
+    "op": "query_relationships",
+    "ms": 1.4308750000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.012698Z",
+    "op": "query_relationships",
+    "ms": 1.422333,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.014148Z",
+    "op": "query_relationships",
+    "ms": 1.392042,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.015571Z",
+    "op": "query_relationships",
+    "ms": 1.363667,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.016945Z",
+    "op": "query_relationships",
+    "ms": 1.328417,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.018421Z",
+    "op": "query_relationships",
+    "ms": 1.4256659999999999,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.019737Z",
+    "op": "query_relationships",
+    "ms": 1.2694169999999998,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.021221Z",
+    "op": "query_relationships",
+    "ms": 1.437083,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.022574Z",
+    "op": "query_relationships",
+    "ms": 1.296375,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.023909Z",
+    "op": "query_relationships",
+    "ms": 1.259708,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: OffersOperator",
+      "in map_profile::relationship_read with relationship: OffersOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.025401Z",
+    "op": "query_relationships",
+    "ms": 1.450209,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.026724Z",
+    "op": "query_relationships",
+    "ms": 1.282958,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ConsumesDesignToken",
+      "in map_profile::relationship_read with relationship: ConsumesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.028142Z",
+    "op": "query_relationships",
+    "ms": 1.383084,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.047084Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 18.468834,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 722"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.053655Z",
+    "op": "get_holon_by_id",
+    "ms": 3.173583,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 726"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.057983Z",
+    "op": "query_relationships",
+    "ms": 1.815542,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 730"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.066555Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 8.489,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 730"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.068161Z",
+    "op": "query_relationships",
+    "ms": 1.537792,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 730"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.069588Z",
+    "op": "query_relationships",
+    "ms": 1.365792,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 730"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.071087Z",
+    "op": "query_relationships",
+    "ms": 1.442875,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 730"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.072539Z",
+    "op": "query_relationships",
+    "ms": 1.389209,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 730"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.073944Z",
+    "op": "query_relationships",
+    "ms": 1.35325,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 730"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.075449Z",
+    "op": "query_relationships",
+    "ms": 1.4494580000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 730"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.076868Z",
+    "op": "query_relationships",
+    "ms": 1.3568339999999999,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 730"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.121015Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 43.647125,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 730"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.127172Z",
+    "op": "query_relationships",
+    "ms": 1.891167,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 736"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.159865Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 32.601125,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 736"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.161477Z",
+    "op": "query_relationships",
+    "ms": 1.533083,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 736"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.163053Z",
+    "op": "query_relationships",
+    "ms": 1.4962499999999999,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 736"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.164605Z",
+    "op": "query_relationships",
+    "ms": 1.496917,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 736"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.166015Z",
+    "op": "query_relationships",
+    "ms": 1.3430829999999998,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 736"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.167557Z",
+    "op": "query_relationships",
+    "ms": 1.492167,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 736"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.168963Z",
+    "op": "query_relationships",
+    "ms": 1.354125,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 736"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.170424Z",
+    "op": "query_relationships",
+    "ms": 1.39,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 736"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.171942Z",
+    "op": "query_relationships",
+    "ms": 1.470083,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 736"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.173392Z",
+    "op": "query_relationships",
+    "ms": 1.3906669999999999,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 736"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.175039Z",
+    "op": "query_relationships",
+    "ms": 1.5977910000000002,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 736"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.176631Z",
+    "op": "query_relationships",
+    "ms": 1.5317079999999998,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 736"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.178087Z",
+    "op": "query_relationships",
+    "ms": 1.398792,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 736"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.179716Z",
+    "op": "query_relationships",
+    "ms": 1.568292,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 736"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.181143Z",
+    "op": "query_relationships",
+    "ms": 1.377,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 736"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.182731Z",
+    "op": "query_relationships",
+    "ms": 1.5329169999999999,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 736"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.184245Z",
+    "op": "query_relationships",
+    "ms": 1.464833,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 736"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.185725Z",
+    "op": "query_relationships",
+    "ms": 1.423459,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 736"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.187252Z",
+    "op": "query_relationships",
+    "ms": 1.46875,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 736"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.199193Z",
+    "op": "get_holon_by_id",
+    "ms": 2.715125,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 754"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.202705Z",
+    "op": "query_relationships",
+    "ms": 1.6916660000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 758"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.236885Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 34.100583,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 758"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.238454Z",
+    "op": "query_relationships",
+    "ms": 1.494167,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 758"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.239984Z",
+    "op": "query_relationships",
+    "ms": 1.449875,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 758"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.241416Z",
+    "op": "query_relationships",
+    "ms": 1.373291,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 758"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.242996Z",
+    "op": "query_relationships",
+    "ms": 1.514334,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 758"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.244523Z",
+    "op": "query_relationships",
+    "ms": 1.472292,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 758"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.245902Z",
+    "op": "query_relationships",
+    "ms": 1.3322919999999998,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 758"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.247505Z",
+    "op": "query_relationships",
+    "ms": 1.53525,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 758"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.269768Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 21.754459,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 758"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.275665Z",
+    "op": "query_relationships",
+    "ms": 1.8235000000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 764"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.310277Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 34.518333999999996,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 764"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.311872Z",
+    "op": "query_relationships",
+    "ms": 1.515208,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 764"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.313418Z",
+    "op": "query_relationships",
+    "ms": 1.466042,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 764"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.314826Z",
+    "op": "query_relationships",
+    "ms": 1.347833,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 764"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.316376Z",
+    "op": "query_relationships",
+    "ms": 1.483584,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 764"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.317755Z",
+    "op": "query_relationships",
+    "ms": 1.332625,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 764"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.319149Z",
+    "op": "query_relationships",
+    "ms": 1.341666,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 764"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.320642Z",
+    "op": "query_relationships",
+    "ms": 1.4268340000000002,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 764"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.322032Z",
+    "op": "query_relationships",
+    "ms": 1.335541,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 764"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.323491Z",
+    "op": "query_relationships",
+    "ms": 1.404458,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 764"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.324891Z",
+    "op": "query_relationships",
+    "ms": 1.340042,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 764"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.326277Z",
+    "op": "query_relationships",
+    "ms": 1.3342079999999998,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 764"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.327830Z",
+    "op": "query_relationships",
+    "ms": 1.496083,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 764"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.329191Z",
+    "op": "query_relationships",
+    "ms": 1.303292,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 764"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.330678Z",
+    "op": "query_relationships",
+    "ms": 1.4428329999999998,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 764"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.332131Z",
+    "op": "query_relationships",
+    "ms": 1.393458,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 764"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.333508Z",
+    "op": "query_relationships",
+    "ms": 1.3302500000000002,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 764"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.335116Z",
+    "op": "query_relationships",
+    "ms": 1.551125,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 764"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.336509Z",
+    "op": "query_relationships",
+    "ms": 1.342959,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 764"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.348788Z",
+    "op": "get_holon_by_id",
+    "ms": 2.9832080000000003,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 782"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.352526Z",
+    "op": "query_relationships",
+    "ms": 1.807166,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 786"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.360570Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 7.970958,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 786"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.362236Z",
+    "op": "query_relationships",
+    "ms": 1.5983749999999999,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 786"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.363754Z",
+    "op": "query_relationships",
+    "ms": 1.43175,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 786"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.365168Z",
+    "op": "query_relationships",
+    "ms": 1.347875,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 786"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.366655Z",
+    "op": "query_relationships",
+    "ms": 1.432584,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 786"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.368103Z",
+    "op": "query_relationships",
+    "ms": 1.399792,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 786"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.369560Z",
+    "op": "query_relationships",
+    "ms": 1.400167,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 786"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.371106Z",
+    "op": "query_relationships",
+    "ms": 1.479458,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 786"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.393567Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 21.922625,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 786"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.399422Z",
+    "op": "query_relationships",
+    "ms": 1.825791,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.407806Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 8.307958000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.409333Z",
+    "op": "query_relationships",
+    "ms": 1.454792,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.410815Z",
+    "op": "query_relationships",
+    "ms": 1.4127079999999999,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.412351Z",
+    "op": "query_relationships",
+    "ms": 1.4729590000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.413756Z",
+    "op": "query_relationships",
+    "ms": 1.341875,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.415197Z",
+    "op": "query_relationships",
+    "ms": 1.388542,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.416638Z",
+    "op": "query_relationships",
+    "ms": 1.392042,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.417983Z",
+    "op": "query_relationships",
+    "ms": 1.283875,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.419453Z",
+    "op": "query_relationships",
+    "ms": 1.421958,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.420828Z",
+    "op": "query_relationships",
+    "ms": 1.311834,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.422269Z",
+    "op": "query_relationships",
+    "ms": 1.391375,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.423713Z",
+    "op": "query_relationships",
+    "ms": 1.390542,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.425099Z",
+    "op": "query_relationships",
+    "ms": 1.3346250000000002,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.426570Z",
+    "op": "query_relationships",
+    "ms": 1.405875,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.427909Z",
+    "op": "query_relationships",
+    "ms": 1.286791,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.429368Z",
+    "op": "query_relationships",
+    "ms": 1.401791,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.430792Z",
+    "op": "query_relationships",
+    "ms": 1.3702079999999999,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.432187Z",
+    "op": "query_relationships",
+    "ms": 1.350959,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.433649Z",
+    "op": "query_relationships",
+    "ms": 1.413292,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.435052Z",
+    "op": "query_relationships",
+    "ms": 1.338584,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.436649Z",
+    "op": "query_relationships",
+    "ms": 1.5302499999999999,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.438131Z",
+    "op": "query_relationships",
+    "ms": 1.421458,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: DescribedBy",
+      "in map_profile::relationship_read with relationship: DescribedBy",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.572051Z",
+    "op": "query_relationships",
+    "ms": 133.842583,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: OffersOperator",
+      "in map_profile::relationship_read with relationship: OffersOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.573630Z",
+    "op": "query_relationships",
+    "ms": 1.479083,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.718917Z",
+    "op": "query_relationships",
+    "ms": 145.207042,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ConsumesDesignToken",
+      "in map_profile::relationship_read with relationship: ConsumesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.866754Z",
+    "op": "query_relationships",
+    "ms": 147.71912500000002,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.886000Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 18.645374999999998,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.889312Z",
+    "op": "get_holon_by_id",
+    "ms": 2.616375,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"clone_saved_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.893697Z",
+    "op": "query_relationships",
+    "ms": 2.4047500000000004,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SourceOf",
+      "in map_profile::relationship_read with relationship: SourceOf",
+      "in map_profile::usage.prepare with phase: \"clone_saved_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.899570Z",
+    "op": "query_relationships",
+    "ms": 3.198833,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SourceOf",
+      "in map_profile::relationship_read with relationship: SourceOf",
+      "in map_profile::usage.prepare with phase: \"clone_saved_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:56.907910Z",
+    "op": "query_relationships",
+    "ms": 2.239417,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SourceOf",
+      "in map_profile::relationship_read with relationship: SourceOf",
+      "in map_profile::usage.prepare with phase: \"clone_saved_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.312157Z",
+    "op": "fetch_all_related_holons",
+    "ms": 393.310792,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"clone_saved_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 792"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.331183Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 15.647333,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_saved_holon_by_base_key\"",
+      "in map_profile::ipc.dispatch with request_id: 794"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.343785Z",
+    "op": "query_relationships",
+    "ms": 2.1966249999999996,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: AffordsDance",
+      "in map_profile::relationship_read with relationship: AffordsDance",
+      "in map_profile::dance.bind",
+      "in map_profile::dance.bind_and_validate",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 799"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.346313Z",
+    "op": "query_relationships",
+    "ms": 2.447375,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: AffordsDance",
+      "in map_profile::relationship_read with relationship: AffordsDance",
+      "in map_profile::dance.bind",
+      "in map_profile::dance.bind_and_validate",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 799"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.348793Z",
+    "op": "query_relationships",
+    "ms": 2.4277080000000004,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: AffordsDance",
+      "in map_profile::relationship_read with relationship: AffordsDance",
+      "in map_profile::dance.bind",
+      "in map_profile::dance.bind_and_validate",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 799"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.350518Z",
+    "op": "query_relationships",
+    "ms": 1.6537920000000002,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: AffordsDance",
+      "in map_profile::relationship_read with relationship: AffordsDance",
+      "in map_profile::dance.bind",
+      "in map_profile::dance.bind_and_validate",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 799"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.352109Z",
+    "op": "query_relationships",
+    "ms": 1.4188749999999999,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasImplementation",
+      "in map_profile::relationship_read with relationship: HasImplementation",
+      "in map_profile::dance.resolve_implementation",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 799"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.353588Z",
+    "op": "query_relationships",
+    "ms": 1.4020000000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::visualizer.implementation",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 799"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.369991Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 15.578208,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::visualizer.projection_descriptor",
+      "in map_profile::visualizer.materialize",
+      "in map_profile::dance.invoke",
+      "in map_profile::dance.execute",
+      "in map_profile::ipc.execute with command: \"dance_v2\"",
+      "in map_profile::ipc.dispatch with request_id: 799"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.378085Z",
+    "op": "get_holon_by_id",
+    "ms": 2.082833,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 805"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.381353Z",
+    "op": "get_holon_by_id",
+    "ms": 2.119625,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 807"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.385099Z",
+    "op": "query_relationships",
+    "ms": 1.709125,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 811"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.394096Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 8.926625000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 811"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.395618Z",
+    "op": "query_relationships",
+    "ms": 1.454667,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 811"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.397179Z",
+    "op": "query_relationships",
+    "ms": 1.495208,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 811"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.398631Z",
+    "op": "query_relationships",
+    "ms": 1.3934170000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 811"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.400267Z",
+    "op": "query_relationships",
+    "ms": 1.5752920000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 811"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.401908Z",
+    "op": "query_relationships",
+    "ms": 1.5935000000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 811"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.403396Z",
+    "op": "query_relationships",
+    "ms": 1.4435419999999999,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 811"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.404899Z",
+    "op": "query_relationships",
+    "ms": 1.442417,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 811"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.428808Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 23.345375,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 811"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.434989Z",
+    "op": "query_relationships",
+    "ms": 1.958375,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 817"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.444278Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 9.215458,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 817"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.445925Z",
+    "op": "query_relationships",
+    "ms": 1.5729579999999999,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 817"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.447348Z",
+    "op": "query_relationships",
+    "ms": 1.341583,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 817"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.448812Z",
+    "op": "query_relationships",
+    "ms": 1.414,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 817"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.450216Z",
+    "op": "query_relationships",
+    "ms": 1.3465420000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 817"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.451755Z",
+    "op": "query_relationships",
+    "ms": 1.49225,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 817"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.453262Z",
+    "op": "query_relationships",
+    "ms": 1.451333,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 817"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.454653Z",
+    "op": "query_relationships",
+    "ms": 1.32375,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 817"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.456095Z",
+    "op": "query_relationships",
+    "ms": 1.3883750000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 817"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.457528Z",
+    "op": "query_relationships",
+    "ms": 1.376542,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 817"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.458966Z",
+    "op": "query_relationships",
+    "ms": 1.393459,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 817"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.460439Z",
+    "op": "query_relationships",
+    "ms": 1.423,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 817"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.461782Z",
+    "op": "query_relationships",
+    "ms": 1.293917,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 817"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.463144Z",
+    "op": "query_relationships",
+    "ms": 1.2985,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 817"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.464581Z",
+    "op": "query_relationships",
+    "ms": 1.384917,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 817"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.465978Z",
+    "op": "query_relationships",
+    "ms": 1.3454579999999998,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 817"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.467516Z",
+    "op": "query_relationships",
+    "ms": 1.490125,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 817"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.469030Z",
+    "op": "query_relationships",
+    "ms": 1.469584,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 817"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.470395Z",
+    "op": "query_relationships",
+    "ms": 1.309,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 817"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.475458Z",
+    "op": "get_holon_by_id",
+    "ms": 2.1294999999999997,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 821"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.479543Z",
+    "op": "query_relationships",
+    "ms": 1.882292,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 825"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.488502Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 8.88175,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 825"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.490045Z",
+    "op": "query_relationships",
+    "ms": 1.475875,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 825"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.491459Z",
+    "op": "query_relationships",
+    "ms": 1.3500420000000002,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 825"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.492922Z",
+    "op": "query_relationships",
+    "ms": 1.4065830000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 825"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.494366Z",
+    "op": "query_relationships",
+    "ms": 1.37675,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 825"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.496060Z",
+    "op": "query_relationships",
+    "ms": 1.6496250000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 825"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.497529Z",
+    "op": "query_relationships",
+    "ms": 1.4187500000000002,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 825"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.498971Z",
+    "op": "query_relationships",
+    "ms": 1.380792,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: Extends",
+      "in map_profile::relationship_read with relationship: Extends",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 825"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.537595Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 38.055792,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 825"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.543954Z",
+    "op": "query_relationships",
+    "ms": 2.1684590000000004,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 831"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.570558Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 26.507541999999997,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 831"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.572075Z",
+    "op": "query_relationships",
+    "ms": 1.445333,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 831"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.573640Z",
+    "op": "query_relationships",
+    "ms": 1.490833,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 831"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.575009Z",
+    "op": "query_relationships",
+    "ms": 1.311208,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 831"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.576575Z",
+    "op": "query_relationships",
+    "ms": 1.5135420000000002,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 831"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.577969Z",
+    "op": "query_relationships",
+    "ms": 1.344042,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 831"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.579410Z",
+    "op": "query_relationships",
+    "ms": 1.3838329999999999,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 831"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.580951Z",
+    "op": "query_relationships",
+    "ms": 1.465958,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 831"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.582337Z",
+    "op": "query_relationships",
+    "ms": 1.33575,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 831"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.583826Z",
+    "op": "query_relationships",
+    "ms": 1.4331669999999999,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 831"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.585183Z",
+    "op": "query_relationships",
+    "ms": 1.312292,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 831"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.586521Z",
+    "op": "query_relationships",
+    "ms": 1.294458,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 831"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.587973Z",
+    "op": "query_relationships",
+    "ms": 1.3960000000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 831"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.589346Z",
+    "op": "query_relationships",
+    "ms": 1.3110000000000002,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 831"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.590875Z",
+    "op": "query_relationships",
+    "ms": 1.476833,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 831"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.592232Z",
+    "op": "query_relationships",
+    "ms": 1.304,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 831"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.593578Z",
+    "op": "query_relationships",
+    "ms": 1.2952919999999999,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 831"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.595054Z",
+    "op": "query_relationships",
+    "ms": 1.428666,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 831"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.596423Z",
+    "op": "query_relationships",
+    "ms": 1.30725,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 831"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.611754Z",
+    "op": "query_relationships",
+    "ms": 2.297833,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesNodeActionsContract",
+      "in map_profile::relationship_read with relationship: UsesNodeActionsContract",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 856"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.615264Z",
+    "op": "query_relationships",
+    "ms": 2.837417,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: StandardNodeActions",
+      "in map_profile::relationship_read with relationship: StandardNodeActions",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 857"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.617919Z",
+    "op": "query_relationships",
+    "ms": 1.886916,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: AdditionalNodeActions",
+      "in map_profile::relationship_read with relationship: AdditionalNodeActions",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 858"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.621761Z",
+    "op": "query_relationships",
+    "ms": 2.937458,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForMetaDesignSystem",
+      "in map_profile::relationship_read with relationship: ForMetaDesignSystem",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 859"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.625042Z",
+    "op": "query_relationships",
+    "ms": 3.192,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: DefinesDesignToken",
+      "in map_profile::relationship_read with relationship: DefinesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 859"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.629005Z",
+    "op": "query_relationships",
+    "ms": 3.604791,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 859"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.637658Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 8.605375,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 859"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.639295Z",
+    "op": "query_relationships",
+    "ms": 1.573458,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 859"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.640747Z",
+    "op": "query_relationships",
+    "ms": 1.395166,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 859"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.642153Z",
+    "op": "query_relationships",
+    "ms": 1.357542,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 859"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.643587Z",
+    "op": "query_relationships",
+    "ms": 1.3834170000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 859"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.645025Z",
+    "op": "query_relationships",
+    "ms": 1.3944999999999999,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 859"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.646580Z",
+    "op": "query_relationships",
+    "ms": 1.4837500000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 859"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.648185Z",
+    "op": "query_relationships",
+    "ms": 1.494041,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: OffersOperator",
+      "in map_profile::relationship_read with relationship: OffersOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 859"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.649575Z",
+    "op": "query_relationships",
+    "ms": 1.3404580000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 859"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.651125Z",
+    "op": "query_relationships",
+    "ms": 1.5017500000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: InputType",
+      "in map_profile::relationship_read with relationship: InputType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 859"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.652553Z",
+    "op": "query_relationships",
+    "ms": 1.378167,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ResultType",
+      "in map_profile::relationship_read with relationship: ResultType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 859"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.654714Z",
+    "op": "query_relationships",
+    "ms": 2.098708,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ConsumesDesignToken",
+      "in map_profile::relationship_read with relationship: ConsumesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 859"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.656189Z",
+    "op": "query_relationships",
+    "ms": 1.361291,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 859"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.701955Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 45.197874999999996,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 859"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.706278Z",
+    "op": "query_relationships",
+    "ms": 1.847542,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 861"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.711546Z",
+    "op": "query_relationships",
+    "ms": 3.202125,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForMetaDesignSystem",
+      "in map_profile::relationship_read with relationship: ForMetaDesignSystem",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 864"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.714674Z",
+    "op": "query_relationships",
+    "ms": 3.05225,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: DefinesDesignToken",
+      "in map_profile::relationship_read with relationship: DefinesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 864"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.716451Z",
+    "op": "query_relationships",
+    "ms": 1.4355419999999999,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 864"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.724545Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 8.049834,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 864"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.725979Z",
+    "op": "query_relationships",
+    "ms": 1.382625,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 864"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.727420Z",
+    "op": "query_relationships",
+    "ms": 1.378916,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 864"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.729004Z",
+    "op": "query_relationships",
+    "ms": 1.52475,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 864"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.730518Z",
+    "op": "query_relationships",
+    "ms": 1.4569999999999999,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 864"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.731974Z",
+    "op": "query_relationships",
+    "ms": 1.403834,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 864"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.733347Z",
+    "op": "query_relationships",
+    "ms": 1.3286660000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 864"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.734812Z",
+    "op": "query_relationships",
+    "ms": 1.376959,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: OffersOperator",
+      "in map_profile::relationship_read with relationship: OffersOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 864"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.736309Z",
+    "op": "query_relationships",
+    "ms": 1.44725,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 864"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.737809Z",
+    "op": "query_relationships",
+    "ms": 1.455292,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: InputType",
+      "in map_profile::relationship_read with relationship: InputType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 864"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.739248Z",
+    "op": "query_relationships",
+    "ms": 1.373125,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ResultType",
+      "in map_profile::relationship_read with relationship: ResultType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 864"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.741003Z",
+    "op": "query_relationships",
+    "ms": 1.6987910000000002,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ConsumesDesignToken",
+      "in map_profile::relationship_read with relationship: ConsumesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 864"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.742532Z",
+    "op": "query_relationships",
+    "ms": 1.4161670000000002,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 864"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.769804Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 26.697583,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 864"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.773769Z",
+    "op": "query_relationships",
+    "ms": 1.649375,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 866"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.777099Z",
+    "op": "query_relationships",
+    "ms": 1.640458,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: PresentationOperator",
+      "in map_profile::relationship_read with relationship: PresentationOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 869"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.780676Z",
+    "op": "query_relationships",
+    "ms": 1.6697089999999999,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: PresentationOperator",
+      "in map_profile::relationship_read with relationship: PresentationOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 873"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.784345Z",
+    "op": "query_relationships",
+    "ms": 1.755375,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: PresentationOperator",
+      "in map_profile::relationship_read with relationship: PresentationOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 877"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.787926Z",
+    "op": "query_relationships",
+    "ms": 1.738,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: PresentationOperator",
+      "in map_profile::relationship_read with relationship: PresentationOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 881"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.792997Z",
+    "op": "get_holon_by_id",
+    "ms": 1.914542,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"get_property_value\"",
+      "in map_profile::ipc.dispatch with request_id: 886"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.802761Z",
+    "op": "query_relationships",
+    "ms": 4.0021249999999995,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForMetaDesignSystem",
+      "in map_profile::relationship_read with relationship: ForMetaDesignSystem",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 898"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.806875Z",
+    "op": "query_relationships",
+    "ms": 4.026667000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: DefinesDesignToken",
+      "in map_profile::relationship_read with relationship: DefinesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 898"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.808706Z",
+    "op": "query_relationships",
+    "ms": 1.471875,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: HasSelectedUsage",
+      "in map_profile::relationship_read with relationship: HasSelectedUsage",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 898"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.818150Z",
+    "op": "get_saved_holon_by_key",
+    "ms": 9.390125,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 898"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.819920Z",
+    "op": "query_relationships",
+    "ms": 1.6652500000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 898"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.821601Z",
+    "op": "query_relationships",
+    "ms": 1.596167,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 898"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.823343Z",
+    "op": "query_relationships",
+    "ms": 1.6726670000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 898"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.825117Z",
+    "op": "query_relationships",
+    "ms": 1.6857499999999999,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesVisualizer",
+      "in map_profile::relationship_read with relationship: UsesVisualizer",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 898"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.826728Z",
+    "op": "query_relationships",
+    "ms": 1.540042,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ApplicableToType",
+      "in map_profile::relationship_read with relationship: ApplicableToType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 898"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.828189Z",
+    "op": "query_relationships",
+    "ms": 1.390792,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ForSubjectType",
+      "in map_profile::relationship_read with relationship: ForSubjectType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 898"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.829685Z",
+    "op": "query_relationships",
+    "ms": 1.3975000000000002,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: OffersOperator",
+      "in map_profile::relationship_read with relationship: OffersOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 898"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.831185Z",
+    "op": "query_relationships",
+    "ms": 1.451791,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 898"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.832852Z",
+    "op": "query_relationships",
+    "ms": 1.611167,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: InputType",
+      "in map_profile::relationship_read with relationship: InputType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 898"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.834432Z",
+    "op": "query_relationships",
+    "ms": 1.526292,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ResultType",
+      "in map_profile::relationship_read with relationship: ResultType",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 898"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.835797Z",
+    "op": "query_relationships",
+    "ms": 1.317709,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ConsumesDesignToken",
+      "in map_profile::relationship_read with relationship: ConsumesDesignToken",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 898"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.837277Z",
+    "op": "query_relationships",
+    "ms": 1.435667,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: ImplementedBy",
+      "in map_profile::relationship_read with relationship: ImplementedBy",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 898"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.864384Z",
+    "op": "resolve_visualizer_usage",
+    "ms": 26.493875,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::usage.prepare with phase: \"resolve_committed_usage\"",
+      "in map_profile::ipc.execute with command: \"select_visualizer\"",
+      "in map_profile::ipc.dispatch with request_id: 898"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.868869Z",
+    "op": "query_relationships",
+    "ms": 1.793083,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 900"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.875221Z",
+    "op": "query_relationships",
+    "ms": 2.046958,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: OffersOperator",
+      "in map_profile::relationship_read with relationship: OffersOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 903"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.889054Z",
+    "op": "query_relationships",
+    "ms": 2.2902500000000003,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.891012Z",
+    "op": "query_relationships",
+    "ms": 1.8324159999999998,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.892831Z",
+    "op": "query_relationships",
+    "ms": 1.745958,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:53:57.894786Z",
+    "op": "query_relationships",
+    "ms": 1.871709,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot"
+    ]
+  }
+]

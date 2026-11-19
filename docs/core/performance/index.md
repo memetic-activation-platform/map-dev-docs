@@ -10,7 +10,7 @@ replace the owning design specifications. See the
 
 | Investigation | Status | Strongest current finding |
 |---|---|---|
-| [Application startup and Canvas](startup-and-canvas.md) | Regression and recovery observed | Canvas recovered from 118.7 s to 14–15 s while schema load remained slow |
+| [Application startup and Canvas](startup-and-canvas.md) | Regression and recovery observed | Nov 19 retained-store capture: Canvas 18.790 s and first/repeat navigation 3.721/0.274 s; faster than Nov 4 with more backend calls and non-matched conditions |
 | [Caching lessons](caching.md) | Implemented policies and future options | Cache lifetime and descriptor lookup cost differ fundamentally between host and guest |
 | [Core Schema load](schema-load.md) | Open; September and November 2026 captures | November: 3.45 s MAP validation and 146.37 s after coordinator return for a larger 1,162-candidate bootstrap; no matched change attribution |
 | [Commit performance: Issue 816](issue-816-findings.md) | Bounded experiments; generalization remains open | VisualizerUsage Commit fell from 13.85 s to 4.33 s by narrowing validation preparation; membership caching works within a call |

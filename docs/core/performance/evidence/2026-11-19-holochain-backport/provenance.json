@@ -1,0 +1,52 @@
+{
+  "captured_profile_run": "2026-11-19T12:52:27.256Z",
+  "comparison_kind": "historical observational comparison, not matched whole-application A/B",
+  "log_flags": {
+    "MAP_PROFILE": "1",
+    "RUST_LOG": "host:warn",
+    "WASM_LOG": "info",
+    "MAP_START_MODE": "prod"
+  },
+  "log_native_profile": "dev optimized + debuginfo",
+  "guest_calls_failed": 0,
+  "guest_calls_total": 1220,
+  "publish_no_peers_warnings": 80450,
+  "errors": 0,
+  "load_holons_calls": 0,
+  "native_launch_seconds": 3.1,
+  "core_schema_cold_load_comparison": "not available; no load_holons call in capture",
+  "raw_log": {
+    "source": "/private/tmp/map-holochain-backport-profile-2026-11-19.log",
+    "snapshot_local_path": "/private/tmp/map-backport-app-comparison/backend-snapshot.log",
+    "sha256": "96c88787d2807aa2d92742d2df5e45485a76eaf5f25d7adf8382163463d40685",
+    "bytes": 27895979,
+    "initial_analysis_warning_count": 48270,
+    "frozen_snapshot_warning_count": 80450,
+    "retention": "Full raw trace retained locally only; not a durable public artifact. Relevant UI profiles, per-call records, deltas and selected markers are included here."
+  },
+  "code_examined_at": "evomimic/map-holons@13fb3bca1ad8066aceef727df101e65d22a0c330",
+  "baseline_sources": {
+    "startup": "../2026-11-04-step5/startup-profile-fresh.json",
+    "startup_calls": "../2026-11-04-step5/fresh-calls.json",
+    "first_navigation": "../2026-11-04-step4/first-navigation.json",
+    "repeat_navigation": "../2026-11-04-step4/repeat-navigation.json"
+  },
+  "derived_file_sha256": {
+    "publication-warning-bursts.json": "ae6791b4e7ecb606e2b5bc6fece32a8d017acd4e188d98b65fc7c6af4761e217",
+    "startup-calls.json": "51ad7e6550375f6179f97c216a52cdd5f78887c29853971684dceea73bc3853f",
+    "backend-summary.json": "b3f5456e457010eb6cae1c65af75c4346e6a0a935fbf37e1f2a33292cbccd2d7",
+    "repeat-navigation-calls.json": "47c1e4fc0cc5a18c7202089556f0493439c7dfc908012f4d03f96d4d72926b41",
+    "selected-backend-markers.txt": "301e76fd49ac000529a53946ea554ffcb61c71aa49b747ffb299c3f48ab6ae32",
+    "comparison.json": "5e817a0d2b598ea834ecced6e7fd8274975486e6ac1342bf9e1212b28e3fd03c",
+    "README.md": "acaf93a24a82a4df30d21664af561fa0d89a46bd24f72b92a85568c634f5f49e",
+    "backend-work.json": "d9e58b5a28badda3f934b7ea27eb2a5a5dfa367aa908e7e12789e3a498e26905",
+    "browser-profiles.json": "a80f5ee439e8ab59147ccfc2c3caa179b3e0a67739a713ec982441f7ce6c8536",
+    "first-navigation-calls.json": "b2f8fa8c9986514ee77044424b4791540056d3a44685a11b9b418d14e5b8c34c"
+  },
+  "baseline_sha256": {
+    "startup": "9b0c530919278bf6f7f03cd477b56032aa482e92ebf1e6796538827285bc16b9",
+    "startup_calls": "09c0c230a1f235605cbd1bdb2d55c2a70b4b4d41705ae3a5ae8a01364b57121c",
+    "first_navigation": "53669b49dd375427ea3acffd30bb57c045535e86fb865ad00d06cd4be1c7f162",
+    "repeat_navigation": "7c9379880ccd36bb3964686bce26a2d0519025defefd1feacc95f8f33f4feebb"
+  }
+}
