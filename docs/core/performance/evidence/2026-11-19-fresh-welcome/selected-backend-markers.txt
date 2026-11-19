@@ -18,6 +18,7 @@
 2026-11-19T13:24:01.884263Z  INFO holons_guest::guest_shared_objects::commit_functions:crates/holons_guest/src/guest_shared_objects/commit_functions.rs:919 Commit response: status=Complete attempted=1180 saved=1180 rejected=0 failed=0
 2026-11-19T13:24:01.903477Z  INFO holons_loader::controller:crates/holons_loader/src/controller.rs:586 Loader complete: bundles=22 loader_holons=1180 staged_holons=1180 links_created=6639
   2026-11-19T13:24:37.019198Z  INFO holons_client::client_shared_objects::client_holon_service: [PERF-688] loader_dance_client: request_build_ms=0 initiate_dance_round_trip_ms=81013
+[MAP-PROFILE] command=load_holons route_ms=81852.171 recovery_ms=0.003
   2026-11-19T13:24:37.019295Z  INFO conductora_lib::setup::core_schema_bootstrap: [PERF-688] conductora_bootstrap: input_ms=2 load_and_commit_ms=81852 total_ms=84721
   2026-11-19T13:24:37.019299Z  INFO conductora_lib::setup::app_builder: [PERF-688] conductora_startup: core_schema_bootstrap_ms=84721
 2026-11-19T13:24:37.070141Z  INFO holons_loader::controller:crates/holons_loader/src/controller.rs:155 HolonLoaderController::load_set - pass1_stage_all_bundles
@@ -26,6 +27,7 @@
 2026-11-19T13:24:38.816163Z  INFO holons_guest::guest_shared_objects::commit_functions:crates/holons_guest/src/guest_shared_objects/commit_functions.rs:919 Commit response: status=Complete attempted=10 saved=10 rejected=0 failed=0
 2026-11-19T13:24:38.834126Z  INFO holons_loader::controller:crates/holons_loader/src/controller.rs:586 Loader complete: bundles=1 loader_holons=10 staged_holons=10 links_created=46
   2026-11-19T13:24:39.118031Z  INFO holons_client::client_shared_objects::client_holon_service: [PERF-688] loader_dance_client: request_build_ms=0 initiate_dance_round_trip_ms=2096
+[MAP-PROFILE] command=load_holons route_ms=2098.488 recovery_ms=0.002
   2026-11-19T13:24:39.118079Z  INFO conductora_lib::setup::space_imports: Provisioned configured definitions: schema-packages/agent-spaces/imports/schema.json, elapsed_ms=2098
 2026-11-19T13:24:39.163042Z  INFO holons_loader::controller:crates/holons_loader/src/controller.rs:155 HolonLoaderController::load_set - pass1_stage_all_bundles
 2026-11-19T13:24:39.169286Z  INFO holons_loader::controller:crates/holons_loader/src/controller.rs:324 HolonLoaderController::load_set - pass2_resolve_all
@@ -33,6 +35,7 @@
 2026-11-19T13:24:41.830606Z  INFO holons_guest::guest_shared_objects::commit_functions:crates/holons_guest/src/guest_shared_objects/commit_functions.rs:919 Commit response: status=Complete attempted=21 saved=21 rejected=0 failed=0
 2026-11-19T13:24:41.848491Z  INFO holons_loader::controller:crates/holons_loader/src/controller.rs:586 Loader complete: bundles=1 loader_holons=21 staged_holons=21 links_created=96
   2026-11-19T13:24:42.387745Z  INFO holons_client::client_shared_objects::client_holon_service: [PERF-688] loader_dance_client: request_build_ms=0 initiate_dance_round_trip_ms=3267
+[MAP-PROFILE] command=load_holons route_ms=3269.506 recovery_ms=0.003
   2026-11-19T13:24:42.387787Z  INFO conductora_lib::setup::space_imports: Provisioned configured definitions: house-troupe/space-navigator/imports/schema.json, elapsed_ms=3269
 2026-11-19T13:31:25.615735Z  INFO holons_guest::guest_shared_objects::commit_functions:crates/holons_guest/src/guest_shared_objects/commit_functions.rs:919 Commit response: status=Complete attempted=1 saved=1 rejected=0 failed=0
 2026-11-19T13:31:44.286665Z  INFO holons_guest::guest_shared_objects::commit_functions:crates/holons_guest/src/guest_shared_objects/commit_functions.rs:919 Commit response: status=Complete attempted=7 saved=7 rejected=0 failed=0
