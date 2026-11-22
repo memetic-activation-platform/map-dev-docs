@@ -1,0 +1,102 @@
+/// Publishing a successor and saving an adoption request cannot change an established answer.
+/// Run after the measured workload so added graph versions do not alter the baseline fixture.
+pub async fn retained_visualizer_successor_requires_explicit_adoption(runtime: &Runtime) {
+    use holons_core::core_shared_objects::transactions::TransactionContext;
+    use holons_core::{
+        dahn::composition::{CompositionRequest, ResolvedComposition},
+        WritableHolon,
+    };
+    use std::sync::Arc;
+    async fn open(runtime: &Runtime) -> Arc<TransactionContext> {
+        let id = runtime.session().begin_transaction().await.unwrap();
+        runtime.session().get_transaction(&id).unwrap()
+    }
+    fn saved(context: &Arc<TransactionContext>, key: &str) -> HolonReference {
+        context.lookup().get_saved_holon_by_key(&key.into()).unwrap().into()
+    }
+    async fn resolve(
+        runtime: &Runtime,
+        context: &Arc<TransactionContext>,
+        suffix: &str,
+        reconsider: bool,
+    ) -> ResolvedComposition {
+        let mut subject = context.mutation().new_holon(None).unwrap();
+        subject.with_descriptor(saved(context, "PreferenceTestRecord.HolonType")).unwrap();
+        let request = CompositionRequest {
+            owner: saved(context, &format!("PreferenceTest{suffix}.PropertyMapVisualizer")),
+            subject: subject.into(),
+            theme: saved(context, "Demo1.DeepOceanTheme"),
+            demand_slot: None,
+            collection_source: None,
+        };
+        let action = if reconsider {
+            TransactionAction::ReconsiderComposition { request }
+        } else {
+            TransactionAction::ResolveComposition { request }
+        };
+        let MapResult::ResolvedComposition(result) = runtime
+            .execute_command(
+                MapCommand::Transaction(TransactionCommand { context: context.clone(), action }),
+                ExecutionPolicy::default(),
+            )
+            .await
+            .unwrap()
+        else {
+            panic!("composition")
+        };
+        result
+    }
+    fn selected(result: &ResolvedComposition) -> HolonReference {
+        let binding = result
+            .data
+            .bindings
+            .iter()
+            .find(|b| b.role == "value" && b.property_name.as_deref() == Some("PreferenceTestDate"))
+            .unwrap();
+        result.references[binding.selected].clone()
+    }
+    let context = open(runtime).await;
+    let before = resolve(runtime, &context, "B", false).await;
+    let established = selected(&before).holon_id().unwrap();
+    let mut successor = context.mutation().stage_new_version_from_id(established.clone()).unwrap();
+    successor.with_property_value("DisplayName", "Explicitly adopted successor").unwrap();
+    let response = context.commit().unwrap();
+    assert_eq!(
+        response.property_value("CommitRequestStatus").unwrap(),
+        Some(base_types::BaseValue::StringValue("Complete".into()))
+    );
+    let successor_id = successor.holon_id().unwrap();
+    assert_ne!(established, successor_id);
+    let context = open(runtime).await;
+    let retained = resolve(runtime, &context, "B", false).await;
+    assert_eq!(selected(&retained).holon_id().unwrap(), established);
+    assert_eq!(retained.data.work.selections, 0);
+    // Adopt into a different Slot scope; the established B scope stays on its exact version.
+    let before_a = resolve(runtime, &context, "A", false).await;
+    let established_a = selected(&before_a).holon_id().unwrap();
+    holons_core::dahn::preferences::remember(
+        &context,
+        saved(&context, "PreferenceTestDate.StringValueType"),
+        Some(saved(&context, "PreferenceTestA.Slot")),
+        HolonReference::smart_from_id(context.space_read_handle(), successor_id.clone()),
+        None,
+    )
+    .unwrap();
+    let response = context.commit().unwrap();
+    assert_eq!(
+        response.property_value("CommitRequestStatus").unwrap(),
+        Some(base_types::BaseValue::StringValue("Complete".into()))
+    );
+    let context = open(runtime).await;
+    let retained = resolve(runtime, &context, "A", false).await;
+    assert_eq!(selected(&retained).holon_id().unwrap(), established_a);
+    assert_eq!(retained.data.work.selections, 0);
+    let adopted = resolve(runtime, &context, "A", true).await;
+    assert_eq!(selected(&adopted).holon_id().unwrap(), successor_id);
+    assert!(adopted.data.work.selections > 0);
+    let unchanged_b = resolve(runtime, &context, "B", false).await;
+    assert_eq!(selected(&unchanged_b).holon_id().unwrap(), established);
+    assert_eq!(unchanged_b.data.work.selections, 0);
+    assert_eq!(context.lookup().staged_count().unwrap(), 0);
+    context.dispose().unwrap();
+}

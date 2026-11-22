@@ -10,6 +10,8 @@ replace the owning design specifications. See the
 
 | Investigation | Status | Strongest current finding |
 |---|---|---|
+| [Session-retained Visualizer evaluation — November 22](visualizer-evaluation-comparison-2026-11-22.md) | Implemented; three passing production-boundary samples | Warm Rust composition median 0.085 ms versus 952.675 ms; zero selection/transport work; browser startup 8.823 s versus 7.303 s in single observations |
+| [Visualizer evaluation baseline — November 22](visualizer-evaluation-baseline-2026-11-22.md) | Pre-registry baseline at 1166e4bc | npm start → mounted 57.933 s; browser 7.303 s; warm composition median 952.675 ms with six repeated selections |
 | [Application startup and Canvas](startup-and-canvas.md) | Regression and recovery observed | Canvas recovered from 118.7 s to 14–15 s while schema load remained slow |
 | [Caching lessons](caching.md) | Implemented policies and future options | Cache lifetime and descriptor lookup cost differ fundamentally between host and guest |
 | [Core Schema load](schema-load.md) | Open; September and November 2026 captures | November: 3.45 s MAP validation and 146.37 s after coordinator return for a larger 1,162-candidate bootstrap; no matched change attribution |

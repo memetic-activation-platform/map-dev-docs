@@ -1,0 +1,2 @@
+  2026-11-22T23:04:53.872847Z  INFO holochain_runtime::native_access: [UPGRADE] Verified packaged coordinator code; existing cell and author retained, changed: true
+  2026-11-22T23:04:53.872864Z  INFO conductora_lib::setup::providers::holochain::native_setup: [UPGRADE] Explicit coordinator-only upgrade completed, changed: true, elapsed_ms: 416

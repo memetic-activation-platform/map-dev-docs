@@ -1,4 +1,4 @@
-# DAHN Foundation Implementation Roadmap v1.11
+# DAHN Foundation Implementation Roadmap v1.12
 
 ## Purpose and delivery authority
 
@@ -239,9 +239,12 @@ startup cost does not justify relaxing eligibility or reviving a separate select
 
 ## Established bindings and sparse personal state: design reconciliation
 
-The [DAHN v2.21 target](dahn-design-spec.md#145-recursive-selection) supersedes
-on-demand-only preparation, automatic durable default Usage creation, and fresh
-candidate discovery for every constituent. Associated personal Usages participate
+The [DAHN v2.22 target](dahn-design-spec.md#145-recursive-selection) establishes
+on-demand evaluation and registry-retained results, superseding per-request
+re-resolution, automatic durable default Usage creation, and fresh discovery for
+every constituent. The November 22, 2026 resolution below supersedes the earlier
+pre-session preparation and change-driven binding-invalidation proposals.
+Historical implementation records remain historical. Associated personal Usages participate
 under full local-choice/cross-cutting-preference/default precedence. Each selected
 owner directs current child demand through shared Rust resolution. This is the
 intended design, not a claim of delivery or authorization for runtime changes.
@@ -253,9 +256,10 @@ implementation grounding rather than inferred completion or new estimates:
 - Formalize descriptor-authored Slot activation and subject expansion; use enums
   for controlled vocabulary while retaining extensible owner-local roles. Owners
   declare demand and contracts; the Selection Service chooses concrete Visualizers.
-- Prepare shared bindings when Visualizers, slots, declarations, or compatibility
-  dependencies change, so a first visit needs neither prior personal use nor
-  speculative loading of inactive navigation destinations.
+- Prepare and retain bindings on demand for the requested evaluation scope.
+  First-use defaults require no prior personal Usage. Reuse captured results
+  across compatible presentations; publication does not initiate evaluation
+  or speculative loading of inactive navigation destinations.
 - Reach personal choices through authorized agent/context access; bulk-load and
   index relevant records, including reusable known absence. Evaluate ancestry
   from metadata instead of repeating backend Usage-discovery walks per slot.
@@ -282,6 +286,76 @@ implementation grounding rather than inferred completion or new estimates:
   host artifact verification, materialization, and runtime admission.
 - Reconsider parent alternatives before dependent children; retain explicit open
   view application, admission, and state-preservation contracts.
+
+### Session-retained evaluation — design resolution, 2026-11-22
+
+Implementation checkpoint and measured evidence: [November 22 comparison](../performance/visualizer-evaluation-comparison-2026-11-22.md).
+
+This is the implementation direction for the retained-evaluation gap identified
+in the #848 / PR #880 review, not a runtime delivery claim. Authority is
+[DAHN §14.5.4](dahn-design-spec.md#1454-runtime-index-and-preparation-validity)
+and the existing [Space Session lifecycle](../core-runtime/space-session-design-spec.md).
+Notifications, asynchronous watchers, stale-choice classification, and automatic
+selection refresh are deferred.
+
+Implement these bounded steps:
+
+1. Represent evaluation-round identity and requested scope separately from public
+   TxIds, composition IPC calls, and Space Session retirement. Fix PersonAgent and
+   I-Space at the registry owner. Newly demanded uncovered contexts can be evaluated
+   without reconsidering retained scopes.
+2. Generalize registry ownership to typed participants with separate restricted
+   retained transactions for derived descriptors and Visualizer evaluations. Reuse
+   common admission, capture, retirement, and disposal; keep domain payloads and
+   policy separate. Ground the current single descriptor-registry attachment,
+   private owner routing, carrier projection, and guest restoration before editing.
+   Transport only the participants needed by an operation, preserving each root,
+   owner TxId, pool, and admission boundary. Composition requires the relevant
+   Visualizer products across guest requests; current Commit-only descriptor
+   capture is not evidence that this transport already exists. Add no competing
+   UI winner map, public mutation API, or general-purpose plugin framework.
+3. Capture actual owner/Slot, subject/ValueType scope, exact Visualizer and
+   implementation versions, participation requirements, Theme/MDS, optional Usage
+   version/effective settings, and choice reason. Preserve contributing relationship
+   facts where exact identities alone cannot reconstruct the answer. Treat observed
+   absence as part of that evaluation, not a change-monitoring subscription.
+4. Change composition resolution from fresh selection state per request to retained
+   acquisition plus evaluation of uncovered requested contexts. Retain useful
+   declaration/personal indexes for the round. Preserve owner-directed guest
+   expansion, batching, and no per-child redispatch; inactive children stay unresolved.
+5. Separate residency from choice. Metadata/executable eviction and ordinary
+   Commit/load Session reset must permit reconstruction of the captured answer
+   without selection, successor adoption, or revival of retired handles. Keep
+   descriptor/relationship-cache semantics unchanged. Report reconstruction failure
+   explicitly. No new durable cache or process-restart guarantee is implied.
+6. Implement agent-requested scoped reconsideration under the same Rust authority.
+   Preserve pins, personal-intent semantics, readiness, state survival, and explicit
+   publication. Evaluation alone does not commit personal state or replace mounted
+   views. Reject late publication over a superseding evaluation; retain other scopes.
+
+Verification must demonstrate:
+
+- First evaluation establishes default bindings without personal records.
+- Repeated composition and compatible new occurrences reuse results without
+  selection, candidate enumeration, or repeated personal-population evaluation.
+- Publishing a candidate, successor, changed default, or saved preference leaves
+  established answers unchanged; explicit reconsideration evaluates applicable inputs.
+- Eviction and ordinary Space Session reset reproduce captured versions/settings
+  without selection or retired handles, even when relationship populations changed.
+- Explicit configuration/Visualizer adoption and newly demanded contexts affect only
+  their requested scope; a compatible Theme change need not select another Visualizer.
+- Authorization, artifact, runtime, and callable failures stop use without fallback.
+- Descriptor and Visualizer participants retain distinct owner transactions;
+  temporary IDs cannot be read through the wrong owner or an unrelated public TxId.
+  Request capture/restore preserves each participant without serializing unrelated pools.
+- Descriptor reset preserves the captured Visualizer decision while retiring affected
+  read projections. Runtime-space disposal closes both participants.
+- Coalesced acquisition, superseding rounds, disposal, and late publication preserve
+  registry/session ownership and existing foreground/persistence isolation.
+
+Count selection/evaluation, metadata reconstruction, executable reads, and
+host/guest crossings separately. Measure first use and repeat presentation of
+the same workload, including setup rather than moving it outside the interval.
 
 ### Minimal PersonAgent integration — approved 2026-11-19
 
@@ -466,7 +540,7 @@ or new issue acceptance gates imposed by this documentation change.
 | Local configuration | Subordinate composition settings are reached through their Usage, apply only in declared scope, and preserve broader preferences (§11.1). |
 | Parent replacement | Resolve the parent first; the replacement owns new child demand, so obsolete descendant alternatives need no exploration (§14.7.2). |
 | New visualizers | Explicit exploration can expose them, including general compatible candidates, without changing the valid active experience (§§14.6–7). |
-| Stale binding | Refresh affected entries and resolve locally or fail explicitly, without incompatible fallback or a repeated per-slot read cascade (§14.5.4). |
+| Established binding after publication or eviction | Publication preserves the choice; eviction/reset reconstructs the captured answer. Agent-requested refresh evaluates only its scope (§14.5.4). |
 | Shared binding | Focus, navigation, edits, and expansion remain independent per live occurrence (§14.5.3). |
 | Several owner-issued child requests | Share Rust resolution context and metadata; a request need not cross host/guest, and independent requests can batch (§14.5.4). |
 
@@ -481,13 +555,13 @@ repeated metadata across the result. References alone followed by the same host
 semantic read cascade do not satisfy this contract; no bound runtime handles
 cross the wire. The exact projection layout is an implementation choice.
 
-Carry revision or equivalent evidence for governing owner/Slot/default declarations,
-subject descriptors/ancestry, candidate/implementation declarations, Theme/runtime,
-authorization, and PersonAgent preference/configuration state. Confirmed absence
-is a dependency: saving the first applicable preference must invalidate a binding
-that relied on no preference. Cover default-declaration absence as relevant to
-conditional versus general defaults. Errors must not populate absence caches.
-Do not broaden preparation into unused candidate enumeration or inactive children.
+Capture evaluated scope, exact selected versions/contracts, effective
+configuration, and observations needed to reconstruct the answer under the
+session-retained evaluation contract above. Successful absence can explain a
+default choice; later records do not retire that established answer. New demand
+and agent-requested reconsideration use their applicable inputs. Errors never
+establish absence. No unused candidate enumeration, inactive child preparation,
+or change-monitoring machinery is required.
 
 The host may still fetch uncached subject content/executable bytes, verify artifacts,
 and admit callable implementations. Failures report realization failure and stop
@@ -519,9 +593,10 @@ diagnostics. Do not confuse preference yielding with unusable-prescription failu
 
 Index one effective choice per authorized PersonAgent, subject descriptor, and
 optional Slot scope. A replacement updates that scope's record, not an additional
-competing choice. Include preference revisions and confirmed absence in binding
-invalidation; saving a preference activates nothing and changes no mounted view
-implicitly. Return effective configuration with optional Usage.
+competing choice. Capture preference/configuration versions and confirmed absence
+for the evaluation. Saving alone does not reconsider established scopes; an agent
+request identifies where to adopt or re-evaluate it. Saving activates nothing
+and changes no mounted view implicitly. Return configuration with optional Usage.
 
 Before implementing affected readers/writers, establish an explicit bounded
 conversion: validate old Slot preferences and owner context, retain their exact
@@ -535,8 +610,9 @@ repeated Open-time migration/verification or general compatibility framework.
 Acceptance: save a Date preference with no Usage and use it across two compatible
 compositions; attach configuration and observe both consume it; override one Slot
 without changing the other; let an incompatible date-range Slot resolve normally;
-verify populated/unset matching, replacement/conflict behavior, first-preference
-absence invalidation, and Slot-preserving old-record conversion. Include malformed/
+verify populated/unset matching, replacement/conflict behavior, established-choice
+stability followed by explicit first-preference adoption, and Slot-preserving
+old-record conversion. Include malformed/
 incomplete missing-Slot records and cross-Agent/wrong-Visualizer/insufficient-scope
 Usage rejection. Keep experience-edit session UI out of scope.
 

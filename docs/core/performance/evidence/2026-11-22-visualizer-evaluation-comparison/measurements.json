@@ -1,0 +1,608 @@
+{
+  "capture_date": "2026-11-22",
+  "timezone": "America/Denver",
+  "source_base_revision": "1166e4bc4490bf824354c72367d86de413b3ed1d",
+  "source_state": "Captured from the finding 3 working tree before commit; source file hashes match implementation checkpoint a7667482fc561f753c16bf00781ac4c2906ef66b",
+  "samples": [
+    {
+      "run": 5,
+      "metrics_ms": {
+        "initial_inspector": 798.646875,
+        "eighteen_field_property_map": 662.539625,
+        "cold-host": 843.699,
+        "warm-host": 0.076
+      },
+      "work": {
+        "initial_inspector": {
+          "selections": 6,
+          "binding_reuses": 6,
+          "metadata_reuses": 0,
+          "personal_population_requests": 1,
+          "candidate_population_requests": 0
+        },
+        "eighteen_field_property_map": {
+          "selections": 2,
+          "binding_reuses": 17,
+          "metadata_reuses": 2,
+          "personal_population_requests": 1,
+          "candidate_population_requests": 0
+        },
+        "cold-host": {
+          "selections": 6,
+          "binding_reuses": 6,
+          "metadata_reuses": 0,
+          "personal_population_requests": 1,
+          "candidate_population_requests": 0
+        },
+        "warm-host": {
+          "selections": 0,
+          "binding_reuses": 12,
+          "metadata_reuses": 22,
+          "personal_population_requests": 0,
+          "candidate_population_requests": 0
+        }
+      },
+      "boundary": {
+        "cold-host": {
+          "calls": [
+            {
+              "label": "query_relationships",
+              "elapsed_us": 14036,
+              "response_bytes": 1107
+            },
+            {
+              "label": "get_saved_holon_by_key",
+              "elapsed_us": 11043,
+              "response_bytes": 715
+            },
+            {
+              "label": "get_holon_by_id",
+              "elapsed_us": 1638,
+              "response_bytes": 1333
+            },
+            {
+              "label": "get_holon_by_id",
+              "elapsed_us": 1637,
+              "response_bytes": 1052
+            },
+            {
+              "label": "get_holon_by_id",
+              "elapsed_us": 1534,
+              "response_bytes": 1313
+            },
+            {
+              "label": "get_saved_holon_by_key",
+              "elapsed_us": 17374,
+              "response_bytes": 1820
+            },
+            {
+              "label": "get_holon_by_id",
+              "elapsed_us": 1665,
+              "response_bytes": 1443
+            },
+            {
+              "label": "get_holon_by_id",
+              "elapsed_us": 1707,
+              "response_bytes": 1123
+            },
+            {
+              "label": "canonical",
+              "elapsed_us": 792083,
+              "response_bytes": 65654
+            }
+          ],
+          "count": 9,
+          "canonical_count": 1,
+          "response_bytes": 75560,
+          "scalar_bytes": 19270
+        },
+        "warm-host": {
+          "calls": [],
+          "count": 0,
+          "canonical_count": 0,
+          "response_bytes": 0,
+          "scalar_bytes": 19272
+        }
+      }
+    },
+    {
+      "run": 6,
+      "metrics_ms": {
+        "initial_inspector": 830.252292,
+        "eighteen_field_property_map": 666.211292,
+        "cold-host": 853.632,
+        "warm-host": 0.086
+      },
+      "work": {
+        "initial_inspector": {
+          "selections": 6,
+          "binding_reuses": 6,
+          "metadata_reuses": 0,
+          "personal_population_requests": 1,
+          "candidate_population_requests": 0
+        },
+        "eighteen_field_property_map": {
+          "selections": 2,
+          "binding_reuses": 17,
+          "metadata_reuses": 2,
+          "personal_population_requests": 1,
+          "candidate_population_requests": 0
+        },
+        "cold-host": {
+          "selections": 6,
+          "binding_reuses": 6,
+          "metadata_reuses": 0,
+          "personal_population_requests": 1,
+          "candidate_population_requests": 0
+        },
+        "warm-host": {
+          "selections": 0,
+          "binding_reuses": 12,
+          "metadata_reuses": 22,
+          "personal_population_requests": 0,
+          "candidate_population_requests": 0
+        }
+      },
+      "boundary": {
+        "cold-host": {
+          "calls": [
+            {
+              "label": "query_relationships",
+              "elapsed_us": 14131,
+              "response_bytes": 1091
+            },
+            {
+              "label": "get_saved_holon_by_key",
+              "elapsed_us": 10428,
+              "response_bytes": 703
+            },
+            {
+              "label": "get_holon_by_id",
+              "elapsed_us": 1625,
+              "response_bytes": 1321
+            },
+            {
+              "label": "get_holon_by_id",
+              "elapsed_us": 1725,
+              "response_bytes": 1036
+            },
+            {
+              "label": "get_holon_by_id",
+              "elapsed_us": 1492,
+              "response_bytes": 1309
+            },
+            {
+              "label": "get_saved_holon_by_key",
+              "elapsed_us": 17677,
+              "response_bytes": 1801
+            },
+            {
+              "label": "get_holon_by_id",
+              "elapsed_us": 1715,
+              "response_bytes": 1432
+            },
+            {
+              "label": "get_holon_by_id",
+              "elapsed_us": 1364,
+              "response_bytes": 1115
+            },
+            {
+              "label": "canonical",
+              "elapsed_us": 802538,
+              "response_bytes": 65583
+            }
+          ],
+          "count": 9,
+          "canonical_count": 1,
+          "response_bytes": 75391,
+          "scalar_bytes": 19270
+        },
+        "warm-host": {
+          "calls": [],
+          "count": 0,
+          "canonical_count": 0,
+          "response_bytes": 0,
+          "scalar_bytes": 19272
+        }
+      }
+    },
+    {
+      "run": 7,
+      "metrics_ms": {
+        "initial_inspector": 785.655791,
+        "eighteen_field_property_map": 641.8365,
+        "cold-host": 941.738,
+        "warm-host": 0.085
+      },
+      "work": {
+        "initial_inspector": {
+          "selections": 6,
+          "binding_reuses": 6,
+          "metadata_reuses": 0,
+          "personal_population_requests": 1,
+          "candidate_population_requests": 0
+        },
+        "eighteen_field_property_map": {
+          "selections": 2,
+          "binding_reuses": 17,
+          "metadata_reuses": 2,
+          "personal_population_requests": 1,
+          "candidate_population_requests": 0
+        },
+        "cold-host": {
+          "selections": 6,
+          "binding_reuses": 6,
+          "metadata_reuses": 0,
+          "personal_population_requests": 1,
+          "candidate_population_requests": 0
+        },
+        "warm-host": {
+          "selections": 0,
+          "binding_reuses": 12,
+          "metadata_reuses": 22,
+          "personal_population_requests": 0,
+          "candidate_population_requests": 0
+        }
+      },
+      "boundary": {
+        "cold-host": {
+          "calls": [
+            {
+              "label": "query_relationships",
+              "elapsed_us": 13577,
+              "response_bytes": 1088
+            },
+            {
+              "label": "get_saved_holon_by_key",
+              "elapsed_us": 10479,
+              "response_bytes": 702
+            },
+            {
+              "label": "get_holon_by_id",
+              "elapsed_us": 1571,
+              "response_bytes": 1320
+            },
+            {
+              "label": "get_holon_by_id",
+              "elapsed_us": 1407,
+              "response_bytes": 1036
+            },
+            {
+              "label": "get_holon_by_id",
+              "elapsed_us": 1367,
+              "response_bytes": 1308
+            },
+            {
+              "label": "get_saved_holon_by_key",
+              "elapsed_us": 17047,
+              "response_bytes": 1802
+            },
+            {
+              "label": "get_holon_by_id",
+              "elapsed_us": 1555,
+              "response_bytes": 1435
+            },
+            {
+              "label": "get_holon_by_id",
+              "elapsed_us": 1498,
+              "response_bytes": 1105
+            },
+            {
+              "label": "canonical",
+              "elapsed_us": 892304,
+              "response_bytes": 65499
+            }
+          ],
+          "count": 9,
+          "canonical_count": 1,
+          "response_bytes": 75295,
+          "scalar_bytes": 19270
+        },
+        "warm-host": {
+          "calls": [],
+          "count": 0,
+          "canonical_count": 0,
+          "response_bytes": 0,
+          "scalar_bytes": 19272
+        }
+      }
+    }
+  ],
+  "medians_ms": {
+    "initial_inspector": {
+      "median": 798.646875,
+      "min": 785.655791,
+      "max": 830.252292
+    },
+    "eighteen_field_property_map": {
+      "median": 662.539625,
+      "min": 641.8365,
+      "max": 666.211292
+    },
+    "cold-host": {
+      "median": 853.632,
+      "min": 843.699,
+      "max": 941.738
+    },
+    "warm-host": {
+      "median": 0.085,
+      "min": 0.076,
+      "max": 0.086
+    }
+  },
+  "baseline_medians_ms": {
+    "initial_inspector": {
+      "median": 782.061375,
+      "min": 752.475708,
+      "max": 829.990417
+    },
+    "eighteen_field_property_map": {
+      "median": 630.300084,
+      "min": 614.297458,
+      "max": 633.653708
+    },
+    "cold-host": {
+      "median": 969.488,
+      "min": 896.067,
+      "max": 989.634
+    },
+    "warm-host": {
+      "median": 952.675,
+      "min": 891.468,
+      "max": 1014.44
+    }
+  },
+  "sources": [
+    {
+      "path": "/private/tmp/map-holons-finding3-implementation/run-5.log",
+      "bytes": 9316,
+      "sha256": "ba068c0465f2090265c80a109e31d6fbc7ba845576b29598457dd4708132aa15",
+      "capture": "entire completed source"
+    },
+    {
+      "path": "/private/tmp/map-holons-finding3-implementation/run-6.log",
+      "bytes": 9229,
+      "sha256": "be4f3ce648647c50a0ff7e31060f828bb92a1bd94c94888735a21fb7a5a40cce",
+      "capture": "entire completed source"
+    },
+    {
+      "path": "/private/tmp/map-holons-finding3-implementation/run-7.log",
+      "bytes": 9227,
+      "sha256": "a7a318f84e6bea40263e594cf83c0879011bbd07bd64f1db52826c0bbde696e0",
+      "capture": "entire completed source"
+    },
+    {
+      "path": "/private/tmp/map-holons-finding3-implementation/source-manifest.json",
+      "bytes": 5089,
+      "sha256": "371193f278b1575144af657aa49299da7cfd0b16a4ab1069cea2aa46359305a6",
+      "capture": "entire completed source"
+    },
+    {
+      "path": "/private/tmp/map-holons-finding3-implementation/preference-replacement-reproducer.rs",
+      "bytes": 4713,
+      "sha256": "61aa2b1d64e5a203e6473ea082c2117422516ae808f88c245f1a8963c7e33c8e",
+      "capture": "entire completed source"
+    },
+    {
+      "path": "/private/tmp/map-holons-finding3-implementation/source-manifest-failed-adoption.json",
+      "bytes": 4707,
+      "sha256": "5d3c204268bbef1c20650833f1783d9ee47d1c1fd67f71e5f156b8b9d573f914",
+      "capture": "entire completed source"
+    },
+    {
+      "path": "/private/tmp/map-holons-finding3-implementation/browser-startup-profile.json",
+      "bytes": 2780,
+      "sha256": "6ef40f51ce3869ba414fe6176ecfef35562176caf17095dee4324237fe3865a6",
+      "capture": "entire completed source"
+    },
+    {
+      "path": "/private/tmp/map-holons-finding3-implementation/npm-start.log",
+      "bytes": 14749087,
+      "sha256": "ad6e6dc07a1645b8decdb9de60ffa8e25921d45fae9a5edce6903d16a9af2c87",
+      "capture": "byte prefix captured after startup"
+    },
+    {
+      "path": "/private/tmp/map-holons-finding3-implementation/start-ms.txt",
+      "bytes": 14,
+      "sha256": "fe09e2cabdda9a6bd55cbb7db5446d7f88493f3e5b3c15a0cd5d03a50c9928e6",
+      "capture": "entire completed source"
+    },
+    {
+      "path": "/private/tmp/map-holons-finding3-implementation/coordinator-upgrade.log",
+      "bytes": 13169600,
+      "sha256": "6b927e49036c591d67e5a50e9f4b08faba1e1d6a221017070668f5d149b726d1",
+      "capture": "entire completed source"
+    },
+    {
+      "path": "/private/tmp/map-holons-finding3-implementation/npm-start-incompatible-environment.log",
+      "bytes": 157665711,
+      "sha256": "1bfa10ac2c55e973386e33862b561e5ea9fa9b0579a2a6c21dc5ddb8e1c0a683",
+      "capture": "entire completed source"
+    },
+    {
+      "path": "/private/tmp/map-holons-finding3-implementation/incompatible-start-ms.txt",
+      "bytes": 14,
+      "sha256": "07925d61aef7ff03784beebd3f80af5d32719e51395411fdafe4ffbc32ae37f9",
+      "capture": "entire completed source"
+    }
+  ],
+  "conditions": {
+    "toolchain": "rustc 1.95.0 (59807616e 2026-04-14)",
+    "MAP_SWEET_STARTUP_TIMEOUT_SECS": "60",
+    "WASM_LOG": "warn",
+    "RUST_LOG": "warn",
+    "RUST_BACKTRACE": "1",
+    "command": "bash scripts/test-run.sh cargo test --manifest-path tests/sweetests/Cargo.toml --test dance_tests owner_directed_composition_acceptance -- --exact --nocapture --test-threads=1",
+    "sample_scope": "Three sequential disposable production conductors; fresh host Runtime and repeated same-context request per conductor. Build and bootstrap excluded from measured composition spans."
+  },
+  "startup": {
+    "npm_started_at_ms": 1795388889363,
+    "browser_profile": {
+      "run": "2026-11-22T23:12:02.572Z",
+      "outcome": "mounted",
+      "totalMs": 8823,
+      "phases": [
+        {
+          "phase": "session-ready",
+          "ms": 1
+        },
+        {
+          "phase": "open transaction",
+          "ms": 1
+        },
+        {
+          "phase": "lookup launch resources",
+          "ms": 110
+        },
+        {
+          "phase": "materialize Canvas",
+          "ms": 3808
+        },
+        {
+          "phase": "project theme",
+          "ms": 225
+        },
+        {
+          "phase": "construct Canvas",
+          "ms": 4678
+        }
+      ],
+      "commands": [
+        {
+          "command": "Transaction.DanceV2",
+          "count": 7,
+          "totalMs": 5316,
+          "maxMs": 3091
+        },
+        {
+          "command": "Holon.Read.GetRelatedHolons",
+          "count": 29,
+          "totalMs": 1809,
+          "maxMs": 206
+        },
+        {
+          "command": "Transaction.ResolveComposition",
+          "count": 1,
+          "totalMs": 710,
+          "maxMs": 710
+        },
+        {
+          "command": "Holon.Write.WithDescriptor",
+          "count": 7,
+          "totalMs": 667,
+          "maxMs": 662
+        },
+        {
+          "command": "Holon.Read.GetEffectiveDescriptor",
+          "count": 3,
+          "totalMs": 409,
+          "maxMs": 409
+        },
+        {
+          "command": "Transaction.GetSavedHolonByBaseKey",
+          "count": 10,
+          "totalMs": 282,
+          "maxMs": 49
+        },
+        {
+          "command": "Transaction.LoadTheme",
+          "count": 1,
+          "totalMs": 223,
+          "maxMs": 223
+        },
+        {
+          "command": "Holon.Read.GetPropertyValue",
+          "count": 178,
+          "totalMs": 117,
+          "maxMs": 17
+        },
+        {
+          "command": "Holon.Read.GetAvailableRelationshipsFromEffective",
+          "count": 2,
+          "totalMs": 54,
+          "maxMs": 38
+        },
+        {
+          "command": "Holon.Read.GetVersionedKey",
+          "count": 16,
+          "totalMs": 23,
+          "maxMs": 3
+        },
+        {
+          "command": "Transaction.SubmitVisualizerUsageBatch",
+          "count": 1,
+          "totalMs": 18,
+          "maxMs": 18
+        },
+        {
+          "command": "Holon.Read.GetKey",
+          "count": 23,
+          "totalMs": 13,
+          "maxMs": 1
+        },
+        {
+          "command": "Transaction.FetchArtifact",
+          "count": 7,
+          "totalMs": 12,
+          "maxMs": 6
+        },
+        {
+          "command": "Transaction.BeginVisualizerUsageBatch",
+          "count": 1,
+          "totalMs": 6,
+          "maxMs": 6
+        },
+        {
+          "command": "Holon.Write.AddRelatedHolons",
+          "count": 7,
+          "totalMs": 5,
+          "maxMs": 1
+        },
+        {
+          "command": "Transaction.NewHolon",
+          "count": 7,
+          "totalMs": 4,
+          "maxMs": 1
+        },
+        {
+          "command": "Space.BeginTransaction",
+          "count": 1,
+          "totalMs": 1,
+          "maxMs": 1
+        },
+        {
+          "command": "Holon.Write.WithPropertyValue",
+          "count": 7,
+          "totalMs": 1,
+          "maxMs": 1
+        },
+        {
+          "command": "Holon.Read.GetHolonDescriptor",
+          "count": 1,
+          "totalMs": 0,
+          "maxMs": 0
+        }
+      ]
+    },
+    "npm_start_to_mounted_ms": 242032.0,
+    "baseline_npm_start_to_mounted_ms": 57933,
+    "baseline_browser_startup_ms": 7303,
+    "sequential_components_ms": {
+      "npm_start_to_first_application_log": 28666.696,
+      "first_application_log_to_welcome_ready": 6281.697,
+      "welcome_ready_to_navigator_handoff_including_user_entry": 198148.847,
+      "handoff_to_browser_profile": 111.76,
+      "browser_profile": 8823
+    },
+    "baseline_welcome_ready_ms": 9998.974,
+    "baseline_welcome_entry_and_handoff_ms": 11151.075,
+    "provenance": {
+      "source": "/Users/stevemelville/Library/WebKit/com.map-holons.tauri.dev/WebsiteData/Default/7muINJI3PxcxBfD9qrDC83oRTUzyg65vfwLeD-tlkHY/7muINJI3PxcxBfD9qrDC83oRTUzyg65vfwLeD-tlkHY/LocalStorage/localstorage.sqlite3",
+      "key": "map.startupProfiles",
+      "access": "read-only SQLite; only this named startup diagnostic was queried"
+    },
+    "user_confirmation": "Canvas is open",
+    "limitations": "Interactive elapsed time includes Welcome entry delay; one browser sample per revision; earlier dependency-rebuild launch stopped at coordinator compatibility guard and is excluded."
+  },
+  "source_checkpoint_revision": "a7667482fc561f753c16bf00781ac4c2906ef66b"
+}

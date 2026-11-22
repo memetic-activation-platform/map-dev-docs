@@ -1,0 +1,124 @@
+{
+  "source_revision": "1166e4bc4490bf824354c72367d86de413b3ed1d",
+  "capture_date": "2026-11-22",
+  "client_timezone": "America/Denver",
+  "status": "Baseline only; findings 1 and 2 implemented; finding 3 implementation not started.",
+  "browser_profile_provenance": "User-supplied JSON in the chat, normalized without changing its values; correlated with local start-ms.txt and npm-start.log.",
+  "raw_source_retention": "Local temporary sources only; full raw traces not committed. Compact JSON and selected log excerpts are retained with this record.",
+  "sources": [
+    {
+      "local_source": "/private/tmp/map-holons-startup-20261122-103104/npm-start.log",
+      "captured_bytes": 5764182,
+      "sha256": "1cae2f4449f3f7f00f2f81a2b4e0d9316a55ef399bca7d2e4dcedfced5758b1e",
+      "capture": "byte prefix through mounted-endpoint log events; original app log may continue to append"
+    },
+    {
+      "local_source": "/private/tmp/map-holons-startup-20261122-103104/start-ms.txt",
+      "captured_bytes": 14,
+      "sha256": "389f3fe0b475152da28493c0751da5b371a455ec8ca874a39548c17cddc9d506",
+      "capture": "entire file"
+    },
+    {
+      "local_source": "/private/tmp/map-holons-startup-20261122-103104/commit.txt",
+      "captured_bytes": 41,
+      "sha256": "f4487349e4fb06b87a86b05fc5f0ec0c2f6ac2019e6ac70de6640750c458426e",
+      "capture": "entire file"
+    },
+    {
+      "local_source": "/private/tmp/map-holons-finding3-baseline-1166e4bc/rust-version.txt",
+      "captured_bytes": 36,
+      "sha256": "f4d034f5660bb49f22bfcba3f3445be67e25b704c193ff421b53863b4faee148",
+      "capture": "entire file"
+    },
+    {
+      "local_source": "/private/tmp/map-holons-finding3-baseline-1166e4bc/commit.txt",
+      "captured_bytes": 41,
+      "sha256": "f4487349e4fb06b87a86b05fc5f0ec0c2f6ac2019e6ac70de6640750c458426e",
+      "capture": "entire file"
+    },
+    {
+      "local_source": "/private/tmp/map-holons-finding3-baseline-1166e4bc/run-1.log",
+      "captured_bytes": 14530,
+      "sha256": "c0f5b9da64fffafb62a2428b4946056f05e27378d233f02aff76a3b29195502b",
+      "capture": "entire file"
+    },
+    {
+      "local_source": "/private/tmp/map-holons-finding3-baseline-1166e4bc/run-2.log",
+      "captured_bytes": 9731,
+      "sha256": "c2ecef4f500256054fe100eeb5abbe51c4b6ec3da1e5de58e0c67670a794b4e4",
+      "capture": "entire file"
+    },
+    {
+      "local_source": "/private/tmp/map-holons-finding3-baseline-1166e4bc/run-3.log",
+      "captured_bytes": 9731,
+      "sha256": "c7619482731bf4de24b884ba25fcaa106ae748c40d675b2cb6e1e9057047033e",
+      "capture": "entire file"
+    }
+  ],
+  "native_markers_utc": {
+    "first_application_log": "2026-11-22T17:31:33.788061Z",
+    "navigator_handoff": "2026-11-22T17:31:54.938110Z"
+  },
+  "startup_ms": {
+    "recorded_npm_start_to_mounted": 57933,
+    "before_first_application_log": 29387.061,
+    "first_application_log_to_browser_profile": 21242.939,
+    "first_application_log_to_handoff": 21150.049,
+    "handoff_to_browser_profile": 92.89,
+    "browser_profile": 7303,
+    "first_application_log_to_mounted": 28545.939,
+    "holochain_runtime_reported": 8700,
+    "provider_setup_reported": 8751,
+    "retained_space_discovery_reported": 213,
+    "supported_core_schema_identity_lookup_reported": 33,
+    "core_schema_open_phase_reported": 247
+  },
+  "reported_build_intervals_ms": {
+    "happ_cargo_release": 230,
+    "angular_bundle_generation": 2010,
+    "native_cargo_dev": 21730
+  },
+  "reported_build_intervals_note": "Reported component intervals do not constitute a complete exclusive build/bundling timer. The 29.387 s pre-application interval also includes npm checks, packaging and launch overhead.",
+  "browser_command_entries": 306,
+  "browser_command_accumulated_ms": 7995,
+  "browser_command_time_note": "Command durations are not exclusive wall-clock components and must not be summed with phase durations.",
+  "logging": {
+    "MAP_PROFILE": "1",
+    "RUST_LOG": "host:info",
+    "WASM_LOG": "warn",
+    "publication_warning_lines_before_browser_profile": 18225,
+    "publication_warning_lines_during_browser_profile": 0,
+    "note": "Observed failed_to_send_publish / NoPeersForLocation warnings. Logging and instrumentation overhead not isolated; no causal time attribution."
+  },
+  "composition_medians_ms": {
+    "initial_inspector": {
+      "median": 782.061375,
+      "min": 752.475708,
+      "max": 829.990417
+    },
+    "eighteen_field_property_map": {
+      "median": 630.300084,
+      "min": 614.297458,
+      "max": 633.653708
+    },
+    "cold-host": {
+      "median": 969.488,
+      "min": 896.067,
+      "max": 989.634
+    },
+    "warm-host": {
+      "median": 952.675,
+      "min": 891.468,
+      "max": 1014.44
+    }
+  },
+  "composition_sample_count": 3,
+  "packaged_startup_sample_count": 1,
+  "toolchain_record": "rustc 1.95.0 (59807616e 2026-04-14)",
+  "unrecorded_conditions": [
+    "Machine load and thermal state",
+    "Node architecture/version used by the manual capture",
+    "Independent actual screen-paint/input-readiness time",
+    "Durable external location for full raw logs"
+  ]
+}

@@ -1,4 +1,4 @@
-# DAHN Design Specification v2.21
+# DAHN Design Specification v2.22
 
 ## Status
 
@@ -9,6 +9,13 @@ This version re-baselines the DAHN design around the architecture that has emerg
 It supersedes the Phase-0-specific visualizer selection, canvas, affordance hierarchy, and dynamic-loading models in v1.4 while preserving still-valid MAP/DAHN boundary decisions.
 
 ## Change Log
+
+### v2.22
+
+- establishes on-demand evaluation with registry-retained bindings and exact selected versions;
+- makes reconsideration of established choices agent-directed;
+- distinguishes Space Session retirement and reconstruction from selection;
+- defers notifications, change monitoring, and automatic staleness detection.
 
 ### v2.21
 
@@ -1529,8 +1536,10 @@ mutation; it does not accumulate competing preference records. Multiple conflict
 records at one scope are an explicit diagnostic, not permission to create another.
 
 Bulk-load through the authorized PersonAgent inverse and index by that scope.
-Saving a choice invalidates affected personal indexes, confirmed absence, and
-prepared bindings, including defaults that relied on there being no preference.
+Saving a choice updates personal state for new or explicitly reconsidered scopes.
+The agent may explicitly apply it to an established scope; merely saving the
+record does not retire other established bindings or their captured absence
+observations. The evaluation-round contract in §14.5.4 owns that distinction.
 No saved preference activates an inactive Slot or silently replaces a mounted view.
 Consolidated results include effective configuration/defaults and an optional
 Usage reference; preference-only selection must not manufacture a Usage.
@@ -2477,13 +2486,14 @@ profile (evidence for adaptive ranking). None substitutes for the others.
 
 A pre-selected Visualizer is an established choice reusable in an applicable
 context; **prepared binding** is the term for that established resolution here.
-Preparation may occur independently of any person's visit. Introducing or
-changing a Visualizer, slot, applicability declaration, or
-relevant compatibility dependency can establish or refresh reusable shared
-default bindings and compatibility metadata. A first-time agent benefits even
-without personal Usages or previous rendering. Shared default preparation does
-not require an agent-specific personal record; Rust applies the current personal
-context when resolving a presentation request.
+Preparation occurs on demand within an agent-initiated evaluation round or for
+a newly demanded scope not covered by established results. Capture the result
+for subsequent ordinary presentation rather than repeating selection on each
+request. Publishing a Visualizer, successor definition, or changed recommendation
+does not initiate evaluation or change an established choice. A first-time agent
+can resolve defaults without personal Usages or previous rendering. No speculative
+preparation for unrequested destinations is required. Rust applies the admitted
+personal context when resolving a previously unresolved scope.
 
 Preparation of bindings is distinct from speculative navigation. It need not
 load relationship targets, inactive collections, or every possible destination.
@@ -2565,10 +2575,11 @@ Inverse targets identify declaration lineages. Binding the owning Slot by lineag
 keeps a declaration attached to that Slot across ordinary version evolution; a
 replacement Slot lineage is a different owner. The recommended Visualizer and
 optional condition identify explicit versioned definitions. A new definition
-version is not silently substituted for either target. Updated declarations and
-relevant dependency changes refresh the affected prepared products. Binding
-requires the shared source-version/inverse behavior; these declarations do not
-introduce a separate version-adoption mechanism.
+version is not silently substituted for either target. Updated declarations are
+inputs to new or agent-requested evaluation, not triggers for changing an
+established answer. Capture the recommendation used by the evaluation round.
+Binding requires the shared source-version/inverse behavior; these declarations
+do not introduce a separate version-adoption mechanism.
 
 For each Slot's effective current declaration collection, permit at most one
 declaration for each subject-type condition and at most one unconditional general
@@ -2637,12 +2648,13 @@ do not relabel an eligible recommendation as absent.
 
 #### Preparation and example
 
-Prepare shared declaration indexes, compatibility metadata, or bindings before a
-personal visit when the relevant Slot/default/Visualizer/schema dependencies are
-available. Reuse them only while their dependency and request-context evidence
-remains valid. A default record requires no personal Usage or preference. Preparation
-neither activates a child, loads its subject population/data, materializes its
-executable, nor creates a durable Usage. Activation remains a separate contract.
+Prepare declaration indexes, compatibility metadata, and bindings on demand for
+the requested evaluation scope. Retain established results through the session
+registry under §14.5.4 so compatible later occurrences do not repeat selection.
+A default record requires no personal Usage or preference. Preparation neither
+activates an unrequested child, loads its population/data, materializes its
+executable, nor creates a durable Usage. Publication of additional defaults does
+not require refreshing established choices. Activation remains separate.
 
 For example, a PropertyMap Value Slot can declare Calendar Interactor for the
 `Date` ValueType and Generic Value Visualizer as its general default:
@@ -2658,7 +2670,10 @@ For example, a PropertyMap Value Slot can declare Calendar Interactor for the
 
 ### 14.5.2 Reuse and personal preference
 
-After validating eligibility for the actual request, ordinary resolution uses:
+An established answer covering the request is reused under §14.5.4, without
+rerunning preference/default precedence to reconfirm its winner. The following
+precedence applies when evaluating a newly demanded scope or when the agent
+requests reconsideration. After validating eligibility for that evaluation, use:
 
 1. An explicit current choice or applicable occurrence/composition-specific personal choice.
 2. An applicable cross-cutting personal preference.
@@ -2699,11 +2714,16 @@ a universal collective winner.
 
 ### 14.5.3 Matching context and state ownership
 
-Reusable resolution context includes the applicable Agent Space/personal policy,
-the Slot Contract, relevant subject descriptor/Type, and every input that can
-change eligibility or selection, including Theme/MDS, required/offered Operators,
-runtime support, authorization, applicable prepared defaults, and applicable
-explicit choices or constraints.
+For the personal experience, the admitted PersonAgent and their I-Space are fixed
+by the registry owner rather than varying dimensions on every lookup. Other
+principals or runtime space proxies must not reuse that owner's results.
+An evaluation captures the actual owner/Slot contract, subject descriptor or
+declared ValueType, Theme/MDS context, selected definitions and implementation,
+required/offered Operators, personal configuration, and explicit constraints.
+These establish the scope of reuse; routine reuse does not compare the answer
+with newly available candidates, defaults, or policy scores. Current execution
+authorization and runtime admission remain required at their designated
+boundaries; they do not initiate replacement selection.
 Subject instance details are additional dimensions only when they affect those
 semantics. Equivalent contracts may share work across distinct slots only when
 their effective requirements, subject bindings, and applicable personal choices
@@ -2718,15 +2738,102 @@ follow §11.1; a binding index must preserve those distinctions.
 
 ### 14.5.4 Runtime index and preparation validity
 
-Rust bulk-loads applicable saved Usages and preference records directly through
-the authorized agent/context access path (§11.1) and indexes them
-for resolution. Prepared composition metadata includes selected identities,
+Rust bulk-loads applicable saved Usages and preference records through the
+authorized agent/context access path (§11.1) when an evaluation needs that personal
+population, and retains indexed observations for that evaluation. Repeated
+presentation of an established scope does not reload and re-evaluate that
+population merely to reconfirm the choice. Prepared composition metadata includes selected identities,
 optional personal configuration, Visualizer descriptors, declared Slots and their
 contracts, and authorized implementation references. It is retrieved in bulk or
 materialized into a runtime index so rendering does not repeat a backend probe
 for each occurrence's Usage, descriptor, Slot, and implementation reference.
 This is a derived execution index, not a second source of semantic truth or a
 serialization of bound runtime handles across the SDK boundary.
+
+#### Evaluation rounds and established decisions
+
+An evaluation round is an agent-initiated selection activity for a requested
+scope. It is distinct from a presentation request, an IPC/guest call, a public
+transaction, and the runtime Space Session. Initial opening may initiate the
+first evaluation of its requested presentation. Later demand outside retained
+scope may resolve that new context without reconsidering existing answers.
+All logical constituents declared for the presentation participate, including
+offscreen scalar fields; inactive destinations remain unresolved.
+
+After resolving a scope, ordinary rendering, reopening, and compatible navigation
+reuse its established decision. The objective is continued suitability under the
+captured contract, not repeated proof that the choice is the best now available.
+Only an agent request reconsiders an established choice. The agent can request
+re-evaluation spontaneously; no evidence of staleness is required. Explicit
+replacement, version adoption, configuration adoption, and scoped refresh are
+agent-directed operations. Existing pin authority and replacement/readiness
+contracts still apply. Evaluation alone does not replace mounted occurrences.
+
+Retain the following conceptual record through the existing session-registry
+owner and capture mechanisms. No new persisted schema type is required.
+
+| Captured information | Purpose |
+| --- | --- |
+| Evaluation-round identity and scope | Distinguish established answers, new demand, and explicitly reconsidered scopes. |
+| Registry owner | Inherit the fixed PersonAgent/I-Space and isolate other runtime proxies. |
+| Actual owner/Slot and subject-binding/descriptor scope | Match covered requests without unnecessary occurrence/path/value keys. |
+| Exact selected Visualizer and implementation versions, plus participation contracts | Reconstruct the same answer without following successors or rebuilding candidates. |
+| Optional Usage/configuration version and effective settings | Preserve adopted configuration and resolved defaults without manufacturing a Usage. |
+| Theme/MDS and explicit constraints | Identify the established compatibility context. |
+| Choice reason and governing declaration/preference, when present | Explain the answer without retaining every candidate or inventing personal intent. |
+
+Selected definitions are immutable. Publishing successors does not change their
+settings or automatically adopt new defaults. Capture contributing relationship
+results, participation requirements, and effective configuration needed to
+reproduce the answer: exact node identities alone do not freeze relationship
+membership. Reconstruction must not reread a changed inverse population and
+reinterpret it as the original evaluation.
+
+#### Registry ownership and reconstruction
+
+Generalize the existing registry infrastructure to typed Session participants.
+The derived-descriptor registry and Visualizer-evaluation registry each own a
+separate restricted retained transaction, transient pool, typed indexes, and
+admitted projections. Both belong to the same runtime space proxy. Public
+transactions consume their admitted products without adopting their TemporaryIds.
+This is runtime ownership, not a new public mutation surface or independent
+persistent database.
+
+Reuse common lifecycle, admission, retirement, and host/guest capture infrastructure;
+keep domain payloads and reconstruction policy with each participant. Do not create
+a competing TypeScript winner store, retain unrelated public pools, or require a
+general-purpose registry plugin framework. The
+[Space Session contract](../core-runtime/space-session-design-spec.md) owns handle
+admission, Commit/load reset, and late-publication boundaries. Separate owner
+transactions do not alone change the retirement rules.
+
+The compact established decision and its session-bound read projections have
+different lifetimes. A Space Session reset retires old projections and handles.
+The registry owner can retain the decision's reconstruction recipe and admit a
+new projection in the successor Session using the same captured versions,
+settings, and scope, without executing selection. Never revive a retired
+TemporaryId or attach it to a caller's public transaction. An unreconstructible
+answer is an explicit failure, not permission to select a replacement.
+
+Not every metadata projection or executable must remain in memory. Evict
+reconstructible payloads while retaining enough of the decision to reload the
+same answer. Metadata/executable reload is not a new evaluation round. If the
+decision itself is deliberately released, its scope is no longer retained;
+fresh selection must not be represented as a metadata-cache hit. The retained
+recipe belongs to the Visualizer-evaluation registry owner, not a parallel winner
+map. Internal layout and bounded residency policy are implementation choices.
+
+Registry ownership ends with its runtime owner. This contract adds no durable
+selection cache or automatic round-recovery guarantee across process restart.
+Existing explicit personal-state retention may recover choices; uncovered
+contexts need on-demand evaluation. Reconstruction after ordinary Session reset
+must still preserve the retained choice.
+
+Concurrent requests for the same unresolved scope share in-flight evaluation.
+Publication must match the active registry Session and evaluation-round identity.
+Agent-requested reconsideration prevents older in-flight work from publishing
+over its replacement; unrelated established scopes remain reusable. Reuse existing
+publication/admission mechanisms without dependency watchers or periodic ranking.
 
 Prepared requests and rendering requests must agree on actual subject, owner,
 Slot, kind, and Theme. In particular, an occurrence-control ActionBar currently
@@ -2784,38 +2891,31 @@ fallback selector, candidate-exclusion mechanism, or automatic retry cycle.
 
 #### Dependency validity and confirmed absence
 
-Reuse follows revisions or equivalent validity evidence for what governed the
-answer: effective owner/Slot declarations and defaults, relevant subject descriptors
-and ancestry, governing candidate and implementation declarations, Theme/runtime
-context, authorization, and the PersonAgent's applicable preference/configuration
-state. A reason based on discovery also carries the relevant candidate-population
-evidence. Do not require enumeration of unrelated candidates merely to validate a
-prescribed default or personal choice.
+Validity means that the requested use is covered by the captured binding scope
+and admitted execution context. It does not mean that no new candidate,
+successor, recommendation, or preference record has appeared. Successful empty
+lookups are observations of that evaluation; errors and incomplete lookups never
+establish absence. Keep only observations needed to explain or reconstruct the
+answer. Later preferences and conditional defaults inform new or agent-requested
+evaluation without retroactively invalidating an established absence-based answer.
 
-Confirmed absence is itself a dependency. A result using a default because no
-applicable personal preference existed must carry the relevant PersonAgent/context
-absence evidence. Saving the first applicable preference invalidates that answer
-for subsequent resolution. Similarly, a general default's reuse must account for
-changes to conditional declarations that could govern it. Failed/incomplete
-lookups never establish absence. Invalidate affected bindings and absence entries
-without recreating the per-child read cascade. Invalidation does not silently
-replace an already mounted valid experience; existing replacement/publication
-contracts still govern active views.
+Subject values, collection populations, layout, focus, and expansion can change
+without selecting another Visualizer. Reload or reproject the affected data.
+Explicit Theme/MDS or contract adoption establishes a changed request context:
+reuse an answer covering it, check the adopted contract as required, or resolve
+the newly requested scope. No context change authorizes silently substituting
+a different candidate for an established occurrence.
 
-Preparation carries dependency versions or equivalent validity evidence for
-contracts, subject applicability and Type ancestry, Visualizers, implementations,
-Theme/MDS compatibility, declared runtime support, semantic accessibility, authorization, and relevant
-personal policy. Changes invalidate or refresh affected entries. Inexpensive
-validity checks use available version/change evidence; they must not recreate
-the per-Slot read cascade. A request outside that evidence requires localized
-revalidation or discovery. Preparation does not assert indefinite freshness or
-waive current access checks.
+Authorization revocation, unavailable runtime support, artifact verification or
+loading failure, and missing callable operations block the affected use or
+realization attempt. Report the condition; it does not initiate a fallback
+selector. Session retirement follows the reconstruction rules above. Current
+admission does not re-enumerate candidates or rerank an established selection.
 
-Invalid or unresolved bindings cause localized resolution or an explicit failure;
-they never authorize incompatible substitution. Preparing updated defaults does
-not silently replace a valid personal binding or active experience. Replacement
-of an active selection retains its readiness, state-survival, and publication
-contract even when invalidation requires a new selection.
+Notifications, asynchronous candidate/default-change monitoring, automatic
+staleness detection, TTL-driven choice refresh, and continuous re-ranking are
+deferred. No notification or stale marker is needed for an agent to request
+re-evaluation; reconsideration remains agent-directed regardless of its reason.
 
 ## 14.6 Agent choice and selection policy
 

@@ -1,0 +1,125 @@
+{
+  "base_revision": "1166e4bc4490bf824354c72367d86de413b3ed1d",
+  "files": [
+    {
+      "path": "happ/crates/holons_guest/src/dances_guest/dance_adapter.rs",
+      "sha256": "cefe640bcbb6b38a55ea64970fab50b7c7037ef299ad959600a4d1fbe975fbac"
+    },
+    {
+      "path": "host/crates/holochain_receptor/src/holochain_conductor_client.rs",
+      "sha256": "f8788687651f364bd3f2ab43b06c3c31dbbbc72f5ce2633b59de74f6ec626d4d"
+    },
+    {
+      "path": "host/crates/holons_client/src/client_shared_objects/client_holon_service.rs",
+      "sha256": "f7a4103dc9532d5b77c63d75bdfdd9874250223da7c2d66fb824a602f21e75ed"
+    },
+    {
+      "path": "host/crates/map_commands_contract/src/transaction_command.rs",
+      "sha256": "7829b4bd14ffb1f5cc78041ed324b5cbddaa5b55face4093eba4c63623c8d632"
+    },
+    {
+      "path": "host/crates/map_commands_runtime/src/runtime_session.rs",
+      "sha256": "26339bfcae7e4ce81795a87448ee9bdd962ebe15d942169ec6686a96bd9754f2"
+    },
+    {
+      "path": "host/crates/map_commands_runtime/src/transaction_handler.rs",
+      "sha256": "a3895a6f25119a047a6640555fbb11214ac50eefaf3f3f5c34f25854d5416ace"
+    },
+    {
+      "path": "host/crates/map_commands_wire/src/transaction_wire.rs",
+      "sha256": "59fbb6ad1c31a62eaeb8b17e5cd398c2ea47b71440c5d0d05cd6f12c003f2353"
+    },
+    {
+      "path": "host/map-sdk/src/internal/wire-types/commands.ts",
+      "sha256": "61fc9f30c1057ad4a9e64e8197acbb9bf07bedc3da406fc4bd2deeabc14ef84d"
+    },
+    {
+      "path": "host/map-sdk/src/internal/wire-types/results.ts",
+      "sha256": "b5e55788a16bea54afefe3e93ff7a05ea04528417335a585485d1fa87e6e7806"
+    },
+    {
+      "path": "host/map-sdk/src/sdk/composition.ts",
+      "sha256": "c6c2b0748d42d9762ce6a0cb1cd3e1ca5b8e13a2113ec05a5e741ded24e464d4"
+    },
+    {
+      "path": "host/map-sdk/src/sdk/transaction.ts",
+      "sha256": "da19a8b48c5d5286f56d0fe418d4c08a8d661705304a5f82701af599e2b231d3"
+    },
+    {
+      "path": "host/map-sdk/tests/sdk/composition.test.ts",
+      "sha256": "d50a1f8798825b99bf99d5a6f7bb46328b3544357edba539da820d6b9d9c2879"
+    },
+    {
+      "path": "shared_crates/holons_boundary/src/envelopes/dance_envelope.rs",
+      "sha256": "14f9028d91b7bbf2063025ca6eb25c506e1892c05c211a291f4884283177a2da"
+    },
+    {
+      "path": "shared_crates/holons_boundary/src/session_state/descriptor_registry_wire.rs",
+      "sha256": "7229b289fb0c7f3d56cc1c4554f47bda6bc25170d0a18a043c7535abb1583cea"
+    },
+    {
+      "path": "shared_crates/holons_boundary/src/session_state/mod.rs",
+      "sha256": "71fa36a79532b12544e741ba6dbac9ecc2a6532b8d8b44a02e00217366dd8740"
+    },
+    {
+      "path": "shared_crates/holons_boundary/src/session_state/registry_owner.rs",
+      "sha256": "aa7fc379e7925b0d7c08b93960e948b4de42b8d193af7d0cc195750e13a6215a"
+    },
+    {
+      "path": "shared_crates/holons_boundary/src/session_state/visualizer_evaluations_wire.rs",
+      "sha256": "3cf618f354afc61173e3fb0b186ae4fcc6dcd4423821ae865b26a96e0e5751f8"
+    },
+    {
+      "path": "shared_crates/holons_core/src/core_shared_objects/space_manager.rs",
+      "sha256": "1f7951039560685196c474a250885b7d59806d8b08c75dc8bc34318f7131605d"
+    },
+    {
+      "path": "shared_crates/holons_core/src/core_shared_objects/transactions/transaction_context.rs",
+      "sha256": "6c52a9ef7c4776e865b483c09f68eec9d5dbf622b879464d50bef9fa8f102a36"
+    },
+    {
+      "path": "shared_crates/holons_core/src/dahn/composition.rs",
+      "sha256": "c3e8d3920681932ccfb1d7320c5bb218c2f8f32ec3bffb03c869f970fc1d9234"
+    },
+    {
+      "path": "shared_crates/holons_core/src/dahn/evaluation_registry.rs",
+      "sha256": "c3a5566986a64020f3a17f0edbeb28425984bc4399d3a0ecefc38461d7c116ee"
+    },
+    {
+      "path": "shared_crates/holons_core/src/dahn/mod.rs",
+      "sha256": "f9c555fd763d37d27b4460212279d19ae4f0df2d82b5a118c9d46e85ee164e7c"
+    },
+    {
+      "path": "shared_crates/holons_trust_channel/src/envelopes/dance_envelope_adapter.rs",
+      "sha256": "e6e68a29beec074c6bb8478674552d5e314b0cab9116c2fda1aadd0189348a3e"
+    },
+    {
+      "path": "shared_crates/holons_trust_channel/src/trust_channel.rs",
+      "sha256": "3073cd1d359653ef05d6a01c710b9881eb2f7aa052f334b08215de4b70f07509"
+    },
+    {
+      "path": "tests/sweetests/src/harness/helpers/mock_conductor.rs",
+      "sha256": "62388975e0dd45c3fdbbf677da86fa02ccb0aa0030f302f0d49edc4a3ed4b135"
+    },
+    {
+      "path": "tests/sweetests/tests/dance_tests.rs",
+      "sha256": "99961464953149d1d05ce6f7b20ed52c2c128f0cfe9acb138d2717c80788ed95"
+    },
+    {
+      "path": "tests/sweetests/tests/runtime_checks/owner_directed_composition.rs",
+      "sha256": "2abe0d6c4154fe742f1c3496eb6105662410ae1c69fa6be3ae7e3cb8a2953fff"
+    }
+  ],
+  "test_artifacts": {
+    "happ/workdir/map-holons.happ": "91a5c6877b0abb9996a05d72117053876fb16c5bece4936375954dff4a2a83cf",
+    "happ/target/wasm32-unknown-unknown/release/holons.wasm": "bd6012a8e00ca05a50f7a2e2dbb98c1eaad0b121297b035e6283efe4fd4ea3e9",
+    "target/debug/deps/dance_tests-6025b3f45305b25a": "c563da16640433c81918d499248b7a4330386c774440d5cb66180fbd1a74b357"
+  },
+  "final_artifacts": {
+    "happ/workdir/map-holons.happ": "91a5c6877b0abb9996a05d72117053876fb16c5bece4936375954dff4a2a83cf",
+    "happ/target/wasm32-unknown-unknown/release/holons.wasm": "bd6012a8e00ca05a50f7a2e2dbb98c1eaad0b121297b035e6283efe4fd4ea3e9",
+    "target/debug/deps/dance_tests-6025b3f45305b25a": "c563da16640433c81918d499248b7a4330386c774440d5cb66180fbd1a74b357",
+    "host/target/debug/bundle/macos/Map Holons.app/Contents/MacOS/MAP": "8fde5892f77376dd678d906978de76bd082811d4c92fb2f8787c2dc70b85e5d9"
+  },
+  "checkpoint_revision": "a7667482fc561f753c16bf00781ac4c2906ef66b"
+}

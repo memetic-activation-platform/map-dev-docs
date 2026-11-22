@@ -1,0 +1,20 @@
+npm-start.log:57:     Finished `release` profile [optimized] target(s) in 0.23s
+npm-start.log:87: Application bundle generation complete. [2.010 seconds] - 2026-11-22T17:31:09.132Z
+npm-start.log:154:     Finished `dev` profile [optimized + debuginfo] target(s) in 21.73s
+npm-start.log:155:        Built application at: /Users/stevemelville/dev/map-holons/host/target/debug/MAP
+npm-start.log:156:     Bundling Map Holons.app (/Users/stevemelville/dev/map-holons/host/target/debug/bundle/macos/Map Holons.app)
+npm-start.log:157:     Finished 1 bundle at:
+npm-start.log:172:   2026-11-22T17:31:33.788061Z  INFO conductora_lib: [MAIN APP] Starting application.
+npm-start.log:178:   2026-11-22T17:31:33.846888Z  INFO holochain_runtime::launch: [LAUNCH] Storage/configuration preparation: 0ms
+npm-start.log:184:   2026-11-22T17:31:34.551384Z  INFO holochain_runtime::launch: [LAUNCH] Saved-interface preflight: 704ms
+npm-start.log:187:   2026-11-22T17:31:35.167189Z  INFO holochain_runtime::launch: [LAUNCH] Lair keystore startup: 615ms
+npm-start.log:190:   2026-11-22T17:31:35.167435Z  INFO holochain_runtime::launch: [LAUNCH] Device-seed lookup/initialization: 0ms
+npm-start.log:196:   2026-11-22T17:31:42.591453Z  INFO holochain_runtime::launch: [LAUNCH] Conductor construction: 7424ms
+npm-start.log:199:   2026-11-22T17:31:42.591480Z  INFO holochain_runtime::launch: [LAUNCH] Total launch_holochain_runtime: 8.7s
+npm-start.log:205:   2026-11-22T17:31:42.781069Z  INFO conductora_lib::setup::app_builder: [PERF-688] conductora_startup: provider_setup_ms=8751
+npm-start.log:208:   2026-11-22T17:31:42.781119Z  INFO conductora_lib::setup::app_builder: [PERF-688] conductora_startup: receptor_config_ms=0
+npm-start.log:214:   2026-11-22T17:31:42.781523Z  INFO conductora_lib::setup::app_builder: [PERF-688] conductora_startup: runtime_init_ms=0
+npm-start.log:217:   2026-11-22T17:31:42.995544Z  INFO conductora_lib::setup::core_schema_bootstrap: [OPEN] transaction_setup_ms=0 local_space_discovery_ms=213 transaction_cleanup_ms=0
+npm-start.log:469:   2026-11-22T17:31:43.029149Z  INFO conductora_lib::setup::core_schema_bootstrap: [OPEN] Supported CoreSchema identity lookup: 33ms
+npm-start.log:478:   2026-11-22T17:31:43.029159Z  INFO conductora_lib::setup::app_builder: [PERF-688] conductora_startup: core_schema_bootstrap_ms=247
+npm-start.log:57254:   2026-11-22T17:31:54.938110Z  INFO conductora_lib::packaged_navigator: [HANDOFF] Opened packaged Navigator using the existing runtime, Agent and Space

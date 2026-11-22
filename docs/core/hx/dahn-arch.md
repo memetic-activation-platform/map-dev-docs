@@ -1,4 +1,4 @@
-# DAHN Architecture Specification v0.11
+# DAHN Architecture Specification v0.12
 
 ## Status
 
@@ -7,6 +7,12 @@ Space Navigator architecture document. It defines reusable subsystem authority,
 not the internal experiential grammar of any Dancer or Visualizer.
 
 ## Change Log
+
+### v0.12
+
+Delegates on-demand evaluation and registry-retained choices to DAHN v2.22.
+Separates exact-version reconstruction after Space Session reset from
+agent-directed reconsideration; defers notifications and staleness monitoring.
 
 ### v0.11
 
@@ -1681,25 +1687,36 @@ Many DAHN semantic operations may cross IPC and may ultimately interact with dis
 
 These operations SHOULD be treated as asynchronous.
 
-Rust owns the derived prepared-composition index and its validity evidence under
-[DAHN §14.5](dahn-design-spec.md#145-recursive-selection). The SDK may project
-prepared bindings and metadata for runtime consumption without moving discovery,
-compatibility, or personal-policy authority into TypeScript. Preparation is
-intended to establish shared Visualizer/Slot bindings before an agent session:
-Visualizer, slot, default, applicability, and compatibility changes can prepare
-shared defaults. Initial rendering minimizes or eliminates fresh candidate
-selection for those prepared contexts. Repeated
-compatible occurrences reuse authorized resolutions while keeping independent
-occurrence-local state. This is binding metadata preparation, not executable UI
-construction or a global Canvas mount plan.
+Rust owns evaluation and retention of established decisions under
+[DAHN §14.5.4](dahn-design-spec.md#1454-runtime-index-and-preparation-validity).
+Evaluation occurs on demand for the agent's requested scope. Ordinary presentation
+reuses captured bindings and exact selected versions through typed session-registry
+participants and common ownership/capture mechanisms. The SDK projects admitted bindings and
+metadata; discovery, compatibility, and personal-policy authority remain in Rust.
+The fixed PersonAgent and personal I-Space belong to the registry owner.
+Compatible occurrences share decisions while keeping their live state independent.
 
-Rust reaches personal choices directly through the authorized agent/context,
-bulk-loads relevant records, and evaluates applicability against indexed records
-and available ancestry metadata. It must not probe Usage relationships at every
-subject ancestor for every slot. Successful absence is reusable within its
-validity context; lookup failure is not absence. Exact access relationships and
-index/scope keys remain schema work. Dependency evidence invalidates affected
-entries without recreating the per-slot backend read cascade.
+Bulk personal access and declaration/compatibility indexes support evaluation;
+they are not rebuilt per occurrence to reconfirm a retained winner. Successful
+absence is an evaluation observation; failed lookup is not absence. Publication
+of candidates, defaults, preferences, or successors does not retire established
+choices. Agent-requested refresh or adoption identifies the scope to reconsider.
+New demand outside retained scope resolves without reconsidering unrelated answers.
+
+The [Space Session contract](../core-runtime/space-session-design-spec.md) owns
+reset and handle retirement. The derived-descriptor and Visualizer-evaluation
+registries have separate restricted retained owner transactions and typed
+contents under one runtime space proxy. Common infrastructure coordinates their
+admission, capture, retirement, and disposal. The Visualizer participant retains
+compact decision recipes while retiring and reconstructing session-bound projections;
+descriptor reset must not silently initiate Visualizer selection.
+Reconstruction preserves captured versions, configuration, and scope; it neither
+repeats selection nor revives retired handles. Residency is separate from choice
+adoption. Execution admission and artifact verification remain mandatory; failure
+reports the affected use rather than selecting a substitute. Notifications,
+change-monitoring subscriptions, and automatic staleness detection are deferred.
+Preparation activates no unrequested child and requires no personal Usage or
+additional durable cache.
 
 Each selected owner declares current child demand, subjects, and activation
 through its effective Slot descriptors. Generic shared Rust interprets those

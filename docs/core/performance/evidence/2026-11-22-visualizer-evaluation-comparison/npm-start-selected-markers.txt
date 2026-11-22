@@ -1,0 +1,6 @@
+npm-start.log:57:     Finished `release` profile [optimized] target(s) in 0.24s
+npm-start.log:87: Application bundle generation complete. [2.027 seconds] - 2026-11-22T23:08:13.997Z
+npm-start.log:154:     Finished `dev` profile [optimized + debuginfo] target(s) in 21.31s
+npm-start.log:172:   2026-11-22T23:08:38.029696Z  INFO conductora_lib: [MAIN APP] Starting application.
+npm-start.log:49288:   2026-11-22T23:08:44.311393Z  INFO conductora_lib::setup::app_builder: [APP BUILDER] App builder done, Startup complete.
+npm-start.log:163166:   2026-11-22T23:12:02.460240Z  INFO conductora_lib::packaged_navigator: [HANDOFF] Opened packaged Navigator using the existing runtime, Agent and Space

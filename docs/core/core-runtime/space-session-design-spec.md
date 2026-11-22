@@ -102,6 +102,58 @@ triggers recovery; ordinary resolution, inheritance, and validation errors retai
 their semantics. Direct holders of retired results receive the obsolete condition.
 A reset does not retroactively revoke values or collections already returned.
 
+## Typed registry participants
+
+A runtime space proxy coordinates multiple typed registry participants. The
+derived-descriptor registry and Visualizer-evaluation registry each retain their
+own restricted owner transaction and transient pool; neither is scoped to one
+caller's public transaction. They share the space's lifecycle infrastructure, not
+a single carrier transaction or a universal payload schema. Registry structures
+and private owners are retained by the runtime; the space association must not
+create ownership cycles.
+
+Each participant owns its typed indexes, complete sealed products, admitted
+identities, and reconstruction policy. Owner transactions permit the existing
+derived-state read/construction/sealing operations, not staging, Commit, or public
+mutation. Read admission checks the actual participant owner and active Session
+before exposing a product. A TemporaryId from one participant cannot be rebound
+into another participant or a caller's public transaction.
+
+Common coordination provides attachment, disposal, publication against retirement,
+and coherent request capture. Each captured participant retains its own owner
+TxId, root, and pool. Restore it in the request-local runtime space and rebuild
+its typed indexes without changing ownership. Operations capture only required
+participants; this generalizes the descriptor-specific capture contract rather
+than transporting every registry on every request. Commit still consumes its
+restricted descriptor products; guest composition must explicitly carry the
+Visualizer products it needs. No process-global registry or extensible plugin
+framework is required.
+
+Separate transactions do not by themselves establish separate reset semantics.
+The existing Space Session reset still retires admitted derived projections.
+Descriptor reconstruction follows its current rules. Visualizer established
+decisions can survive as owner-held recipes under the next section: descriptor
+retirement is not a Visualizer reconsideration request. Runtime-space termination
+disposes all participants and their retained owners.
+
+## Captured decisions and reconstruction recipes
+
+Session retirement applies to registered derived results and their read capabilities.
+A typed registry owner may retain a compact reconstruction recipe independently
+of retired entries. For example, [DAHN evaluation results](../hx/dahn-design-spec.md#1454-runtime-index-and-preparation-validity)
+capture exact selected versions, configuration, and binding scope. A recipe is
+owner state, not an admitted semantic result or a public transaction handle.
+Retaining it does not freeze the Space graph or extend a retired TemporaryId's life.
+
+After reset, reconstruction publishes a newly admitted result in the active
+Session, preserving the captured decision without selection or successor adoption.
+Capture contributing relationship facts when exact identities alone cannot
+reproduce that decision. Missing inputs cause explicit reconstruction failure.
+Domain policy owns deliberate reconsideration; cache reset and payload eviction
+do not imply it. This changes no reset triggers, descriptor reacquisition rules,
+or relationship-cache freshness policies, and requires no new durable store or
+automatic recovery after process termination.
+
 ## Registered-result read admission
 
 The registry's retained transaction is a private owner, not a public read capability
@@ -146,8 +198,8 @@ per-relationship dependency graphs or a universal operation drain.
 
 ## Commit-local execution
 
-Commit transports the agent transaction state and the Session's restricted
-registry-owning transaction state as distinct inputs. Prepared graphs remain in
+Commit transports the agent transaction state and the descriptor participant's
+restricted registry-owning transaction state as distinct inputs. Prepared graphs remain in
 their owner's transient pool; they are not cloned into the agent transaction for
 transport. Capture observes one coherent selected registry and owner state or
 retries against the next Session. Reset cannot dispose the owner mid-capture.
@@ -155,8 +207,10 @@ retries against the next Session. Reset cannot dispose the owner mid-capture.
 Guest ingress restores both transactions in the same request-local space, binds
 the registry to its restored owner, and installs it on that space. Rebuild its
 exact descriptor-ID indexes once from transported results, without storage reads
-or inheritance computation. This additional registry transport and reconstruction
-occurs only for Commit requests. Descriptor accessors use the normal space-bound
+or inheritance computation. This descriptor-participant transport and
+reconstruction occurs for Commit requests. Other participants use their explicitly
+defined operation boundaries; this rule does not prohibit Visualizer-registry
+capture for composition requests. Descriptor accessors use the normal space-bound
 acquisition path to find saved-derived products; they need not infer a caller's
 transaction context. The descriptor specification owns root/result details.
 

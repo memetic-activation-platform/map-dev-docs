@@ -1,0 +1,326 @@
+{
+  "source_revision": "1166e4bc4490bf824354c72367d86de413b3ed1d",
+  "samples": [
+    {
+      "sample": "run-1.log",
+      "test_passed": true,
+      "initial_inspector": {
+        "elapsed_ms": 829.990417,
+        "work": {
+          "selections": 6,
+          "binding_reuses": 6,
+          "metadata_reuses": 0,
+          "personal_population_requests": 1,
+          "candidate_population_requests": 0
+        }
+      },
+      "eighteen_field_property_map": {
+        "elapsed_ms": 614.297458,
+        "work": {
+          "selections": 2,
+          "binding_reuses": 17,
+          "metadata_reuses": 2,
+          "personal_population_requests": 1,
+          "candidate_population_requests": 0
+        }
+      },
+      "cold-host": {
+        "elapsed_us": 969488,
+        "children": 12,
+        "work": {
+          "selections": 6,
+          "binding_reuses": 6,
+          "metadata_reuses": 0,
+          "personal_population_requests": 1,
+          "candidate_population_requests": 0
+        },
+        "scalar_bytes": 19271,
+        "boundary_calls": [
+          {
+            "label": "get_saved_holon_by_key",
+            "elapsed_us": 9739,
+            "response_bytes": 714
+          },
+          {
+            "label": "get_holon_by_id",
+            "elapsed_us": 1510,
+            "response_bytes": 1332
+          },
+          {
+            "label": "get_holon_by_id",
+            "elapsed_us": 1455,
+            "response_bytes": 1048
+          },
+          {
+            "label": "get_holon_by_id",
+            "elapsed_us": 1300,
+            "response_bytes": 1313
+          },
+          {
+            "label": "get_saved_holon_by_key",
+            "elapsed_us": 25750,
+            "response_bytes": 1815
+          },
+          {
+            "label": "get_holon_by_id",
+            "elapsed_us": 1617,
+            "response_bytes": 1437
+          },
+          {
+            "label": "get_holon_by_id",
+            "elapsed_us": 1371,
+            "response_bytes": 1118
+          },
+          {
+            "label": "canonical",
+            "elapsed_us": 926200,
+            "response_bytes": 36975
+          }
+        ]
+      },
+      "warm-host": {
+        "elapsed_us": 1014440,
+        "children": 12,
+        "work": {
+          "selections": 6,
+          "binding_reuses": 6,
+          "metadata_reuses": 0,
+          "personal_population_requests": 1,
+          "candidate_population_requests": 0
+        },
+        "scalar_bytes": 19271,
+        "boundary_calls": [
+          {
+            "label": "get_saved_holon_by_key",
+            "elapsed_us": 39932,
+            "response_bytes": 37186
+          },
+          {
+            "label": "get_saved_holon_by_key",
+            "elapsed_us": 10931,
+            "response_bytes": 38288
+          },
+          {
+            "label": "canonical",
+            "elapsed_us": 962853,
+            "response_bytes": 73449
+          }
+        ]
+      }
+    },
+    {
+      "sample": "run-2.log",
+      "test_passed": true,
+      "initial_inspector": {
+        "elapsed_ms": 782.061375,
+        "work": {
+          "selections": 6,
+          "binding_reuses": 6,
+          "metadata_reuses": 0,
+          "personal_population_requests": 1,
+          "candidate_population_requests": 0
+        }
+      },
+      "eighteen_field_property_map": {
+        "elapsed_ms": 630.300084,
+        "work": {
+          "selections": 2,
+          "binding_reuses": 17,
+          "metadata_reuses": 2,
+          "personal_population_requests": 1,
+          "candidate_population_requests": 0
+        }
+      },
+      "cold-host": {
+        "elapsed_us": 989634,
+        "children": 12,
+        "work": {
+          "selections": 6,
+          "binding_reuses": 6,
+          "metadata_reuses": 0,
+          "personal_population_requests": 1,
+          "candidate_population_requests": 0
+        },
+        "scalar_bytes": 19271,
+        "boundary_calls": [
+          {
+            "label": "get_saved_holon_by_key",
+            "elapsed_us": 33547,
+            "response_bytes": 706
+          },
+          {
+            "label": "get_holon_by_id",
+            "elapsed_us": 1698,
+            "response_bytes": 1324
+          },
+          {
+            "label": "get_holon_by_id",
+            "elapsed_us": 1402,
+            "response_bytes": 1048
+          },
+          {
+            "label": "get_holon_by_id",
+            "elapsed_us": 1384,
+            "response_bytes": 1319
+          },
+          {
+            "label": "get_saved_holon_by_key",
+            "elapsed_us": 8807,
+            "response_bytes": 1816
+          },
+          {
+            "label": "get_holon_by_id",
+            "elapsed_us": 1602,
+            "response_bytes": 1440
+          },
+          {
+            "label": "get_holon_by_id",
+            "elapsed_us": 1898,
+            "response_bytes": 1120
+          },
+          {
+            "label": "canonical",
+            "elapsed_us": 938793,
+            "response_bytes": 36974
+          }
+        ]
+      },
+      "warm-host": {
+        "elapsed_us": 952675,
+        "children": 12,
+        "work": {
+          "selections": 6,
+          "binding_reuses": 6,
+          "metadata_reuses": 0,
+          "personal_population_requests": 1,
+          "candidate_population_requests": 0
+        },
+        "scalar_bytes": 19271,
+        "boundary_calls": [
+          {
+            "label": "get_saved_holon_by_key",
+            "elapsed_us": 38932,
+            "response_bytes": 37177
+          },
+          {
+            "label": "get_saved_holon_by_key",
+            "elapsed_us": 14324,
+            "response_bytes": 38288
+          },
+          {
+            "label": "canonical",
+            "elapsed_us": 898691,
+            "response_bytes": 73447
+          }
+        ]
+      }
+    },
+    {
+      "sample": "run-3.log",
+      "test_passed": true,
+      "initial_inspector": {
+        "elapsed_ms": 752.475708,
+        "work": {
+          "selections": 6,
+          "binding_reuses": 6,
+          "metadata_reuses": 0,
+          "personal_population_requests": 1,
+          "candidate_population_requests": 0
+        }
+      },
+      "eighteen_field_property_map": {
+        "elapsed_ms": 633.653708,
+        "work": {
+          "selections": 2,
+          "binding_reuses": 17,
+          "metadata_reuses": 2,
+          "personal_population_requests": 1,
+          "candidate_population_requests": 0
+        }
+      },
+      "cold-host": {
+        "elapsed_us": 896067,
+        "children": 12,
+        "work": {
+          "selections": 6,
+          "binding_reuses": 6,
+          "metadata_reuses": 0,
+          "personal_population_requests": 1,
+          "candidate_population_requests": 0
+        },
+        "scalar_bytes": 19271,
+        "boundary_calls": [
+          {
+            "label": "get_saved_holon_by_key",
+            "elapsed_us": 30554,
+            "response_bytes": 695
+          },
+          {
+            "label": "get_holon_by_id",
+            "elapsed_us": 1527,
+            "response_bytes": 1313
+          },
+          {
+            "label": "get_holon_by_id",
+            "elapsed_us": 1460,
+            "response_bytes": 1028
+          },
+          {
+            "label": "get_holon_by_id",
+            "elapsed_us": 1383,
+            "response_bytes": 1296
+          },
+          {
+            "label": "get_saved_holon_by_key",
+            "elapsed_us": 8848,
+            "response_bytes": 1775
+          },
+          {
+            "label": "get_holon_by_id",
+            "elapsed_us": 1418,
+            "response_bytes": 1423
+          },
+          {
+            "label": "get_holon_by_id",
+            "elapsed_us": 1323,
+            "response_bytes": 1109
+          },
+          {
+            "label": "canonical",
+            "elapsed_us": 849093,
+            "response_bytes": 36910
+          }
+        ]
+      },
+      "warm-host": {
+        "elapsed_us": 891468,
+        "children": 12,
+        "work": {
+          "selections": 6,
+          "binding_reuses": 6,
+          "metadata_reuses": 0,
+          "personal_population_requests": 1,
+          "candidate_population_requests": 0
+        },
+        "scalar_bytes": 19271,
+        "boundary_calls": [
+          {
+            "label": "get_saved_holon_by_key",
+            "elapsed_us": 10319,
+            "response_bytes": 37112
+          },
+          {
+            "label": "get_saved_holon_by_key",
+            "elapsed_us": 40064,
+            "response_bytes": 38193
+          },
+          {
+            "label": "canonical",
+            "elapsed_us": 840402,
+            "response_bytes": 73329
+          }
+        ]
+      }
+    }
+  ]
+}
