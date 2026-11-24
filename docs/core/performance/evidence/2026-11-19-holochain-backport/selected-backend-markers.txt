@@ -1,0 +1,36 @@
+[LOGGING] RUST_LOG=host:warn
+[LOGGING] Host filter expanded: conductora_lib=warn,tauri_plugin_holochain=warn,holons_client=warn,holons_receptor=warn,holochain_receptor=warn,holons_recovery=warn,holochain=warn,holochain_data=error,holochain_types=warn,holochain_p2p=warn,kitsune2_core=error,kitsune2_gossip=error,kitsune2_dht=error,tx5=warn,sbd_client=warn,holochain_runtime=info,lair_keystore=warn,tracing=warn
+[LOGGING] WASM_LOG=info — adding wasm targets to host filter
+[LOGGING] Final filter: conductora_lib=warn,tauri_plugin_holochain=warn,holons_client=warn,holons_receptor=warn,holochain_receptor=warn,holons_recovery=warn,holochain=warn,holochain_data=error,holochain_types=warn,holochain_p2p=warn,kitsune2_core=error,kitsune2_gossip=error,kitsune2_dht=error,tx5=warn,sbd_client=warn,holochain_runtime=info,lair_keystore=warn,tracing=warn,wasm=info,holons_guest=info,holons_integrity=info,map_profile=debug
+[LOGGING] Final filter: conductora_lib=warn,tauri_plugin_holochain=warn,holons_client=warn,holons_receptor=warn,holochain_receptor=warn,holons_recovery=warn,holochain=warn,holochain_data=error,holochain_types=warn,holochain_p2p=warn,kitsune2_core=error,kitsune2_gossip=error,kitsune2_dht=error,tx5=warn,sbd_client=warn,holochain_runtime=info,lair_keystore=warn,tracing=warn,wasm=info,holons_guest=info,holons_integrity=info,map_profile=debug
+  2026-11-19T12:52:19.526801Z  INFO holochain_runtime::launch: [LAUNCH] Storage/configuration preparation: 1ms
+  2026-11-19T12:52:19.526801Z  INFO holochain_runtime::launch: [LAUNCH] Storage/configuration preparation: 1ms
+    at conductora/plugins/tauri-plugin-holochain/holochain_runtime/src/launch.rs:83 on ThreadId(16)
+  2026-11-19T12:52:20.296313Z  INFO holochain_runtime::launch: [LAUNCH] Lair keystore startup: 768ms
+    at conductora/plugins/tauri-plugin-holochain/holochain_runtime/src/launch.rs:114 on ThreadId(16)
+  2026-11-19T12:52:20.296649Z  INFO holochain_runtime::launch: [LAUNCH] Device-seed lookup/initialization: 0ms
+    at conductora/plugins/tauri-plugin-holochain/holochain_runtime/src/launch.rs:134 on ThreadId(31)
+  2026-11-19T12:52:22.603104Z  INFO holochain_runtime::launch: [LAUNCH] Conductor construction: 2306ms
+    at conductora/plugins/tauri-plugin-holochain/holochain_runtime/src/launch.rs:145 on ThreadId(9)
+  2026-11-19T12:52:22.603113Z  INFO holochain_runtime::launch: [LAUNCH] Total launch_holochain_runtime: 3.1s
+    at conductora/plugins/tauri-plugin-holochain/holochain_runtime/src/launch.rs:160 on ThreadId(9)
+  2026-11-19T12:52:22.830062Z  WARN holochain::core::workflow::publish_dht_ops_workflow: failed_to_send_publish: NoPeersForLocation("publish", 822535051)
+    at patches/holochain/src/core/workflow/publish_dht_ops_workflow.rs:63 on ThreadId(14)
+  2026-11-19T12:52:24.035133Z  WARN holochain::core::workflow::publish_dht_ops_workflow: failed_to_send_publish: NoPeersForLocation("publish", 2947260328)
+    at patches/holochain/src/core/workflow/publish_dht_ops_workflow.rs:63 on ThreadId(15)
+  2026-11-19T12:53:24.363162Z  WARN holochain::core::workflow::publish_dht_ops_workflow: failed_to_send_publish: NoPeersForLocation("publish", 823604117)
+    at patches/holochain/src/core/workflow/publish_dht_ops_workflow.rs:63 on ThreadId(11)
+  2026-11-19T12:53:26.497421Z  WARN holochain::core::workflow::publish_dht_ops_workflow: failed_to_send_publish: NoPeersForLocation("publish", 361279350)
+    at patches/holochain/src/core/workflow/publish_dht_ops_workflow.rs:63 on ThreadId(12)
+  2026-11-19T12:55:27.676473Z  WARN holochain::core::workflow::publish_dht_ops_workflow: failed_to_send_publish: NoPeersForLocation("publish", 1232070006)
+    at patches/holochain/src/core/workflow/publish_dht_ops_workflow.rs:63 on ThreadId(56)
+  2026-11-19T12:55:29.330471Z  WARN holochain::core::workflow::publish_dht_ops_workflow: failed_to_send_publish: NoPeersForLocation("publish", 426230148)
+    at patches/holochain/src/core/workflow/publish_dht_ops_workflow.rs:63 on ThreadId(62)
+  2026-11-19T12:59:37.279724Z  WARN holochain::core::workflow::publish_dht_ops_workflow: failed_to_send_publish: NoPeersForLocation("publish", 2274556117)
+    at patches/holochain/src/core/workflow/publish_dht_ops_workflow.rs:63 on ThreadId(59)
+  2026-11-19T12:59:39.432778Z  WARN holochain::core::workflow::publish_dht_ops_workflow: failed_to_send_publish: NoPeersForLocation("publish", 1284439299)
+    at patches/holochain/src/core/workflow/publish_dht_ops_workflow.rs:63 on ThreadId(56)
+  2026-11-19T13:04:40.498683Z  WARN holochain::core::workflow::publish_dht_ops_workflow: failed_to_send_publish: NoPeersForLocation("publish", 1155629571)
+    at patches/holochain/src/core/workflow/publish_dht_ops_workflow.rs:63 on ThreadId(56)
+  2026-11-19T13:04:42.517097Z  WARN holochain::core::workflow::publish_dht_ops_workflow: failed_to_send_publish: NoPeersForLocation("publish", 2245133977)
+    at patches/holochain/src/core/workflow/publish_dht_ops_workflow.rs:63 on ThreadId(59)

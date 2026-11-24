@@ -1,0 +1,41 @@
+{
+  "core_schema": {
+    "load_and_commit_ms": 81852,
+    "command_route_ms": 81852.171,
+    "dance_round_trip_ms": 81013,
+    "bootstrap_total_ms": 84721,
+    "local_space_discovery_ms": 2867,
+    "input_ms": 2,
+    "bundles": 22,
+    "holons_attempted": 1180,
+    "holons_saved": 1180,
+    "rejected": 0,
+    "failed": 0,
+    "loader_links_created": 6639,
+    "loader_stage_start_utc": "2026-11-19T13:23:19.327778Z",
+    "loader_complete_utc": "2026-11-19T13:24:01.903477Z",
+    "host_round_trip_report_utc": "2026-11-19T13:24:37.019198Z",
+    "loader_marker_interval_ms": 42575.699,
+    "loader_complete_to_host_report_ms": 35115.721
+  },
+  "baselines": {
+    "latest_step5_ui_core_schema_ms": 79629,
+    "step4_ui_core_schema_ms": 82147,
+    "step4_command_route_ms": 81531.511,
+    "step4_loader_internal_ms": 44730,
+    "step4_holons": 1163,
+    "step4_loader_links_created": 6540,
+    "step4_adapter_return_to_host_call_completion_ms": 29275,
+    "step4_space_navigator_command_route_ms": 8443.437
+  },
+  "space_navigator": {
+    "command_route_ms": 3269.506,
+    "holons_saved": 21,
+    "loader_links_created": 96
+  },
+  "agent_spaces": {
+    "command_route_ms": 2098.488,
+    "holons_saved": 10,
+    "loader_links_created": 46
+  }
+}

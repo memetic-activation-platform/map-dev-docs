@@ -1,0 +1,953 @@
+{
+  "startup": {
+    "baseline_run": "2026-11-04T13:13:28.988Z",
+    "current_run": "2026-11-19T12:52:27.256Z",
+    "baseline_total_ms": 94944,
+    "current_total_ms": 18790,
+    "reduction_percent": 80.20938658577688,
+    "command_changes": [
+      {
+        "command": "Holon.Read.GetAvailableRelationshipsFromEffective",
+        "old_count": 2,
+        "new_count": 2,
+        "old_ms": 1229,
+        "new_ms": 29,
+        "delta_ms": -1200
+      },
+      {
+        "command": "Holon.Read.GetEffectiveDescriptor",
+        "old_count": 4,
+        "new_count": 4,
+        "old_ms": 2608,
+        "new_ms": 369,
+        "delta_ms": -2239
+      },
+      {
+        "command": "Holon.Read.GetHolonDescriptor",
+        "old_count": 1,
+        "new_count": 1,
+        "old_ms": 1,
+        "new_ms": 1,
+        "delta_ms": 0
+      },
+      {
+        "command": "Holon.Read.GetKey",
+        "old_count": 39,
+        "new_count": 39,
+        "old_ms": 23,
+        "new_ms": 26,
+        "delta_ms": 3
+      },
+      {
+        "command": "Holon.Read.GetPropertyIsArray",
+        "old_count": 4,
+        "new_count": 4,
+        "old_ms": 2623,
+        "new_ms": 574,
+        "delta_ms": -2049
+      },
+      {
+        "command": "Holon.Read.GetPropertyValue",
+        "old_count": 227,
+        "new_count": 229,
+        "old_ms": 3502,
+        "new_ms": 162,
+        "delta_ms": -3340
+      },
+      {
+        "command": "Holon.Read.GetRelatedHolons",
+        "old_count": 54,
+        "new_count": 54,
+        "old_ms": 7386,
+        "new_ms": 1640,
+        "delta_ms": -5746
+      },
+      {
+        "command": "Holon.Read.GetVersionedKey",
+        "old_count": 8,
+        "new_count": 8,
+        "old_ms": 1089,
+        "new_ms": 16,
+        "delta_ms": -1073
+      },
+      {
+        "command": "Holon.Write.AddRelatedHolons",
+        "old_count": 8,
+        "new_count": 8,
+        "old_ms": 12,
+        "new_ms": 15,
+        "delta_ms": 3
+      },
+      {
+        "command": "Holon.Write.WithDescriptor",
+        "old_count": 8,
+        "new_count": 8,
+        "old_ms": 3093,
+        "new_ms": 357,
+        "delta_ms": -2736
+      },
+      {
+        "command": "Holon.Write.WithPropertyValue",
+        "old_count": 8,
+        "new_count": 8,
+        "old_ms": 12,
+        "new_ms": 14,
+        "delta_ms": 2
+      },
+      {
+        "command": "Space.BeginTransaction",
+        "old_count": 1,
+        "new_count": 1,
+        "old_ms": 1,
+        "new_ms": 1,
+        "delta_ms": 0
+      },
+      {
+        "command": "Transaction.BeginVisualizerUsageBatch",
+        "old_count": 1,
+        "new_count": 1,
+        "old_ms": 3,
+        "new_ms": 3,
+        "delta_ms": 0
+      },
+      {
+        "command": "Transaction.DanceV2",
+        "old_count": 8,
+        "new_count": 8,
+        "old_ms": 14235,
+        "new_ms": 3352,
+        "delta_ms": -10883
+      },
+      {
+        "command": "Transaction.FetchArtifact",
+        "old_count": 8,
+        "new_count": 8,
+        "old_ms": 9,
+        "new_ms": 8,
+        "delta_ms": -1
+      },
+      {
+        "command": "Transaction.GetSavedHolonByBaseKey",
+        "old_count": 11,
+        "new_count": 11,
+        "old_ms": 2896,
+        "new_ms": 175,
+        "delta_ms": -2721
+      },
+      {
+        "command": "Transaction.LoadTheme",
+        "old_count": 1,
+        "new_count": 1,
+        "old_ms": 482,
+        "new_ms": 152,
+        "delta_ms": -330
+      },
+      {
+        "command": "Transaction.NewHolon",
+        "old_count": 8,
+        "new_count": 8,
+        "old_ms": 15,
+        "new_ms": 18,
+        "delta_ms": 3
+      },
+      {
+        "command": "Transaction.RecordVisualizerUse",
+        "old_count": 13,
+        "new_count": 13,
+        "old_ms": 86,
+        "new_ms": 132,
+        "delta_ms": 46
+      },
+      {
+        "command": "Transaction.SelectVisualizer",
+        "old_count": 12,
+        "new_count": 12,
+        "old_ms": 44861,
+        "new_ms": 10576,
+        "delta_ms": -34285
+      },
+      {
+        "command": "Transaction.SelectVisualizerUsage",
+        "old_count": 2,
+        "new_count": 2,
+        "old_ms": 12452,
+        "new_ms": 1663,
+        "delta_ms": -10789
+      },
+      {
+        "command": "Transaction.SubmitVisualizerUsageBatch",
+        "old_count": 1,
+        "new_count": 1,
+        "old_ms": 5,
+        "new_ms": 1,
+        "delta_ms": -4
+      }
+    ],
+    "phase_changes": [
+      [
+        "construct Canvas",
+        80275.0,
+        16576.0,
+        -63699.0
+      ],
+      [
+        "lookup launch resources",
+        733.0,
+        32.0,
+        -701.0
+      ],
+      [
+        "materialize Canvas",
+        13449.0,
+        2025.0,
+        -11424.0
+      ],
+      [
+        "project theme",
+        484.0,
+        153.0,
+        -331.0
+      ],
+      [
+        "session-ready",
+        0.0,
+        1.0,
+        1.0
+      ]
+    ]
+  },
+  "first-navigation": {
+    "baseline_run": "2026-11-04T11:49:21.217Z",
+    "current_run": "2026-11-19T12:53:54.174Z",
+    "baseline_total_ms": 86263,
+    "current_total_ms": 3721,
+    "reduction_percent": 95.6864472601231,
+    "command_changes": [
+      {
+        "command": "Holon.Read.GetAvailableRelationshipsFromEffective",
+        "old_count": 2,
+        "new_count": 2,
+        "old_ms": 666,
+        "new_ms": 4.999999999985448,
+        "delta_ms": -661.0000000000146
+      },
+      {
+        "command": "Holon.Read.GetEffectiveDescriptor",
+        "old_count": 4,
+        "new_count": 4,
+        "old_ms": 3152.999999999767,
+        "new_ms": 408,
+        "delta_ms": -2744.999999999767
+      },
+      {
+        "command": "Holon.Read.GetHolonDescriptor",
+        "old_count": 1,
+        "new_count": 1,
+        "old_ms": 1.0000000001164153,
+        "new_ms": 1,
+        "delta_ms": -1.1641532182693481e-10
+      },
+      {
+        "command": "Holon.Read.GetKey",
+        "old_count": 37,
+        "new_count": 37,
+        "old_ms": 23.999999999883585,
+        "new_ms": 20.99999999992724,
+        "delta_ms": -2.9999999999563443
+      },
+      {
+        "command": "Holon.Read.GetPropertyIsArray",
+        "old_count": 9,
+        "new_count": 9,
+        "old_ms": 4524,
+        "new_ms": 943.0000000000146,
+        "delta_ms": -3580.9999999999854
+      },
+      {
+        "command": "Holon.Read.GetPropertyValue",
+        "old_count": 216,
+        "new_count": 216,
+        "old_ms": 2041.9999999998836,
+        "new_ms": 115.9999999999709,
+        "delta_ms": -1925.9999999999127
+      },
+      {
+        "command": "Holon.Read.GetRelatedHolons",
+        "old_count": 59,
+        "new_count": 59,
+        "old_ms": 3233,
+        "new_ms": 49.00000000008731,
+        "delta_ms": -3183.9999999999127
+      },
+      {
+        "command": "Holon.Write.AddRelatedHolons",
+        "old_count": 1,
+        "new_count": 1,
+        "old_ms": 2.9999999998835847,
+        "new_ms": 2,
+        "delta_ms": -0.9999999998835847
+      },
+      {
+        "command": "Holon.Write.WithDescriptor",
+        "old_count": 1,
+        "new_count": 1,
+        "old_ms": 2.9999999998835847,
+        "new_ms": 2.000000000014552,
+        "delta_ms": -0.9999999998690328
+      },
+      {
+        "command": "Holon.Write.WithPropertyValue",
+        "old_count": 1,
+        "new_count": 1,
+        "old_ms": 2.0000000001164153,
+        "new_ms": 1.999999999985448,
+        "delta_ms": -1.3096723705530167e-10
+      },
+      {
+        "command": "Transaction.BeginVisualizerUsageBatch",
+        "old_count": 1,
+        "new_count": 1,
+        "old_ms": 1,
+        "new_ms": 2.000000000014552,
+        "delta_ms": 1.000000000014552
+      },
+      {
+        "command": "Transaction.DanceV2",
+        "old_count": 1,
+        "new_count": 1,
+        "old_ms": 878,
+        "new_ms": 32,
+        "delta_ms": -846
+      },
+      {
+        "command": "Transaction.FetchArtifact",
+        "old_count": 1,
+        "new_count": 1,
+        "old_ms": 1,
+        "new_ms": 0,
+        "delta_ms": -1
+      },
+      {
+        "command": "Transaction.GetSavedHolonByBaseKey",
+        "old_count": 1,
+        "new_count": 1,
+        "old_ms": 178,
+        "new_ms": 17,
+        "delta_ms": -161
+      },
+      {
+        "command": "Transaction.NewHolon",
+        "old_count": 1,
+        "new_count": 1,
+        "old_ms": 2.0000000001164153,
+        "new_ms": 3,
+        "delta_ms": 0.9999999998835847
+      },
+      {
+        "command": "Transaction.RecordVisualizerUse",
+        "old_count": 23,
+        "new_count": 23,
+        "old_ms": 101.99999999988358,
+        "new_ms": 115,
+        "delta_ms": 13.000000000116415
+      },
+      {
+        "command": "Transaction.SelectVisualizer",
+        "old_count": 23,
+        "new_count": 23,
+        "old_ms": 71480.00000000035,
+        "new_ms": 2049.0000000000437,
+        "delta_ms": -69431.0000000003
+      },
+      {
+        "command": "Transaction.SubmitVisualizerUsageBatch",
+        "old_count": 1,
+        "new_count": 1,
+        "old_ms": 1,
+        "new_ms": 1,
+        "delta_ms": 0
+      }
+    ],
+    "phase_changes": [
+      [
+        "classify node affordances",
+        8399.0,
+        1408.0,
+        -6991.0
+      ],
+      [
+        "compose node",
+        6647.0,
+        89.0,
+        -6558.0
+      ],
+      [
+        "install node",
+        7.0,
+        8.0,
+        1.0
+      ],
+      [
+        "property DefinesInstanceTypeKind: construct elements",
+        1.0,
+        3.0,
+        2.0
+      ],
+      [
+        "property DefinesInstanceTypeKind: materialize Property",
+        1.0,
+        0.0,
+        -1.0
+      ],
+      [
+        "property DefinesInstanceTypeKind: materialize Value",
+        1071.0,
+        63.0,
+        -1008.0
+      ],
+      [
+        "property DefinesInstanceTypeKind: read value",
+        1.0,
+        1.0,
+        -0.0
+      ],
+      [
+        "property DefinesInstanceTypeKind: select Property",
+        2084.0,
+        46.0,
+        -2038.0
+      ],
+      [
+        "property DefinesInstanceTypeKind: select Value",
+        10337.0,
+        917.0,
+        -9420.0
+      ],
+      [
+        "property Description: construct elements",
+        1.0,
+        1.0,
+        -0.0
+      ],
+      [
+        "property Description: materialize Property",
+        0.0,
+        1.0,
+        1.0
+      ],
+      [
+        "property Description: read value",
+        1.0,
+        0.0,
+        -1.0
+      ],
+      [
+        "property Description: select Property",
+        3.0,
+        2.0,
+        -1.0
+      ],
+      [
+        "property DisplayName: construct elements",
+        2.0,
+        1.0,
+        -1.0
+      ],
+      [
+        "property DisplayNamePlural: materialize Property",
+        1.0,
+        0.0,
+        -1.0
+      ],
+      [
+        "property DisplayNamePlural: materialize Value",
+        1.0,
+        1.0,
+        0.0
+      ],
+      [
+        "property DisplayNamePlural: select Property",
+        3283.0,
+        72.0,
+        -3211.0
+      ],
+      [
+        "property DisplayNamePlural: select Value",
+        2613.0,
+        65.0,
+        -2548.0
+      ],
+      [
+        "property InstanceDeletionAllowed: materialize Property",
+        1.0,
+        0.0,
+        -1.0
+      ],
+      [
+        "property InstanceDeletionAllowed: read value",
+        0.0,
+        1.0,
+        1.0
+      ],
+      [
+        "property InstanceDeletionAllowed: select Property",
+        2797.0,
+        63.0,
+        -2734.0
+      ],
+      [
+        "property InstanceDeletionAllowed: select Value",
+        2301.0,
+        57.0,
+        -2244.0
+      ],
+      [
+        "property IsAbstractType: construct elements",
+        1.0,
+        1.0,
+        -0.0
+      ],
+      [
+        "property IsAbstractType: materialize Value",
+        1.0,
+        1.0,
+        -0.0
+      ],
+      [
+        "property IsAbstractType: read value",
+        1.0,
+        0.0,
+        -1.0
+      ],
+      [
+        "property IsAbstractType: select Property",
+        2330.0,
+        49.0,
+        -2281.0
+      ],
+      [
+        "property IsAbstractType: select Value",
+        2119.0,
+        40.0,
+        -2079.0
+      ],
+      [
+        "property Key: materialize Property",
+        1.0,
+        1.0,
+        -0.0
+      ],
+      [
+        "property Key: materialize Value",
+        0.0,
+        1.0,
+        1.0
+      ],
+      [
+        "property Key: select Property",
+        3.0,
+        2.0,
+        -1.0
+      ],
+      [
+        "property Key: select Value",
+        3.0,
+        2.0,
+        -1.0
+      ],
+      [
+        "property TypeName: materialize Property",
+        1.0,
+        1.0,
+        -0.0
+      ],
+      [
+        "property TypeName: read value",
+        1.0,
+        0.0,
+        -1.0
+      ],
+      [
+        "property TypeName: select Property",
+        6053.0,
+        85.0,
+        -5968.0
+      ],
+      [
+        "property TypeName: select Value",
+        4575.0,
+        91.0,
+        -4484.0
+      ],
+      [
+        "property TypeNamePlural: construct elements",
+        2.0,
+        1.0,
+        -1.0
+      ],
+      [
+        "property TypeNamePlural: materialize Value",
+        1.0,
+        1.0,
+        -0.0
+      ],
+      [
+        "property TypeNamePlural: select Property",
+        2262.0,
+        68.0,
+        -2194.0
+      ],
+      [
+        "property TypeNamePlural: select Value",
+        2128.0,
+        65.0,
+        -2063.0
+      ],
+      [
+        "property: resolve name",
+        1823.0,
+        20.0,
+        -1803.0
+      ],
+      [
+        "publish and synchronous mount",
+        15.0,
+        7.0,
+        -8.0
+      ],
+      [
+        "queue wait",
+        0.0,
+        1.0,
+        1.0
+      ],
+      [
+        "relationship name",
+        8.0,
+        5.0,
+        -3.0
+      ],
+      [
+        "select and materialize Actions",
+        12814.0,
+        190.0,
+        -12624.0
+      ],
+      [
+        "select and materialize Properties",
+        6217.0,
+        94.0,
+        -6123.0
+      ],
+      [
+        "select node",
+        6303.0,
+        145.0,
+        -6158.0
+      ],
+      [
+        "target retrieval",
+        30.0,
+        32.0,
+        2.0
+      ]
+    ]
+  },
+  "repeat-navigation": {
+    "baseline_run": "2026-11-04T11:52:06.856Z",
+    "current_run": "2026-11-19T12:54:03.211Z",
+    "baseline_total_ms": 8604,
+    "current_total_ms": 273.99999999998545,
+    "reduction_percent": 96.81543468154364,
+    "command_changes": [
+      {
+        "command": "Holon.Read.GetAvailableRelationshipsFromEffective",
+        "old_count": 2,
+        "new_count": 2,
+        "old_ms": 671.9999999998836,
+        "new_ms": 5,
+        "delta_ms": -666.9999999998836
+      },
+      {
+        "command": "Holon.Read.GetEffectiveDescriptor",
+        "old_count": 4,
+        "new_count": 4,
+        "old_ms": 3815,
+        "new_ms": 8,
+        "delta_ms": -3807
+      },
+      {
+        "command": "Holon.Read.GetHolonDescriptor",
+        "old_count": 1,
+        "new_count": 1,
+        "old_ms": 2,
+        "new_ms": 1,
+        "delta_ms": -1
+      },
+      {
+        "command": "Holon.Read.GetKey",
+        "old_count": 37,
+        "new_count": 37,
+        "old_ms": 15.999999999650754,
+        "new_ms": 15.999999999985448,
+        "delta_ms": 3.346940502524376e-10
+      },
+      {
+        "command": "Holon.Read.GetPropertyIsArray",
+        "old_count": 9,
+        "new_count": 9,
+        "old_ms": 2439,
+        "new_ms": 8,
+        "delta_ms": -2431
+      },
+      {
+        "command": "Holon.Read.GetPropertyValue",
+        "old_count": 213,
+        "new_count": 213,
+        "old_ms": 107.99999999988358,
+        "new_ms": 99.9999999999709,
+        "delta_ms": -7.9999999999126885
+      },
+      {
+        "command": "Holon.Read.GetRelatedHolons",
+        "old_count": 58,
+        "new_count": 58,
+        "old_ms": 1479.0000000001164,
+        "new_ms": 54.999999999956344,
+        "delta_ms": -1424.00000000016
+      },
+      {
+        "command": "Transaction.BeginVisualizerUsageBatch",
+        "old_count": 1,
+        "new_count": 1,
+        "old_ms": 1.9999999998835847,
+        "new_ms": 2,
+        "delta_ms": 1.1641532182693481e-10
+      },
+      {
+        "command": "Transaction.RecordVisualizerUse",
+        "old_count": 23,
+        "new_count": 23,
+        "old_ms": 97.00000000174623,
+        "new_ms": 95.99999999982538,
+        "delta_ms": -1.0000000019208528
+      },
+      {
+        "command": "Transaction.SelectVisualizer",
+        "old_count": 23,
+        "new_count": 23,
+        "old_ms": 15.00000000023283,
+        "new_ms": 15.000000000043656,
+        "delta_ms": -1.8917489796876907e-10
+      },
+      {
+        "command": "Transaction.SubmitVisualizerUsageBatch",
+        "old_count": 1,
+        "new_count": 1,
+        "old_ms": 0.9999999998835847,
+        "new_ms": 0,
+        "delta_ms": -0.9999999998835847
+      }
+    ],
+    "phase_changes": [
+      [
+        "classify node affordances",
+        6980.0,
+        77.0,
+        -6903.0
+      ],
+      [
+        "compose node",
+        391.0,
+        22.0,
+        -369.0
+      ],
+      [
+        "install node",
+        7.0,
+        6.0,
+        -1.0
+      ],
+      [
+        "property DefinesInstanceTypeKind: read value",
+        1.0,
+        2.0,
+        1.0
+      ],
+      [
+        "property DefinesInstanceTypeKind: select Property",
+        2.0,
+        2.0,
+        -0.0
+      ],
+      [
+        "property Description: construct elements",
+        1.0,
+        2.0,
+        1.0
+      ],
+      [
+        "property DisplayName: materialize Property",
+        0.0,
+        1.0,
+        1.0
+      ],
+      [
+        "property DisplayName: read value",
+        1.0,
+        0.0,
+        -1.0
+      ],
+      [
+        "property DisplayNamePlural: construct elements",
+        1.0,
+        1.0,
+        0.0
+      ],
+      [
+        "property DisplayNamePlural: materialize Value",
+        0.0,
+        1.0,
+        1.0
+      ],
+      [
+        "property DisplayNamePlural: read value",
+        1.0,
+        0.0,
+        -1.0
+      ],
+      [
+        "property DisplayNamePlural: select Property",
+        2.0,
+        3.0,
+        1.0
+      ],
+      [
+        "property DisplayNamePlural: select Value",
+        2.0,
+        2.0,
+        -0.0
+      ],
+      [
+        "property InstanceDeletionAllowed: materialize Property",
+        0.0,
+        1.0,
+        1.0
+      ],
+      [
+        "property InstanceDeletionAllowed: read value",
+        1.0,
+        0.0,
+        -1.0
+      ],
+      [
+        "property InstanceDeletionAllowed: select Value",
+        2.0,
+        2.0,
+        0.0
+      ],
+      [
+        "property IsAbstractType: select Property",
+        3.0,
+        2.0,
+        -1.0
+      ],
+      [
+        "property Key: construct elements",
+        1.0,
+        1.0,
+        0.0
+      ],
+      [
+        "property Key: materialize Property",
+        0.0,
+        1.0,
+        1.0
+      ],
+      [
+        "property Key: materialize Value",
+        1.0,
+        0.0,
+        -1.0
+      ],
+      [
+        "property Key: select Property",
+        2.0,
+        2.0,
+        -0.0
+      ],
+      [
+        "property Key: select Value",
+        2.0,
+        2.0,
+        -0.0
+      ],
+      [
+        "property TypeName: construct elements",
+        1.0,
+        1.0,
+        0.0
+      ],
+      [
+        "property TypeName: read value",
+        1.0,
+        0.0,
+        -1.0
+      ],
+      [
+        "property TypeName: select Property",
+        2.0,
+        2.0,
+        0.0
+      ],
+      [
+        "property TypeName: select Value",
+        2.0,
+        3.0,
+        1.0
+      ],
+      [
+        "property: resolve name",
+        4.0,
+        4.0,
+        -0.0
+      ],
+      [
+        "publish and synchronous mount",
+        7.0,
+        9.0,
+        2.0
+      ],
+      [
+        "relationship name",
+        9.0,
+        4.0,
+        -5.0
+      ],
+      [
+        "select and materialize Actions",
+        1099.0,
+        46.0,
+        -1053.0
+      ],
+      [
+        "select and materialize Properties",
+        8.0,
+        7.0,
+        -1.0
+      ],
+      [
+        "select node",
+        1.0,
+        2.0,
+        1.0
+      ],
+      [
+        "target retrieval",
+        40.0,
+        37.0,
+        -3.0
+      ]
+    ]
+  }
+}

@@ -189,3 +189,14 @@ stages before assigning a cause. Use further independent runs to assess
 variability; five calls on one fresh conductor per version are directional
 evidence, not production percentile estimates. Required version-specific
 client and dependency changes remain part of the upgrade comparison.
+
+
+## November 19 application follow-up
+
+The [backport application capture](evidence/2026-11-19-holochain-backport/README.md)
+records Canvas 18.790 s and first/repeated DescribedBy 3.721/0.274 s, with nearly
+unchanged SDK counts but 592 startup guest calls versus the historical 299.
+Retained saved-Usage cloning explains much of the different backend path.
+This historical app comparison does not replace the matched invocation evidence
+or isolate all improvements to Holochain. It also documents repeated no-peer
+publication batches separately from guest calls and local persistence.
