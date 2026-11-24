@@ -338,6 +338,16 @@ Resolve property-name selections at execution time through shared descriptor
 facilities, following the query-wide name-selection policy. Treat `Project` as explicit
 materialization, not as a replacement for `HolonCollection` navigation.
 
+The bounded Reference Layer helper is tracked in
+[map-holons #881 — Add project_property_values to ReadableHolon](https://github.com/evomimic/map-holons/issues/881).
+It provides selected-property materialization at the final projection boundary,
+and a convenience for DAHN forms that need most or all properties of a referenced
+holon. Preserve `HolonReference` operands through evaluation and use ordinary
+property reads as needed; do not eagerly materialize source holons or property
+maps between expressions. Projection results remain holons accessed through
+references in the existing collection-based result contract. The helper issue
+does not implement `Project` or correlated query composition.
+
 ### Delivery-boundary adjustment — 2026-09-27
 
 The initial proposal to combine QRY3 binding with QRY4a is superseded:
