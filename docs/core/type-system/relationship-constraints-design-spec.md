@@ -71,12 +71,8 @@ lineage. Reuse contributes one inverse link to the enum lineage root and retains
 the variant's stored key, including after an enum rekey; creating a variant
 successor to refresh its key is optional.
 
-For a new variant version, the enum-key prefix comes from exact authored
-declaring-enum evidence, never an implicit lineage head. Key composition rejects
-missing evidence and conflicting declaring-owner keys; relationship conformance
-rejects ownership by a different lineage.
-`Variants` is `Local` under `DS-SCHEMA-003`: membership is not inherited through
-`Extends` and cannot confer inherited ownership.
+`Variants` is `Local` under `DS-SCHEMA-003`. Its authored occurrences supply the
+[declaring-owner evidence for new concrete variant versions](schema-design-spec.md#93-descriptor-keys).
 
 The [relationship occurrence persistence specification](../transactions/relationship-persistence-design-spec.md)
 owns preparation of the corresponding physical targets. The storage layer

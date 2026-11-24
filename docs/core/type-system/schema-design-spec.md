@@ -333,6 +333,10 @@ a component of one schema. The common structural surface includes:
 - optional `Extends`; and
 - other cross-cutting descriptor relationships defined by the Core Schema.
 
+A local `TypeName` is nonempty and contains neither dots nor whitespace. Reject
+invalid values as authored, without trimming or normalization. Use `DisplayName`
+for human-readable labels.
+
 ### 8.2 Holon-type descriptors
 
 A holon-type descriptor may define:
@@ -351,9 +355,7 @@ additions. Any future restriction on what a subtype may add is a separate design
 Transient loader assembly may temporarily contain incomplete or unresolved state; that construction
 state does not change saved-state conformance requirements.
 
-Keylessness is represented by an explicit effective key-rule target, currently
-`NoneRule.KeyRuleType`, rather than by a missing semantic rule. Exact key-rule
-resolution belongs to the descriptor-kernel semantic rules.
+The [explicit keylessness contract](#92-explicit-keylessness) applies to holon types.
 
 ### 8.3 Property descriptors
 
@@ -405,6 +407,12 @@ Every concrete relationship descriptor defines a direction with:
 - duplicate policy;
 - definitional status;
 - directional deletion semantics.
+
+For a declared relationship, `IsDefinitional` means that changing its authored
+occurrences requires a new immutable version of the source holon. Target versions
+follow their own lifecycle. When a constituent's key strategy requires a
+declaring owner, the [publication rule](#declaring-owner-evidence) requires that
+owner version to select the new constituent in the same Commit.
 
 Directional cardinality is a configured `CardinalityConstraint` attached through the generic
 `Constraints` relationship. Its minimum is required and its maximum is optional; an absent maximum
@@ -481,20 +489,18 @@ listed declared relationship has a paired inverse with swapped endpoints and
 | `EffectiveAffordsCommand` | E | CommandType | `0..*` | `CommandInEffectiveHolonDescriptor` |
 | `EffectiveValidationBindings` | E | ValidationRule | `0..*` | `ValidationRuleInEffectiveHolonDescriptor` |
 | `EffectiveConstraints` | E | Constraint | `0..*` | `ConstraintInEffectiveHolonDescriptor` |
-| `EffectiveInstanceKeyRule` | E | HolonType | `1..1` | `KeyRuleInEffectiveHolonDescriptor` |
+| `EffectiveInstanceKeyRule` | E | KeyRuleType.HolonType | `1..1` | `KeyRuleInEffectiveHolonDescriptor` |
 | `EffectiveContributions` | E | C | `0..*` | `ContributionOfEffectiveHolonDescriptor` |
 | `ContributionCollection` | C | RelationshipType | `1..1` | `CollectionOfEffectiveContribution` |
 | `ContributionMember` | C | HolonType | `1..1` | `MemberOfEffectiveContribution` |
 | `ContributionDeclaredOn` | C | HolonType | `1..1` | `DeclarerOfEffectiveContribution` |
 
-Target categories abbreviate the existing qualified descriptor anchors. The
-broad HolonType endpoint for `EffectiveInstanceKeyRule` and `ContributionMember`
-accommodates both descriptor Holons and configured rule instances. The
-key-rule result must satisfy the same effective target constraint as the
-original `InstanceKeyRule`; broad structural endpoints do not permit arbitrary
-Holons. A contribution's member must satisfy the target contract of its
-identified source collection. `ContributionDeclaredOn` identifies a member of
-the described HolonType's lineage.
+Descriptor-valued rows identify the logical target categories. Endpoint
+declarations constrain those categories through their describing meta-types. The projected
+`EffectiveInstanceKeyRule` preserves the selected rule instance and follows the
+same target contract as `InstanceKeyRule`. A contribution's member must satisfy
+the target contract of its identified source collection. `ContributionDeclaredOn`
+identifies a member of the described HolonType's lineage.
 
 `ContributionCollection` identifies the actual authoritative collection
 RelationshipType (for example `ValidationBindings`), not its
@@ -515,18 +521,7 @@ products and lightweight evidence until validation rejects them. Validated
 schema is trusted to contain unique selected targets. They are not transported as contribution Holons; the constructed
 result's `EffectiveContributions` collection is empty.
 
-Descriptor-valued endpoints retain descriptor-category constraints. Their intended
-eligibility is `SubtypeOf`: the target is itself a descriptor equal to or
-extending the named category. Ordinary configured validation and constraint
-instances use `InstanceOf`: their describing type equals or extends the required
-type. These are independent endpoint meanings; substituting meta-type endpoints
-would change the descriptor-category contracts. Generalized endpoint eligibility
-is deferred; the current describing-type-only kernel cannot enforce all these
-contracts. The bounded construction accommodation is documented in the
-[descriptor runtime specification](../core-runtime/descriptors/descriptors-design-spec.md#146-guest-preparation-and-local-cache-policy).
-The broad key-rule and contribution-member endpoints retain existing mixed
-representations; construction preserves selected authoritative references without
-converting key-rule descriptors to configured instances.
+All endpoints follow the [describing-type compatibility rule](#10-endpoint-classification).
 
 All result and contribution definitions, their relationship pairs, and the
 `ContributionPosition` PropertyType belong to Descriptor Runtime Schema.
@@ -666,14 +661,9 @@ A semantic key identifies a holon according to rules declared by its type. It
 is distinct from the holon's immutable `HolonId` and from any storage-specific
 identifier.
 
-Key derivation is modeled in the schema rather than hard-coded into declaration
-syntax or Rust types. Key rules are ordinary holonic schema entities rooted at
-abstract `KeyRuleType.HolonType`. A key-rule target may be:
-
-- a concrete key-rule type descriptor representing a reusable derivation
-  strategy; or
-- an ordinary configured key-rule holon described by a concrete key-rule type,
-  such as an instance of `FormatRule.KeyRuleType`.
+Key derivation strategies are described by concrete types under `KeyRuleType.HolonType`.
+A selectable rule is an instance of a strategy type, such as a configured
+`FormatRule` instance.
 
 ### 9.1 `InstanceKeyRule`
 
@@ -724,19 +714,13 @@ independent semantic keys.
 
 ### 9.2 Explicit keylessness
 
-Keylessness is represented by selecting `NoneRule.KeyRuleType`. It is not
-represented by an absent effective key rule.
-
-`HolonType.TypeDescriptor` establishes `NoneRule.KeyRuleType` as the root
-baseline. A holon type therefore describes keyless instances unless it or a
-nearer ancestor selects another rule.
-
-The explicit target keeps keyed and keyless types within the same cardinality
-and inheritance model and prevents absence from carrying two meanings.
+`HolonType.TypeDescriptor` explicitly selects `Canonical.NoneRule`. Descendants inherit it through `Override` until they or
+a nearer ancestor select a different instance. Keyless holons carry no semantic
+`Key`. An empty string is an invalid key.
 
 ### 9.3 Descriptor keys
 
-`MetaTypeDescriptor.HolonType` selects `ExtendedTypeRule.KeyRuleType` as the
+`MetaTypeDescriptor.HolonType` selects `Canonical.ExtendedTypeRule` as the
 inherited baseline for descriptor holons. This makes a descriptor's semantic key a
 consequence of the key rule selected by the descriptor's meta-type rather than
 of a TDL declaration form or key suffix.
@@ -744,17 +728,27 @@ of a TDL declaration form or key suffix.
 Under the current `ExtendedTypeRule`, changing the immediate `Extends` parent
 changes the derived key for subsequently created descriptor versions. Because
 `Extends` is definitional, this is a breaking schema change rather than a
-key-stable internal refactor.
+key-stable internal refactor. An ordinary type with local name `Employee` whose
+immediate parent has local name `Person` composes `Employee.Person`.
 
 Specialized meta-types may override that baseline. For example,
 `MetaRelationshipType.MetaTypeDescriptor` selects the relationship key rule,
 and `MetaEnumVariantValueType.MetaValueType` selects the enum-variant key rule.
 
-Both abstract enum-variant anchors are described by `MetaEnumVariantValueType`, so every concrete
-variant must select it or a specialization. `EnumVariantRule` keys a concrete variant as
-`{EnumKey}.{VariantTypeName}`, with owner evidence from its declaring enum's authored `Variants`
-occurrence. An abstract variant anchor has no owning enum; the rule keys it in the extended-type
-form.
+The abstract anchors `EnumVariantValueType.ValueType` and
+`MapEnumVariantValueType.EnumVariantValueType` are both described by
+`MetaEnumVariantValueType.MetaValueType`. Concrete variants use that describing
+type or a specialization. `EnumVariantRule` chooses the extended-type form only
+when the subject's local `IsAbstractType` is true. It joins the anchor's local
+`TypeName` and the immediate `Extends` parent's local `TypeName` with a dot.
+
+A new concrete variant version requires an enum candidate in the same Commit
+whose authored `Variants` occurrence selects that exact variant candidate.
+The rule joins the declaring enum's final stored key and the variant's local
+`TypeName` as `{EnumKey}.{VariantTypeName}`. Apply the
+[declaring-owner evidence contract](#declaring-owner-evidence). Inherited enum
+membership supplies no declaring-owner evidence. Enum successors may reuse
+saved variant versions, preserving their stored keys.
 
 ### 9.4 Core key-rule families
 
@@ -770,13 +764,27 @@ The current Key Rule Schema defines reusable strategies for:
 - configured format keys; and
 - explicit keylessness.
 
-The TDL corpus owns the exact key-rule inventory and identities. Target
-strategies include `TypeNameRule.KeyRuleType`,
-`SchemaNameRule.KeyRuleType`,
-`EnumVariantRule.KeyRuleType`, `RelationshipRule.KeyRuleType`,
-`ExtendedTypeRule.KeyRuleType`, `DescribedTypeRule.KeyRuleType`,
-`ConstraintInstanceRule.KeyRuleType`, `FormatRule.KeyRuleType`, and
-`NoneRule.KeyRuleType`.
+`KeyRuleType.HolonType` licenses the required `TypeName` instance property and
+selects `Canonical.DescribedTypeRule`. Unless a strategy type selects another
+rule through `Override`, its instances inherit that selection and use the key
+form `{TypeName}.{StrategyTypeName}`. `StrategyTypeName` is the local `TypeName`
+of the instance's direct `DescribedBy` target. For example,
+`HolonSpaceNameRule.FormatRule` is a configured instance of
+`FormatRule.KeyRuleType`. Strategy recognition uses describing-type identity
+under [DS-KEY-002](descriptor-semantics-rules.md#ds-key-002-key-rule-target-compatibility).
+
+Each concrete strategy that requires no configuration has exactly one canonical
+instance with local `TypeName` `Canonical`. Core declares `Canonical.NoneRule`,
+`Canonical.TypeNameRule`, `Canonical.SchemaNameRule`, `Canonical.EnumVariantRule`,
+`Canonical.RelationshipRule`, `Canonical.ExtendedTypeRule`,
+`Canonical.DescribedTypeRule`, and `Canonical.ConstraintInstanceRule`. Additional
+named instances may be described by the same strategy type. `FormatRule` and
+`RelationshipPairRule` require configuration.
+
+`Canonical.DescribedTypeRule` is itself governed by the inherited selection.
+Its two inputs are its local name `Canonical` and its describing type's local
+name `DescribedTypeRule`. Composition reads those properties directly, so the
+selection cycle requires reference resolution only.
 
 `TypeKindRule.KeyRuleType` and its authored `TypeKind` input are retired from the Schema 2.0
 corpus. A future key rule may deliberately consume a graph-derived Instance TypeKind identity, but
@@ -786,9 +794,22 @@ Configured format rules are ordinary holons. Their effective specification inclu
 template string and an ordered `TemplateParameters` relationship to the
 property descriptors whose values supply the template parameters.
 
+`RelationshipPairRule` uses `TemplateString` and two required singular
+selectors, `FirstKeyRelationship` and `SecondKeyRelationship`. Each selector
+targets `MetaRelationshipType.MetaTypeDescriptor` and identifies the input
+relationship by exact descriptor identity. The participants supply stored keys
+in positions 0 and 1. Apply the
+[pair template configuration rules](positional-string-template-spec.md#configuration-validity).
+A declared selector must meet the
+[ordinary relationship input requirements](#key-producing-relationship-inputs).
+An inverse selector must identify a declaring-owner input through its paired
+definitional, Version-bound declared relationship. A selector that fails
+these requirements is a configuration error. Both participants must supply
+an unambiguous key.
+
 ### 9.5 Constraint-instance keys
 
-`Constraint.HolonType` selects `ConstraintInstanceRule.KeyRuleType` as the
+`Constraint.HolonType` selects `Canonical.ConstraintInstanceRule` as the
 inherited `InstanceKeyRule` for configured constraint holons. The rule derives
 the key of a constraint instance `C` from exactly two inputs:
 
@@ -800,14 +821,14 @@ ConstraintKey(C) = ConstraintName(C) + "." + LocalTypeName(D(C))
 concrete descendant of `ConstraintType.HolonType`; `LocalTypeName(D(C))` is
 that descriptor's own `TypeName`, not an ancestor name or a transitive
 `DescribedBy` result. `ConstraintName(C)` is the required local string property
-on `C` and must be a valid unqualified semantic-key component. Thus a constraint
-named `ExactlyOne`, described by `CardinalityConstraint.ConstraintType`, has
+on `C`. It must be nonempty and NUL-free. Preserve its exact contents, including
+dots and whitespace, and check the completed key against the semantic-key contract.
+A constraint named `ExactlyOne`, described by `CardinalityConstraint.ConstraintType`, has
 the key `ExactlyOne.CardinalityConstraint`.
 
-The rule rejects a missing, duplicate, or invalid `ConstraintName`, a missing
-or incompatible direct describing type, and an authored key that differs from
-the derived key. Equal names under different concrete constraint types remain
-distinct; duplicate derived keys remain ordinary semantic-key collisions.
+The rule rejects a missing, duplicate, or invalid `ConstraintName` or a missing
+or incompatible direct describing type. Duplicate composed keys are subject to
+`DS-KEY-006`.
 
 `ConstraintInstanceRule` is a fixed structural key resolver. It does not
 evaluate a constraint, dispatch a validator, create a constraint identity, or
@@ -821,17 +842,6 @@ The descriptor-kernel semantic rules own effective key-rule resolution,
 required-input validation, and key derivation. The TDL specification owns
 validation of authored declaration keys and the `instance_keyrule` shorthand.
 
-Keys must be unique within the bound schema package and dependency closure.
-Cross-schema qualification and coexistence of colliding local keys are deferred
-to the WIP Extension Schema identity design; this specification does not
-silently impose a new qualified-key format.
-
-A persisted holon retains the explicit key stored when that version was
-created. Later changes to its effective key rule, rule inputs, or descriptor
-lineage do not recompute or mutate that version's key. Schema-level key
-migration and alias policy require an explicit operation; this does not define
-the lineage lookup mappings maintained by a lineage-bound relationship.
-
 ### 9.6 Key composition and identity contract
 
 - **Keys and lineage.** Keys may change across versions. Persisted lineage identity comes from
@@ -844,8 +854,6 @@ the lineage lookup mappings maintained by a lineage-bound relationship.
 - **Producer boundary.** Composition is read-only. An explicit writable-reference helper
   composes and sets a staged key. Loader imports preserve authored keys because those keys are
   also reference handles. Commit validates keys and never rewrites them.
-- **Keylessness.** Keep `NoneRule.KeyRuleType`; semantic keylessness is an absent `Key`, not an
-  empty string. A type may instead use an explicit stable-identifier property.
 - **Key comparison and shape.** Compare exactly, without normalization or case folding. Keyed
   results must be nonempty, NUL-free, and within the existing `MAX_CANONICAL_KEY_BYTES` limit.
   Do not duplicate or change that limit.
@@ -854,19 +862,52 @@ the lineage lookup mappings maintained by a lineage-bound relationship.
   and apply the semantic-key contract to the rendered String.
 - **Source-scope binding.** Within a package and its dependency closure, binding an authored key
   selects exactly one version. Two versions of one lineage still violate this source-binding
-  requirement. This is separate from Commit's lineage-uniqueness rule.
+  requirement. Cross-schema qualification and key aliases require explicit schema policy.
 
 #### Key-producing relationship inputs
 
-[`DS-KEY-006`](descriptor-semantics-rules.md#ds-key-006-key-uniqueness-across-lineages) makes
-mutations of key-producing relationship inputs definitional. Which relationships may supply key
-inputs, whether owner-side evidence authored on another holon counts as one, and how their
-definitional status is declared remain open design questions, tracked in
-[map-dev-docs #87](https://github.com/memetic-activation-platform/map-dev-docs/issues/87).
+Composition reads explicit properties licensed by the subject's effective
+contract and relationship inputs specified by the selected strategy. An ordinary
+relationship input is applicable, declared, singular, definitional, and Version-bound.
+When a strategy consumes a related holon's key, it reads the stored key of the
+exact selected version, including an explicitly selected staged candidate.
+Producers recompose affected staged subjects after changing inputs. Composition
+evaluates the supplied state without recursively composing related keys. A
+relationship cycle alone is valid.
 
-A later rekey of a target does not implicitly rekey referencing holons; their persisted keys remain
-historical state under `DS-KEY-005`. Enum-variant owner evidence follows the authored `Variants`
-contract in [Descriptor keys](#93-descriptor-keys), rather than inherited enum membership.
+`ExtendedTypeRule` reads the immediate parent's local `TypeName`.
+`RelationshipRule` reads the exact endpoint versions' stored keys. The extended-type
+fallback for missing endpoints applies only to `DeclaredRelationshipType.RelationshipType`
+and `InverseRelationshipType.RelationshipType`.
+
+#### Declaring-owner evidence
+
+The selected strategy triggers the publication rule by requiring a
+declaring-owner input. It identifies the authoritative definitional,
+Version-bound relationship that the owner authors to the subject. Shared
+preparation and validation use the strategy and relationship descriptor
+identities. A Lineage-bound relationship alone imposes no publication
+requirement. A Lineage-bound inverse identifies an owner lineage. The forward
+occurrence identifies the exact declaring version.
+
+A create or new immutable subject version requires an owner candidate in the
+same Commit whose final authored occurrence selects the exact subject candidate.
+The input is the declaring candidate's final stored key. Multiple declarations
+must agree on owner lineage and key. Examples include enum `Variants` and
+Theme `HasThemeTokenAssignment`.
+
+A complete view covers all live candidates in the applicable publication
+scope and their authored occurrences for the authoritative relationship.
+
+- Commit uses the complete live assessment candidate set and its final authored occurrences.
+- Standalone composition in a transaction uses the complete live publication candidates
+  at composition time and their current authored occurrences.
+- A tool outside a transaction must supply an explicit publication cohort with
+  equivalent candidate identities and complete authored occurrences to assess this rule.
+
+A complete view with no qualifying occurrence establishes missing evidence.
+Conflicting owner lineages or keys make the input ambiguous. An incomplete view
+makes composition unevaluable.
 
 ## 10. Endpoint Classification
 
@@ -1004,14 +1045,10 @@ separate rule parameter model.
 ### 12.3.1 Rule packaging and provenance
 
 `Rule.HolonType` is an abstract semantic family, not an instance-type-kind anchor. Its concrete
-instances include `Constraint` and `ValidationRule` instances and configured instances described
-by a concrete `KeyRuleType`; all remain ordinary holons. A concrete `KeyRuleType` is itself a
-type descriptor and is packaged through its ordinary `ComponentOf` relationship. It does not
-acquire `RuleOf` merely because it describes configured key-rule instances.
-
-Every concrete `Constraint`, `ValidationRule`, or configured key-rule instance has exactly one
-origin Schema, recorded by its required,
-non-definitional relationship:
+instances include `Constraint`, `ValidationRule`, and key-rule instances.
+These ordinary holons author a required, non-definitional `RuleOf` relationship
+to exactly one origin Schema. Canonical key-rule instances are Core Rules.
+Their strategy descriptors belong to the Schema through `ComponentOf`.
 
 ```text
 Rule -[RuleOf 1..1]-> Schema
@@ -1332,8 +1369,8 @@ the exact independently testable validations and error behavior.
 14. The Core `InstanceKeyRule` relationship descriptor declares cardinality `1..1`; the kernel
     inheritance table assigns it `Override`.
 15. Every descriptor belongs to exactly one schema through `ComponentOf`.
-16. Every holon type resolves exactly one effective `InstanceKeyRule`; keylessness uses the explicit
-    `NoneRule.KeyRuleType` target.
+16. Every holon type resolves exactly one effective `InstanceKeyRule`; keylessness uses the explicit canonical
+    `NoneRule` instance.
 17. Every concrete property descriptor selects exactly one compatible value type, and a default may
     be declared only for a required property.
 18. Every concrete relationship descriptor defines one source, one target, collection policy, and

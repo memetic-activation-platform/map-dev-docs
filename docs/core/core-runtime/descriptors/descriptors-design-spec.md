@@ -756,14 +756,10 @@ compact final policy projections for its relationship identities; those values
 come from RelationshipDescriptor acquisition rather than a second derivation
 algorithm or policy authority.
 
-The runtime retains normal request binding and structural safeguards. It does
-not run semantic source validation or a second conformance pass over its own
-result or response. The existing bounded explicit-conformance accommodation for
-descriptor-valued endpoints remains: the five effective vocabulary endpoints
-and ContributionCollection retain their semantic category targets until general
-endpoint eligibility can express them. The accommodation is not eager validation
-and does not widen endpoints. Guest-local construction below 200 ms remains a
-design target, distinct from host transport time and observed benchmark results.
+Construction applies request binding and structural safeguards. Semantic
+conformance of the result is assessed at its validation boundary. Result endpoints follow the [schema's describing-type compatibility contract](../../type-system/schema-design-spec.md#85a-effective-descriptor-result-schema).
+Guest-local construction below 200 ms remains a design target, distinct from
+host transport time and observed benchmark results.
 
 ### 14.7 Participation in the space Session
 
@@ -1070,11 +1066,23 @@ inherit or treating a generic carrier's fields as category semantics.
 
 ### Key composition boundary
 
-Descriptor Runtime gathers semantic key inputs through the existing descriptor facades and shared
-descriptor kernel. Composition formatting is pure and WASM-safe over typed, already-resolved
-inputs. Loader assembly, runtime composition, and Commit assessment share this semantic resolution
-path; they do not introduce a separate key resolver or semantic IR. In particular, semantic key
-resolution does not belong in `map_schema_semantic`.
+Descriptor Runtime resolves the selected rule instance through the shared
+descriptor kernel. The strategy and relationship descriptors identify its inputs.
+A configured pair selector can identify an inverse whose paired declared
+descriptor identifies the authoritative forward occurrence. `EnumVariantRule`
+uses the canonical `Variants` relationship descriptor for concrete variants.
+Preparation matches descriptor and candidate identities to the final authored
+occurrences in scope and preserves the declaring references. The
+[declaring-owner evidence contract](../../type-system/schema-design-spec.md#declaring-owner-evidence)
+defines completeness and outcomes for standalone composition, Commit, and
+tools. Shared preparation and validation match descriptor identities without
+branching on particular subject or owner type names.
+
+Composition is read-only. It formats prepared inputs with pure, WASM-safe code and
+returns a key, explicit keylessness, or a typed failure. Producers explicitly
+compose and set a staged key through the writable-reference surface. Commit and
+producer operations share the composer. Loader assembly preserves authored keys
+for Commit assessment.
 
 ## 15. Definition and Extension Governance
 

@@ -673,15 +673,16 @@ multiple effective targets are invalid.
 
 #### DS-KEY-002: Key-rule target compatibility
 
-The selected target must conform to the effective target constraint of `InstanceKeyRule` and must
-provide a supported key-rule strategy or configured key-rule instance. An abstract target cannot
-serve directly as the selected rule.
+The selected target must conform to the effective target constraint of
+`InstanceKeyRule` and be an instance of a concrete key-rule strategy. Resolve
+strategy identity through the instance's describing type and its lineage against
+the recognized strategy descriptors. Assess executable strategy support and
+required configuration separately from target selection.
 
 #### DS-KEY-003: Explicit keyless baseline
 
 The effective `InstanceKeyRule` definition must remain singular, required, and `Override`.
-`HolonType.TypeDescriptor` must explicitly select `NoneRule.KeyRuleType`. An absent relationship is
-not a representation of keylessness.
+`HolonType.TypeDescriptor` must explicitly select `Canonical.NoneRule`.
 
 ### 2.9 Instance deletion policy
 
@@ -992,13 +993,7 @@ For holon type `T`:
         =
     the unique target in EffectiveValues(T, InstanceKeyRule)
 
-The root holon type establishes explicit keylessness:
-
-    HolonType.TypeDescriptor
-        InstanceKeyRule -> NoneRule.KeyRuleType
-
-A descendant remains keyless unless it or a nearer ancestor overrides that target. Keylessness is
-not represented by an absent effective rule.
+The root holon type establishes explicit keylessness under `DS-KEY-003`.
 
 Resolution fails when the effective target collection contains zero or more than one key rule.
 
@@ -1016,11 +1011,12 @@ itself. The key of descriptor `T` is governed by the effective key rule of `D(T)
 Changing the immediate parent is therefore key-affecting for newly created descriptor versions.
 
 `DescribedTypeRule.KeyRuleType` derives named ordinary-holon keys from the local type name and the
-local type name of `D(H)`. Configured `FormatRule` holons derive keys from an authored template and
-ordered property-descriptor parameters.
+local type name of `D(H)`. Key-rule instances inherit this strategy from
+`KeyRuleType.HolonType` under the
+[Core key-rule contract](schema-design-spec.md#94-core-key-rule-families).
 
 Key lookup is not identity. Before identity is available, a source reference may bind by key only
-when that key resolves uniquely in the schema package and dependency closure. After resolution,
+when that key resolves to exactly one version in the schema package and dependency closure. After resolution,
 relationships and semantic validation use resolved identity.
 
 Schema-qualified key namespaces and coexistence of colliding local keys from independent extension
@@ -1489,16 +1485,24 @@ For every holon `H`, `holon_key_rule(H)` selects the rule in
 
 #### DS-KEY-004: Explicit keylessness
 
-When `holon_key_rule(H) = NoneRule.KeyRuleType`, `H` must not carry a semantic key.
+A create or new immutable version governed by the `NoneRule` strategy carries
+no semantic key.
 
 #### DS-KEY-005: Key presence and value
 
-When the selected rule is not `NoneRule.KeyRuleType`, a newly created holon must carry exactly one
-key equal to the result of applying that rule to the explicit completed state of `H`. Missing,
-multiple, or mismatched keys are violations.
+A create or new immutable version governed by a keyed strategy must carry
+exactly one key equal to the composed result for its explicit completed state.
+Validate the result against the [semantic-key shape contract](schema-design-spec.md#96-key-composition-and-identity-contract).
+Missing, multiple, or mismatched keys are violations.
 
-For a persisted holon, validation uses `PersistedKey(H)` as explicit historical state. It does not
-recompute that key under a later schema version merely because the effective rule has changed.
+Apply the [declaring-owner evidence contract](schema-design-spec.md#declaring-owner-evidence)
+when the strategy requires it. A new concrete variant version requires a declaring
+enum candidate in the same Commit. Missing or conflicting required evidence is
+a key finding. An incomplete view leaves the check unevaluable. In
+`EnumVariantRule`, only the subject's local `IsAbstractType = true` selects the
+[extended-type form](schema-design-spec.md#93-descriptor-keys).
+
+A reused committed version retains its stored key as historical state.
 
 #### DS-KEY-006: Key uniqueness across lineages
 

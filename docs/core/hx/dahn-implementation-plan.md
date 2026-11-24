@@ -138,7 +138,10 @@ do not establish a general latency guarantee. See the performance record below.
 THEME-001, THEME-002 and THEME-003 remain declared without active validation
 bindings. LoadTheme removes the old read-time semantic validation loops without
 implementing or activating their replacement. Authoritative Theme validation
-remains a separate follow-up; this delivery does not establish Theme validity.
+remains a separate follow-up. That follow-up delivers write-time checks for
+lineage-pair uniqueness, complete coverage and exclusion of extraneous tokens,
+and value conformance against the exact selected token version. Review the seeded
+rules against [DAHN Design §45.3](dahn-design-spec.md#453-themes-and-complete-assignment).
 
 ## October 30 implementation checkpoints
 

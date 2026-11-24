@@ -804,38 +804,24 @@ Anticipated additions, to be confirmed by each issue:
 
 ### VAL-C3c-1 — Design reconciliation and acceptance coverage
 
-Complete this design reconciliation before VAL-C3c-2 starts. Record accepted decisions in the
-governing specifications, then identify the downstream implementation units affected by each
-decision. The open design questions are tracked in
-[map-dev-docs #87](https://github.com/memetic-activation-platform/map-dev-docs/issues/87). The
-[key relationship-parameter proposal](../descriptors/key-relationship-parameters-proposal.md)
-preserves unresolved preferences; it does not establish accepted design.
+Complete these gates before VAL-C3c-2. Record accepted behavior in the linked
+specifications. Outstanding decisions are tracked in
+[DevDocs #87](https://github.com/memetic-activation-platform/map-dev-docs/issues/87).
 
-1. **Resolve semantic-name syntax.** Resolve explicit semantic-name syntax and retained shorthand
-   where source syntax supplies a name, including nested variant labels and relationship endpoint
-   declarations. Specify mechanical lowering, compiler/decompiler round trips, and retention of
-   relationship endpoint consistency checking. Declaration keys remain authored independently of
-   `TypeName`; do not invert runtime key rules in the parser. Correct both abstract variant anchors,
-   `EnumVariantValueType.ValueType` and `MapEnumVariantValueType.EnumVariantValueType`.
-2. **Resolve descriptor-family key-policy placement.** Map governing `InstanceKeyRule` placement
-   for ordinary holon types, roots/kind anchors, meta-types, specialized describing meta-types,
-   key-rule/projection families, and value descriptors with immediate-parent keys. Use the
-   [instance-key selection contract](../type-system/schema-design-spec.md#91-instancekeyrule).
-   Resolve the preservation preferences in the linked proposal before changing a shared meta-type's
-   rule; demonstrate how describing populations are distinguished and identify any rekeying.
+1. **Map semantic-name delivery.** Use the [TDL local name contract](../type-system/tdl/tdl-spec.md#local-semantic-names)
+   to scope compiler and emitter changes and the abstract variant anchor corrections.
+2. **Resolve key-policy placement.** Establish which describing types own each family policy
+   under the [instance-key selection contract](../type-system/schema-design-spec.md#91-instancekeyrule).
+   VAL-C3d maps individual corpus populations, keys, and affected consumers.
 3. **Reuse the existing test boundaries.** Use the manifest-driven Sweettest bootstrap and
    `LoadHolons` diagnostics for production loader assembly, final default and enum completion,
    and Commit behavior. Use focused tests through Descriptor Runtime for strategy and
    configuration coverage before enforcement. Check which package/dependency-closure cases
    the existing schema verification gate covers and identify any gaps for C3d. A successful
    load of the combined bundle does not establish each package's source-binding scope.
-4. **Record the bounded relationship-pair strategy and resolve owner-evidence preparation.**
-   The [November 18 decision](https://github.com/memetic-activation-platform/map-dev-docs/issues/87#issuecomment-6989271767)
-   defers general relationship parameters and preserves the ordered property-descriptor targets of
-   `TemplateParameters`. `RelationshipPairRule` has two singular selectors. Their positions are 0
-   and 1. The template must reference both and may repeat or reorder them. Specify how Commit and
-   standalone composition obtain equivalent bounded evidence of the exact declaring enum or Theme
-   version, including how they distinguish missing, conflicting, and insufficient evidence.
+4. **Map declaring-owner preparation.** Identify the evidence preparation and test boundaries
+   for standalone composition and Commit under the
+   [declaring-owner evidence contract](../type-system/schema-design-spec.md#declaring-owner-evidence).
 5. **Verify the execution map.** Check every seeded rule family, subject level, route, binding
    root, and supplied context against the governing contracts. Reclassify descriptor-definition
    rules where necessary before authoring bindings. Verify `EnumVariantRule` for both concrete
@@ -848,14 +834,11 @@ preserves unresolved preferences; it does not establish accepted design.
    Record the identity, subject, execution route, and finding attribution for C3f's assessment of
    staged configured key-rule instances. Cover instances with no current subjects and account for
    template syntax already assessed by the mandatory ValueType constraint.
-6. **Specify instance-only key-rule selection.** Record the canonical instances and explicit root
-   `NoneRule` selection, the rule that keys these instances, and strategy classification through the
-   selected instance's describing type and canonical descriptor identities. Coordinate the migration
-   of authored selections with the endpoint reconciliation in
+6. **Map rule-instance migration.** Use the
+   [Core key-rule contract](../type-system/schema-design-spec.md#94-core-key-rule-families)
+   for the canonical inventory and key policy. Map each authored selection to its instance and
+   coordinate the declaration and consumer changes with
    [map-holons #839](https://github.com/evomimic/map-holons/issues/839).
-
-`TypeNameRule.KeyRuleType` is unused in the current corpus. It remains supported vocabulary;
-retirement would be a separate decision.
 
 ## Specification corrections and plan reconciliation
 
@@ -866,7 +849,7 @@ retirement would be a separate decision.
 | `descriptor-semantics-rules.md` §1.9 | Exact `EnumValue` token representation | VAL-C3b |
 | Validation Schema spec and canonical rule metadata | Descriptor-definition subject/family corrections and explicit property-conformance execution ownership | VAL-C3a / VAL-C3b |
 | `abstract-value-types.tdl`; `schema-design-spec.md` §9.3 | Enum-variant anchor describer and `EnumVariantRule` domain | VAL-C3b |
-| `descriptor-semantics-rules.md` key sections | Family policy map, key shape/evolution, version-state boundary, enum-variant key form, source scope | VAL-C3c-1 |
+| `descriptor-semantics-rules.md` key sections | Key selection, conformance, and finding attribution | VAL-C3c-1 |
 | `positional-string-template-spec.md`; `schema-design-spec.md` §9.6 | Normative grammar, parameter checks, rendering, and schema representation | VAL-C3c-1 / DevDocs #87 |
 | `core-schema-bootstrap-design-spec.md`; Core TDL | `HolonSpaceNameRule` uses `{0}` and `TemplateString` selects the specialized ValueType | #868 |
 | `tdl-spec.md` | Authored semantic names and shorthand, declared-only owner evidence | VAL-C3c-1 |
@@ -893,7 +876,7 @@ shared key checks by capability exit.
 | Keyed holons whose effective rule is `NoneRule` | 151 | Includes 48 `ValidationRule` instances, 63 `DesignToken` instances, and dahn/dancer/theme/meta-design-system instances; several have no name property |
 | Holons governed by extension-defined `RelationshipPairRule` | 126 | `ThemeTokenAssignment`; authored keys are internally inconsistent |
 | `ExtendedTypeRule` mismatches | 39 | 36 are holon types keyed `{TypeName}.HolonType` under an intermediate parent |
-| Enum-variant keys differing from documented `{EnumName}.{Variant}` | 63 | Corpus/compiler use `{EnumKey}.{Variant}`; correct the documentation |
+| Enum-variant keys differing from the earlier `{EnumName}.{Variant}` documentation | 63 | Verify against the governing `{EnumKey}.{VariantTypeName}` policy |
 | `FormatRule` template spellings | 2 instances | The October 7 snapshot found `$0` on `HolonSpaceNameRule` and `{0}` on `ImplementationName`. #868 migrates the Core template and checks the separately loaded Agent Spaces template. C3f checks configured rules through Commit, including unused rules. |
 | Compiler-derived `TypeName` defects | At least 2 confirmed anchors | Correct both abstract variant anchors and verify the affected authored names and generated artifacts |
 | Enum tokens / default declarations | 295 / 11 | Probe reported conformance; verify through the delivered evaluator |
@@ -1067,7 +1050,11 @@ This issue belongs to Descriptor Runtime, not `holons_validation` or a Commit-on
   the kernel's ordinary `Override` / `EffectiveValues` semantics and selects an instance. Retain
   the selected instance for configuration and resolve its strategy through its describing type
   and canonical descriptor identities. Report zero or multiple selections, abstract strategies,
-  and unsupported targets as typed errors. Keylessness requires an explicit `NoneRule` selection.
+  and unsupported targets as typed errors.
+- Migrate `KeyRuleDescriptor::is_keyless` to recognize the `NoneRule` strategy through the
+  selected instance's describing lineage. Audit the host `GetHasInstanceKey` consumer to keep
+  it on the shared predicate. Verify its prepared descriptor results with keyed and keyless
+  rule instances.
 - Expose read-only `compose_key` over completed holon state, returning an explicit keyed result,
   explicit keylessness, or a typed composition error. Cover incomplete/ambiguous inputs, invalid
   parameters/placeholders, missing/ambiguous/keyless relationship targets, owner ambiguity,
@@ -1087,9 +1074,10 @@ This issue belongs to Descriptor Runtime, not `holons_validation` or a Commit-on
   fixed parameter positions. Report malformed syntax, out-of-range indices, unused parameters,
   and unsupported input kinds, including in template portions a subject would omit. Read the
   exact participants' stored keys and reject missing, ambiguous, or keyless participant inputs.
-  Use authored `HasThemeTokenAssignment` evidence for the exact declaring Theme version. Require
-  a single owner lineage and a single owner-key value. Standalone and Commit use equivalent
-  declaring-owner evidence for both enums and Themes.
+  Exercise metadata-driven declaring-owner preparation for both enums and Themes through
+  standalone composition and prospective Commit assessment. Cover missing evidence in a complete
+  view, conflicts in lineage or key, incomplete preparation, and a staged declaration removed
+  or replaced before assessment.
 - Implement the active corpus strategies: type-name, schema-name, enum-variant, relationship,
   extended-type, described-type, constraint-instance, configured `FormatRule`, bounded
   `RelationshipPairRule`, and explicit keylessness. Consolidate applicable fixed formatting
@@ -1097,9 +1085,13 @@ This issue belongs to Descriptor Runtime, not `holons_validation` or a Commit-on
   `ConstraintName` and the describing constraint type's local `TypeName`. Each strategy retains
   its input acquisition and eligibility checks. Fixed templates require no extra schema
   configuration, and the renderer is independent of strategy identity.
-- Correct TDL semantic-name lowering according to gate 1, including both abstract variant
-  anchors and explicit `TypeName` handling. Test compiler/decompiler fidelity and endpoint
-  consistency. This is syntax lowering, not descriptor-semantic execution in the parser.
+- Correct TDL semantic-name lowering for both abstract variant anchors and explicit `TypeName`
+  handling. Cover invalid names, compiler/decompiler fidelity, and endpoint consistency.
+- Prove that a concrete variant with no declaring enum returns a typed missing-owner composition
+  failure. With the corrected local names, prove that the two abstract anchors compose
+  `EnumVariantValueType.ValueType` and `MapEnumVariantValueType.EnumVariantValueType`.
+- Prove that `Canonical.DescribedTypeRule` composes its own key from the two
+  local names and that a configured instance uses the same inherited rule.
 - Use focused tests for the shared resolver, composer, and configured-rule checks. Exercise
   `assess_commit_candidates` where the prospective Commit view is needed. Use existing loader
   fixtures for cases that depend on real assembly and final completion.
@@ -1114,23 +1106,35 @@ required compiler-generated semantic-name corrections; policy/key alignment belo
 
 ## VAL-C3d — Corpus Key Alignment and Source Gate
 
-- Apply the decided family-policy map to canonical Core and every manifest-selected extension.
-  Give keyed types an appropriate governing rule and explicit name or stable-identifier inputs
-  where needed. Cover Validation Rules, design tokens, visualizers/dancers/canvases, themes,
-  meta-design-system instances, and theme assignments.
+- Record the family-policy matrix for canonical Core and every manifest-selected extension.
+  Distinguish the rule on `D(T)` that keys descriptor `T` from the rule on `T` that keys its
+  instances. Record exact inputs, authored and proposed keys, deliberate rekeys, current and
+  historical key collisions, and affected consumers. Record canonical and configured key-rule
+  instances as one key-policy population. Validate fresh imports.
+  Existing-Space migration is outside this delivery because there are no long-running Spaces.
+- Apply the family-policy map. Every imported population must have an effective keyed rule
+  and the explicit name or stable-identifier inputs its strategy requires. Cover Validation Rules, design tokens, visualizers/dancers/canvases, themes,
+  meta-design-system instances, and theme assignments. Give the six specialized visualizer
+  descriptors distinct semantic names.
 - Preserve code-referenced keys unless deliberately changed with all consumers. Correct
   mismatches and references. Align relationship-derived key inputs with each strategy's
   authoring and lifecycle contract.
+- Seed the canonical instances, including `Canonical.TypeNameRule`, with explicit Core
+  `rule_of` provenance. License `TypeName` and put the `Canonical.DescribedTypeRule` selection
+  on `KeyRuleType.HolonType`. Remove `FormatRule.KeyRuleType`'s redundant local selection
+  and `TypeName` licensing. Migrate descriptor-form selections to their canonical instance
+  references and check the self-reference through ordinary Core bootstrap.
 - Declare and license `FirstKeyRelationship` and `SecondKeyRelationship` as required singular
   selectors targeting `MetaRelationshipType.MetaTypeDescriptor`, and license `TemplateString`
-  on `RelationshipPairRule.KeyRuleType`. Configure `ThemeTokenAssignmentPairRule` with its
-  template, `AssignedForTheme` in position 0, and `ForDesignToken` in position 1. Align authored
+  on `RelationshipPairRule.KeyRuleType`. Give the configured instance the local
+  `TypeName` `ThemeTokenAssignmentPairRule` and configure its template, `AssignedForTheme` in position 0, and `ForDesignToken` in position 1. Align authored
   assignment keys and references. Make the authored `HasThemeTokenAssignment` direction definitional and
   retain Version binding. Make the inverse `AssignedForTheme` Lineage-bound with `ExactlyOne`.
   Keep `ForDesignToken` Version-bound so an assignment retains the exact token it was authored
   against. Verify a Theme successor can reuse an unchanged assignment version without changing
   that assignment's stored key or token reference.
-- Regenerate affected JSON, bootstrap bundles, and resource copies through `map-schema`. Update
+- Align the Core TDL `IsDefinitional` description with the source-version contract. Regenerate
+  affected JSON, bootstrap bundles, and resource copies through `map-schema`. Update
   loader metrics and any deliberately changed `type_names` constants.
 - Use existing schema verification to gate single-version source binding in each package and
   its dependency closure. Add focused coverage for any gaps identified in C3c-1. Exercise the
@@ -1150,8 +1154,8 @@ bootstrap still loads. Full corpus enforcement is verified in VAL-C3f.
   definitional mutation/version classification. Construction leaves composition to the producer.
   Ordinary retrieval reads the stored key without rendering.
 - Expose read-only composition and explicit compose-and-set through existing command and SDK
-  boundaries. Bind wire values to runtime at ingress and project results at egress. Make the
-  `StageNewFromClone` key optional. A supplied key replaces the copied key. Omission clears it.
+  boundaries. Choose and document the two Commands action names. Bind wire values to runtime
+  at ingress and project results at egress. Make the `StageNewFromClone` key optional. A supplied key replaces the copied key. Omission clears it.
 - Make staged key lookup coherent after setting, changing, or removing a key. Inspect the
   Nursery/pool and relevant collection index behavior; insertion-time indexing alone cannot
   satisfy the helper contract. Define index maintenance through the existing mutation path,
@@ -1186,6 +1190,9 @@ handling through their normal entry points.
   `NoneRule` requires absent semantic `Key`; keyed rules require exactly the composed result
   and valid shape. Historical graph-only/no-action versions are not recomposed or retroactively
   checked against a changed policy. Test both sides of this version-state boundary.
+- Through public Commit, prove that a new concrete variant with no declaring enum yields a
+  `DS-KEY-005` finding and is rejected before persistence. Cover the corresponding Theme
+  publication check, conflict rejection, recomposition after a rekey, and saved-version reuse.
 - Map missing required inputs, invalid inputs, configuration defects, and results exceeding
   the authoritative semantic-key byte limit to semantic findings when assessing their applicable
   subjects. Preserve typed rendering diagnostics. Actual operational failures that prevent
@@ -1427,9 +1434,10 @@ The milestone passes when every item below holds:
   that boundary in CI. Test probes are therefore outside the production surface being inventoried,
   not excused within it;
 - every public production create, update, and relationship-occurrence add/remove path converges on
-  generalized guest Commit, while internal persistence and SmartLink operations are reachable only
-  through that path;
-- `LocalHolonSpace` bootstrap is documented and tested as the sole intended permanent exception;
+  generalized guest Commit for node and relationship persistence;
+- [Core Schema bootstrap](../core-schema-bootstrap/core-schema-bootstrap-design-spec.md#first-space-bootstrap)
+  validates and persists the described Space and Core graph through ordinary loader and Commit.
+  Acceptance evidence covers the authorized `LocalHolonSpace` locator write after graph Commit;
 - `delete_holon_node` remains explicitly inventoried as the current out-of-scope deletion surface,
   rather than being misclassified as an activation gap or assigned to an invented capability;
 - Commit responses project `Rejected`, `RejectedHolons`, and the derived violation count while

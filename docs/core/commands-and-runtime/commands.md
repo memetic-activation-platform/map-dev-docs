@@ -463,7 +463,7 @@ No `tx_id` strings exist below binding.
         StageNewHolon { source: TransientReference },
         StageNewFromClone {
             original: HolonReference,
-            new_key: MapString,
+            new_key: Option<MapString>,
         },
         StageNewVersion { current_version: SmartReference },
         StageNewVersionFromId { holon_id: HolonId },
@@ -494,7 +494,8 @@ Discrete actions:
   Stages a new holon from a transient source reference.
 
 - `StageNewFromClone { original, new_key }`
-  Stages a new holon cloned from an existing holon reference with a new key.
+  Stages a clone in a new lineage. A supplied key replaces the copied key.
+  Omission clears it.
 
 - `StageNewVersion { current_version }`
   Stages a new version from an existing smart reference.
@@ -616,7 +617,10 @@ Discrete actions:
         RelatedHolons { name: RelationshipName },
     }
 
-`ReadableHolonAction` is the definitive list of read-only holon actions exposed through the MAP Commands API.
+The read-only key composition action returns a composed key, explicit
+keylessness, or a composition failure. The
+[producer delivery unit](../validation/commit-validation-impl-plan.md#val-c3e--producer-helper-and-committed-keylessness)
+assigns the action name.
 
 Discrete actions:
 
@@ -662,7 +666,10 @@ These may remain available as internal/runtime APIs without becoming command-lev
         WithDescriptor { descriptor: HolonReference },
     }
 
-`WritableHolonAction` is the definitive list of mutating holon actions exposed through the MAP Commands API.
+The explicit compose-and-set action sets the staged key or clears it for
+explicit keylessness. Composition failure leaves the staged key intact. The
+[producer delivery unit](../validation/commit-validation-impl-plan.md#val-c3e--producer-helper-and-committed-keylessness)
+assigns the action name.
 
 Discrete actions:
 
