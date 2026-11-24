@@ -1,5 +1,7 @@
 # Proposal: Migrating from Catalist’s Fine-Grained Security to MAP’s Group-Oriented Model
 
+> **Proposal boundary — 2026-11-14:** This migration proposal is not a shared authorization contract or an initial AgentSpace dependency. [MAP Client Security](security/map-client-security-design-spec.md) owns client authentication/authorization and enforcement. Agent Spaces self-constitution requires neither group membership nor an Agreement; broader group/role/entitlement proposals remain separate design work.
+
 ## 1. Core Dimensions of Security
 
 Both Catalist and MAP need to address the same underlying dimensions:

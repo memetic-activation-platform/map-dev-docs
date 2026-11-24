@@ -1,0 +1,131 @@
+{
+  "startup": {
+    "window_start": "2026-11-19T12:52:27.256000+00:00",
+    "window_end": "2026-11-19T12:52:46.046000+00:00",
+    "guest_calls": {
+      "count": 592,
+      "sum_ms": 18772.95704,
+      "median_ms": 2.0273955,
+      "max_ms": 425.70154199999996
+    },
+    "by_operation": {
+      "canonical": {
+        "count": 3,
+        "sum_ms": 528.478668,
+        "median_ms": 138.631959,
+        "max_ms": 319.151834
+      },
+      "fetch_all_related_holons": {
+        "count": 7,
+        "sum_ms": 2829.894583,
+        "median_ms": 398.022334,
+        "max_ms": 425.70154199999996
+      },
+      "get_holon_by_id": {
+        "count": 132,
+        "sum_ms": 257.657127,
+        "median_ms": 1.8788955,
+        "max_ms": 3.320375
+      },
+      "get_holons_by_ids": {
+        "count": 1,
+        "sum_ms": 6.289458000000001,
+        "median_ms": 6.289458000000001,
+        "max_ms": 6.289458000000001
+      },
+      "get_saved_holon_by_key": {
+        "count": 37,
+        "sum_ms": 441.77354,
+        "median_ms": 10.484625,
+        "max_ms": 20.891083000000002
+      },
+      "query_relationships": {
+        "count": 401,
+        "sum_ms": 14499.379248,
+        "median_ms": 2.013334,
+        "max_ms": 157.959833
+      },
+      "resolve_visualizer_usage": {
+        "count": 11,
+        "sum_ms": 209.484416,
+        "median_ms": 18.378834,
+        "max_ms": 23.66025
+      }
+    },
+    "warnings": 0
+  },
+  "first-navigation": {
+    "window_start": "2026-11-19T12:53:54.174000+00:00",
+    "window_end": "2026-11-19T12:53:57.895000+00:00",
+    "guest_calls": {
+      "count": 332,
+      "sum_ms": 3406.429673,
+      "median_ms": 1.490479,
+      "max_ms": 403.61924999999997
+    },
+    "by_operation": {
+      "canonical": {
+        "count": 2,
+        "sum_ms": 491.1475,
+        "median_ms": 245.57375,
+        "max_ms": 403.61924999999997
+      },
+      "fetch_all_related_holons": {
+        "count": 1,
+        "sum_ms": 393.310792,
+        "median_ms": 393.310792,
+        "max_ms": 393.310792
+      },
+      "get_holon_by_id": {
+        "count": 9,
+        "sum_ms": 22.196083,
+        "median_ms": 2.461292,
+        "max_ms": 3.173583
+      },
+      "get_holons_by_ids": {
+        "count": 1,
+        "sum_ms": 2.277084,
+        "median_ms": 2.277084,
+        "max_ms": 2.277084
+      },
+      "get_saved_holon_by_key": {
+        "count": 19,
+        "sum_ms": 342.291625,
+        "median_ms": 9.640333,
+        "max_ms": 35.764083
+      },
+      "query_relationships": {
+        "count": 287,
+        "sum_ms": 1754.62463,
+        "median_ms": 1.454792,
+        "max_ms": 147.71912500000002
+      },
+      "resolve_visualizer_usage": {
+        "count": 13,
+        "sum_ms": 400.581959,
+        "median_ms": 26.493875,
+        "max_ms": 45.966125
+      }
+    },
+    "warnings": 0
+  },
+  "repeat-navigation": {
+    "window_start": "2026-11-19T12:54:03.211000+00:00",
+    "window_end": "2026-11-19T12:54:03.485000+00:00",
+    "guest_calls": {
+      "count": 14,
+      "sum_ms": 30.103709000000002,
+      "median_ms": 2.143104,
+      "max_ms": 2.733583
+    },
+    "by_operation": {
+      "query_relationships": {
+        "count": 14,
+        "sum_ms": 30.103709000000002,
+        "median_ms": 2.143104,
+        "max_ms": 2.733583
+      }
+    },
+    "warnings": 0
+  }
+}

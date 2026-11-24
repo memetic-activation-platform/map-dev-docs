@@ -857,6 +857,15 @@ validation of authored declaration keys and the `instance_keyrule` shorthand.
 - **Key comparison and shape.** Compare exactly, without normalization or case folding. Keyed
   results must be nonempty, NUL-free, and within the existing `MAX_CANONICAL_KEY_BYTES` limit.
   Do not duplicate or change that limit.
+- **Property requiredness and key inputs.** Referencing a property in a key rule MUST NOT require
+  its descriptor to declare `IsValueRequired true`, and MUST NOT change that property's
+  requiredness. Property conformance and composition-input requirements are separate contracts.
+  The selected key rule's declared semantics determine whether an absent input prevents
+  composition or has an explicitly defined representation. Merely referencing an optional
+  property does not automatically permit omission. Rendering an absent optional input MUST NOT
+  populate or default the subject property, and does not excuse a missing required property.
+  For example, the approved [PersonAgent name/key contract](../agent-spaces/agent-spaces-design-spec.md#222-approved-personagent-name-and-key-contract)
+  uses the `NoneRule` strategy and requires no name rendering.
 - **Positional templates.** The [Positional String Template Specification](positional-string-template-spec.md)
   defines the grammar, parameter checks, and canonical rendering. Key rules supply prepared inputs
   and apply the semantic-key contract to the rendered String.

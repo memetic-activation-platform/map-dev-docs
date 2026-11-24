@@ -399,3 +399,26 @@ was 7.347 s for 21 candidates, including MAP validation 3.995 s and Commit Pass 
 1.354 s. Small-load validation/preparation overhead therefore deserves separate
 measurement from the large-load keyed-index/persistence cost. No implementation
 change is inferred from these measurements alone.
+
+## November 19: fresh Welcome with the pinned Holochain backport
+
+[Fresh Welcome evidence](evidence/2026-11-19-fresh-welcome/README.md) records an
+81.852 s Core Schema load command, compared with the latest November 4 UI
+baseline of 79.629 s (+2.8%) and the detailed step-4 matching command timer of
+81.532 s (+0.4%). The workload grew from 1,163 to 1,180 committed holons and
+6,540 to 6,639 loader-created links (both approximately +1.5%). All 1,180 saved
+successfully, with no rejected or failed holons.
+
+The bulk load remains around 80 seconds despite the separate read-invocation
+improvements. A **35.116 s** interval remains between the loader completion
+marker and the host's completed dance-round-trip report. This includes remaining
+guest/return processing and is not isolated Conductor time. The old 29.275 s
+interval began at a later adapter-return marker, so these intervals cannot be
+used as a matched return-path regression measurement. Current fine-grained
+guest profiling is absent; attribution remains open.
+
+Space Navigator's matching import command improved from 8.443 to 3.270 s
+(61.3%). Different MAP revisions, schema contents, instrumentation and launch
+paths prevent attributing these historical application differences solely to
+the backport. The evidence page records the separate baseline runs and timer
+boundaries, exact timestamps, workload counts, and compact source markers.

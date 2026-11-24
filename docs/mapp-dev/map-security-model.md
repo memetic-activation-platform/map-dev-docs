@@ -1,5 +1,7 @@
 # MAP Security Model — Technical Specification (Modern Structure)
 
+> **Authority reconciliation — 2026-11-14:** This October 2025 draft is historical, not evidence of delivered security. Overlapping client identity, local authentication/authorization, credential lifecycle and enforcement claims are superseded by the [MAP Client Security specification](../core/security/map-client-security-design-spec.md). Device-equals-Agent wording, Agreement-based initial authorization and frontend-only enforcement must not be used as current contracts. Agent Spaces owns Local Sovereign Constitution. Broader interspace, governance and risk proposals remain subject to their owning specifications; they are not prerequisites for initial personal constitution.
+
 **Version:** 1.0  
 **Status:** Draft  
 **Audience:** MAP Core Developers, Security Architects, Holochain Integration Engineers  

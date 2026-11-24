@@ -1,0 +1,43 @@
+{
+  "initial_analysis_count": 48270,
+  "snapshot_warning_count": 80450,
+  "snapshot_sha256": "96c88787d2807aa2d92742d2df5e45485a76eaf5f25d7adf8382163463d40685",
+  "snapshot_bytes": 27895979,
+  "bursts": [
+    {
+      "first": "2026-11-19T12:52:22.830062Z",
+      "last": "2026-11-19T12:52:24.035133Z",
+      "warnings": 16090,
+      "distinct_locations": 16090,
+      "same_locations_as_first_burst": true
+    },
+    {
+      "first": "2026-11-19T12:53:24.363162Z",
+      "last": "2026-11-19T12:53:26.497421Z",
+      "warnings": 16090,
+      "distinct_locations": 16090,
+      "same_locations_as_first_burst": true
+    },
+    {
+      "first": "2026-11-19T12:55:27.676473Z",
+      "last": "2026-11-19T12:55:29.330471Z",
+      "warnings": 16090,
+      "distinct_locations": 16090,
+      "same_locations_as_first_burst": true
+    },
+    {
+      "first": "2026-11-19T12:59:37.279724Z",
+      "last": "2026-11-19T12:59:39.432778Z",
+      "warnings": 16090,
+      "distinct_locations": 16090,
+      "same_locations_as_first_burst": true
+    },
+    {
+      "first": "2026-11-19T13:04:40.498683Z",
+      "last": "2026-11-19T13:04:42.517097Z",
+      "warnings": 16090,
+      "distinct_locations": 16090,
+      "same_locations_as_first_burst": true
+    }
+  ]
+}

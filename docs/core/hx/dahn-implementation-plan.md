@@ -1,4 +1,4 @@
-# DAHN Foundation Implementation Roadmap v1.6
+# DAHN Foundation Implementation Roadmap v1.11
 
 ## Purpose and delivery authority
 
@@ -242,7 +242,7 @@ startup cost does not justify relaxing eligibility or reviving a separate select
 
 ## Established bindings and sparse personal state: design reconciliation
 
-The [DAHN v2.16 target](dahn-design-spec.md#145-recursive-selection) supersedes
+The [DAHN v2.21 target](dahn-design-spec.md#145-recursive-selection) supersedes
 on-demand-only preparation, automatic durable default Usage creation, and fresh
 candidate discovery for every constituent. Associated personal Usages participate
 under full local-choice/cross-cutting-preference/default precedence. Each selected
@@ -262,9 +262,10 @@ implementation grounding rather than inferred completion or new estimates:
 - Reach personal choices through authorized agent/context access; bulk-load and
   index relevant records, including reusable known absence. Evaluate ancestry
   from metadata instead of repeating backend Usage-discovery walks per slot.
-- Support composition-owned subordinate settings and cross-cutting preferences,
-  with explicit local overrides; keep exact relationships, scope keys, schema
-  migration, and adaptive policy unresolved pending grounded design.
+- Use the resolved general preference model for cross-cutting and Slot-specific
+  choices, with explicit bounded old Slot-record conversion. Broader composition-owned
+  subordinate relationships and adaptive policy remain separate design work; internal
+  index layout is an implementation choice under the approved scope contract.
 - Render automatic/inherited defaults without durable personal Usage creation.
   Retain accepted personal choice/configuration, pins, presets, or an explicitly
   remembered default; keep transient initialization and automatic binding caches
@@ -285,10 +286,89 @@ implementation grounding rather than inferred completion or new estimates:
 - Reconsider parent alternatives before dependent children; retain explicit open
   view application, admission, and state-preservation contracts.
 
+### Minimal PersonAgent integration — approved 2026-11-19
+
+[PR #878](https://github.com/evomimic/map-holons/pull/878), merged as
+`db0d397f779259495a3bc9697954117ff7078ebf`, supplies the existing PersonAgent,
+retained personal Space, and runtime for the personal-state integration in
+[#848](https://github.com/evomimic/map-holons/issues/848). It does not implement
+these new associations. No new Agent or repeat constitution is required.
+
+Implement the [two approved association pairs](dahn-design-spec.md#personagent-associations-for-personal-state):
+`UsageForAgent` / `HasPersonalVisualizerUsage` and
+`PreferenceForAgent` / `HasPersonalVisualizerPreference`. Both declared record-to-Agent
+relationships have ExactlyOne cardinality; their inverse collections are ZeroOrMore.
+Use PersonAgent endpoints and lineage target binding in both directions. DAHN owns
+the descriptors and adds a direct Agent Spaces schema dependency. Retain the
+existing VisualizerUsage type. The later approved general preference contract
+below supersedes the initial Slot-preference endpoint with VisualizerPreference;
+no Agent-wide container, Value-specific preference type, or subordinate-Usage
+hierarchy is introduced.
+
+Integrate bulk personal access and Agent/context-isolated indexes with ordinary
+Usage persistence, Commit remediation/resubmission, and the existing authorized
+runtime. Verify declared/inverse retrieval, same-Agent PreferredUsage consistency,
+successor/reference behavior, accepted personal state after retained restart,
+and absence/error isolation. There are no legacy deployments requiring a general
+compatibility framework. The later preference contract nevertheless requires
+bounded explicit conversion of valid retained old Slot preferences, preserving
+their Slot scope; it does not authorize automatic adoption/backfill of Usages.
+Fresh development/test resources use the new model. No running store is reset
+by this design change.
+
+The initial minimum schema slice established access only. The fifth contract
+below now adds the general preference model and Date proof within #848. New
+subordinate-configuration relationships and the full Experience Upgrade Session
+UI/acceptance/back-out/durability contract remain follow-up work. Preserve existing
+configuration behavior without treating the earlier minimum slice as full delivery.
+
+### Semantic defaults contract — resolved 2026-11-19
+
+Implement [developer-prescribed Slot defaults](dahn-design-spec.md#developer-prescribed-slot-defaults)
+using `VisualizerSlotDefault.HolonType` and these approved relationship pairs:
+
+| Declared relationship | Derived inverse | Cardinality | Target binding |
+| --- | --- | --- | --- |
+| `DefaultForSlot` → VisualizerSlot | `HasDefaultDeclaration` | ExactlyOne / ZeroOrMore | Declared Lineage; inverse Lineage |
+| `RecommendsVisualizer` → Visualizer | `RecommendedBySlotDefault` | ExactlyOne / ZeroOrMore | Declared Version; inverse Lineage |
+| `DefaultForSubjectType` → TypeDescriptor | `HasConditionalSlotDefault` | ZeroOrOne / ZeroOrMore | Declared Version; inverse Lineage |
+
+Author each declared occurrence on the default record. No MatchDescriptor or
+condition language is required. Enforce one general default per Slot and one
+conditional declaration per descriptor condition, including diagnostics for
+conflicts. Semantic uniqueness needs shared assessment in addition to cardinality.
+
+Personal precedence remains first. At the default tier, resolve exact descriptor,
+nearest ancestor along the supported singular subject/ValueType Extends lineage
+to its root, then the general default. Use the declared ValueType for populated
+and unset values alike; do not read values to choose a Visualizer. Apply all
+actual-request eligibility checks to the recommendation without broad discovery
+or local artifact-readiness gates. A declaration miss permits localized discovery;
+a matching unusable recommendation stops resolution with a diagnostic. Do not
+silently try less-specific defaults, implement retry/exclusion plumbing, or treat
+loading failure as a declaration miss.
+
+Cover the PropertyMap Date/Calendar Interactor and general Generic Value example,
+including personal precedence, unset/populated equivalence, ambiguous unused
+alternatives, nearest-ancestor/general matching, duplicate conditions, lookup
+errors, and an ineligible Date prescription that does not fall through. Defaults
+must render without personal Usage creation or a default-only persistence Commit.
+Measure preparation plus first render and count residual data/materialization reads.
+
+Semantic defaults is no longer an open design gate for #848. The separately
+approved activation/subject-binding contract below also settles its bounded
+behavior and enum vocabulary. Experience-edit sessions and a general decision-rule engine remain follow-up work.
+The general preference contract is now separately resolved below; its bounded
+old-record conversion is not a general legacy-deployment prerequisite. No runtime implementation is
+claimed by resolving or recording this contract.
+
 ### Activation scope for the selection foundation
 
-For the Issue 848 increment, effective owner descriptors determine presentation
-versus demand activation. Personal activation-policy overrides are deferred:
+For Issue 848, implement the [approved declarative composition contract](dahn-design-spec.md#declarative-composition-demand).
+Replace string-valued CompositionActivation with the schema enum
+`CompositionActivation.MapEnumValueType` (`Presentation`, `Demand`), consumed by
+a shared Rust `CompositionActivation` enum. Effective owner descriptors determine
+activation. Personal activation-policy overrides are deferred:
 no new Usage configuration for initially opening a chosen collection, override
 precedence, or persistence/invalidation of such activation preferences is required.
 This deferral does not restrict existing personal Visualizer selection or
@@ -301,12 +381,34 @@ bindings; viewport virtualization does not issue semantic selection requests.
 
 ### Subject-binding scope for the selection foundation
 
-Use bounded semantic binding operations for the owner's subject, property-name
-labels, typed property values, afforded actions, and activated collections.
-Shared Rust interprets descriptor declarations for all contributed Visualizers.
-Arbitrary navigation expressions and an embedded query language are deferred
-from Issue 848. Finalize enum identities and per-operation context before TDL
-changes; the vocabulary above establishes semantic coverage, not ratified keys.
+Replace string-valued CompositionSubject with
+`CompositionSubject.MapEnumValueType`, consumed by a shared Rust
+`CompositionSubject` enum, with these approved members and guest inputs:
+
+| Member | Guest inputs / boundary |
+| --- | --- |
+| `OwnerSubject` | Selected owner's bound subject. |
+| `ScalarPropertyLabel` | Owner subject plus each applicable scalar property descriptor; display label with property-name fallback, independently of Value selection. |
+| `ScalarPropertyValue` | Owner subject plus each applicable scalar property descriptor; declared ValueType for selection, actual value for realization. |
+| `AffordedAction` | Owner subject plus each applicable Dance affordance identity; selection does not invoke the action, and invocation targets the bound subject. |
+| `SelectedCollection` | Explicit initial or later-activated collection-source identity in the owner's composition; no population read merely to select its Visualizer. |
+
+Shared Rust interprets these declarations for all contributed Visualizers, without
+Visualizer-specific callbacks. Preserve open CompositionRole names and the shared
+VisualizerKind vocabulary. Arbitrary navigation expressions and an embedded query
+language remain out of scope; the enum identities and bounded semantic inputs are
+now resolved rather than an open prerequisite.
+
+An Inspector with an initially presented collection must declare its source;
+Presentation alone is insufficient. Keep the current Inspector's initial source
+absent and resolve later collection activation through the same interpreter.
+Validate requested sources against the owner; do not choose a collection by
+storage order or require its population in the selection request. Ground the
+source-identity declaration/projection in existing descriptor/reference surfaces.
+Cover missing/invalid initial source, initial one-collection versus later demand,
+no unactivated collection selection/population reads, label fallback, unset/value
+selection equivalence, action target preservation, and absence of invocation during
+selection. Saved child preferences and viewport changes must not activate Slots.
 
 Use VisualizerKind as the shared MAP-recognized grounding vocabulary on both
 Visualizers and Slots, backed by the same schema enum and shared Rust vocabulary.
@@ -371,15 +473,101 @@ or new issue acceptance gates imposed by this documentation change.
 | Shared binding | Focus, navigation, edits, and expansion remain independent per live occurrence (§14.5.3). |
 | Several owner-issued child requests | Share Rust resolution context and metadata; a request need not cross host/guest, and independent requests can batch (§14.5.4). |
 
+### Consolidated result contract — resolved 2026-11-19
+
+Implement the [consolidated child-binding result](dahn-design-spec.md#consolidated-child-binding-result)
+through the existing runtime/Commands/SDK boundary. Return each requested child's
+owner/Slot identities, actual subject binding, selected Visualizer version,
+effective contract/implementation metadata needed by the host, effective
+configuration with optional Usage reference, and a small choice reason. Share
+repeated metadata across the result. References alone followed by the same host
+semantic read cascade do not satisfy this contract; no bound runtime handles
+cross the wire. The exact projection layout is an implementation choice.
+
+Carry revision or equivalent evidence for governing owner/Slot/default declarations,
+subject descriptors/ancestry, candidate/implementation declarations, Theme/runtime,
+authorization, and PersonAgent preference/configuration state. Confirmed absence
+is a dependency: saving the first applicable preference must invalidate a binding
+that relied on no preference. Cover default-declaration absence as relevant to
+conditional versus general defaults. Errors must not populate absence caches.
+Do not broaden preparation into unused candidate enumeration or inactive children.
+
+The host may still fetch uncached subject content/executable bytes, verify artifacts,
+and admit callable implementations. Failures report realization failure and stop
+the attempt, without selector fallback or retries. Verify useful consumption and
+count residual reads separately; preserve independent live-occurrence state and
+existing active-view replacement/publication behavior.
+
+### General preference contract — resolved 2026-11-19
+
+Implement [General VisualizerPreference](dahn-design-spec.md#general-visualizerpreference)
+as the canonical DAHN personal-choice type, superseding VisualizerSlotPreference
+for new authoring rather than inheriting its required Slot/Usage constraints.
+Keep old versioned definitions truthful. Do not create ValueVisualizerPreference.
+
+Declare PreferenceForAgent (ExactlyOne PersonAgent), PreferenceForSubjectType
+(ExactlyOne TypeDescriptor), PreferenceForSlot (ZeroOrOne VisualizerSlot),
+PreferredVisualizer (ExactlyOne Visualizer), and PreferredUsage (ZeroOrOne Usage),
+with the paired inverse names and binding in the design table. Bulk access uses
+HasPersonalVisualizerPreference. A validated new-contract no-Slot record is
+cross-cutting; supplied IDs, missing data, and old malformed records are not.
+
+Validate optional Usage ownership, UsesVisualizer agreement, and configuration
+scope coverage; broader Usage scope must not broaden the preference. Preserve
+explicit/local → cross-cutting → default → discovery precedence. Date matches
+declared ValueType exact-first then supertypes, taking the most specific eligible
+preference for the actual Slot/context. Ineligibility for a range-editing contract
+yields without editing the saved choice; malformed records/errors/conflicts remain
+diagnostics. Do not confuse preference yielding with unusable-prescription failure.
+
+Index one effective choice per authorized PersonAgent, subject descriptor, and
+optional Slot scope. A replacement updates that scope's record, not an additional
+competing choice. Include preference revisions and confirmed absence in binding
+invalidation; saving a preference activates nothing and changes no mounted view
+implicitly. Return effective configuration with optional Usage.
+
+Before implementing affected readers/writers, establish an explicit bounded
+conversion: validate old Slot preferences and owner context, retain their exact
+Slot/subject, derive the Visualizer from PreferredUsage → UsesVisualizer, and
+write validated canonical records. Missing Slot on old or incomplete data cannot
+mean cross-cutting. Automatic Usages/SelectedForSlot history cannot supply intent.
+Use existing transition/Commit/remediation mechanisms and idempotent scope matching;
+conflicts or partial conversion cannot be reported as complete or absent. No
+repeated Open-time migration/verification or general compatibility framework.
+
+Acceptance: save a Date preference with no Usage and use it across two compatible
+compositions; attach configuration and observe both consume it; override one Slot
+without changing the other; let an incompatible date-range Slot resolve normally;
+verify populated/unset matching, replacement/conflict behavior, first-preference
+absence invalidation, and Slot-preserving old-record conversion. Include malformed/
+incomplete missing-Slot records and cross-Agent/wrong-Visualizer/insufficient-scope
+Usage rejection. Keep experience-edit session UI out of scope.
+
+### Five design contracts and bounded delivery
+
+| Contract | Design status | Delivery boundary |
+| --- | --- | --- |
+| 1. Semantic defaults | Resolved: VisualizerSlotDefault declarations, matching, and diagnostic behavior | Implement the approved default tier. |
+| 2. Activation and subject binding | Resolved: separate two-member/five-member enums, semantic inputs, and explicit initial collection source | Implement the shared guest interpreter and declared activation, not personal activation overrides. |
+| 3. PersonAgent access | Resolved: Usage and canonical general preferences use PersonAgent associations | Initial access slice is not full preference-model delivery. |
+| 4. Consolidated result | Resolved: usable binding/configuration metadata, optional Usage, reason, shared metadata, and dependency/absence validity | Implement through existing boundaries; concrete encoding/index layout is implementation work. |
+| 5. Cross-cutting preference representation | Resolved: general VisualizerPreference, optional Slot/Usage, direct Visualizer choice, Date matching, scope uniqueness, and explicit old-record conversion | Implement the Date cross-composition acceptance case; no Value-specific type or full experience-edit UI. |
+
+All five semantic contracts are now resolved in the owning design. Implementation,
+including generated declarations, shared validation, conversion, and counted
+acceptance evidence, is not claimed by that resolution. Full Experience Upgrade
+Session UI and acceptance/back-out/durability remain separate follow-up work.
+
 ### Open design work and performance accounting
 
-Required behavior is settled above; representation remains open for semantic
-activation scope and subject expansion, direct
-agent/context access relationships, preference/configuration scopes and index
-keys, validity evidence, and consolidated resolution result metadata. Ground
-these in the existing schema, Dancer/Dance architecture, and SDK/reference
-contracts before naming new relationships or transfer formats. The Experience
-Upgrade Session acceptance-versus-durability interaction also remains open.
+The minimum PersonAgent access relationship names, directions, endpoints,
+cardinalities, and lineage binding are settled above, as are semantic defaults,
+bounded activation/subject binding, and the consolidated result/validity contract.
+The fifth contract now resolves cross-cutting preference representation and bounded
+old-record conversion. Internal index keys and concrete projection encoding can be
+resolved during implementation within these contracts. No general legacy deployment
+framework is required. New subordinate-configuration hierarchy and full Experience
+Upgrade Session acceptance-versus-durability remain follow-up work.
 
 Track improvements separately:
 

@@ -1,0 +1,15 @@
+{
+  "source_log_local_only": "/private/tmp/map-welcome-fresh-profile-2026-11-19.log",
+  "frozen_snapshot_local_only": "/private/tmp/map-welcome-fresh-profile-analysis-snapshot.log",
+  "snapshot_bytes": 45322074,
+  "snapshot_sha256": "96a319f48219fa4118db4d9106d145cd9f8d09bcbce6d5dbbfb2682338516176",
+  "retention": "Raw log is local-only; compact selected markers are committed. Live source may continue growing.",
+  "reported_execution": "Fresh packaged local-constitution Welcome run, new Space and identity; user rebuilt and completed run.",
+  "observed_logging": {
+    "RUST_LOG": "host:info",
+    "WASM_LOG": "info",
+    "map_profile": "debug"
+  },
+  "artifact_hashes": "Actual running native and guest hashes not captured.",
+  "errors_in_snapshot": 0
+}

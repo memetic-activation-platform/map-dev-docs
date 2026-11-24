@@ -56,6 +56,10 @@ nav:
       - Tiered AI Trust Model in the MAP: architecture/ai-architecture/3-tiered-ai-assistant-model.md
       - Knowledge Evolution Architecture: architecture/knowledge-evolution-architecture.md
 
+  - Client Security:
+      - Client Security Design Specification: security/map-client-security-design-spec.md
+      - Client Security Implementation Plan: security/map-client-security-impl-plan.md
+
   - Agent Spaces:
       - Agent Spaces Design Specification: agent-spaces/agent-spaces-design-spec.md
       - Agent Spaces Implementation Plan: agent-spaces/agent-spaces-impl-plan.md

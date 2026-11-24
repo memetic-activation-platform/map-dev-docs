@@ -1,0 +1,164 @@
+[
+  {
+    "t": "2026-11-19T12:54:03.413446Z",
+    "op": "query_relationships",
+    "ms": 2.378458,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: UsesNodeActionsContract",
+      "in map_profile::relationship_read with relationship: UsesNodeActionsContract",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 1314"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:54:03.416110Z",
+    "op": "query_relationships",
+    "ms": 1.848083,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: StandardNodeActions",
+      "in map_profile::relationship_read with relationship: StandardNodeActions",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 1315"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:54:03.418997Z",
+    "op": "query_relationships",
+    "ms": 2.2182920000000004,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: AdditionalNodeActions",
+      "in map_profile::relationship_read with relationship: AdditionalNodeActions",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 1316"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:54:03.422832Z",
+    "op": "query_relationships",
+    "ms": 1.833625,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 1319"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:54:03.427711Z",
+    "op": "query_relationships",
+    "ms": 2.084,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 1324"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:54:03.432206Z",
+    "op": "query_relationships",
+    "ms": 2.193916,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: PresentationOperator",
+      "in map_profile::relationship_read with relationship: PresentationOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 1327"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:54:03.437605Z",
+    "op": "query_relationships",
+    "ms": 2.214125,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: PresentationOperator",
+      "in map_profile::relationship_read with relationship: PresentationOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 1331"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:54:03.441670Z",
+    "op": "query_relationships",
+    "ms": 1.9395,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: PresentationOperator",
+      "in map_profile::relationship_read with relationship: PresentationOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 1335"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:54:03.446355Z",
+    "op": "query_relationships",
+    "ms": 2.092292,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: PresentationOperator",
+      "in map_profile::relationship_read with relationship: PresentationOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 1339"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:54:03.458862Z",
+    "op": "query_relationships",
+    "ms": 2.240709,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: RequiresOperator",
+      "in map_profile::relationship_read with relationship: RequiresOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 1358"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:54:03.465079Z",
+    "op": "query_relationships",
+    "ms": 2.505042,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: OffersOperator",
+      "in map_profile::relationship_read with relationship: OffersOperator",
+      "in map_profile::ipc.execute with command: \"get_related_holons\"",
+      "in map_profile::ipc.dispatch with request_id: 1361"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:54:03.479092Z",
+    "op": "query_relationships",
+    "ms": 2.733583,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:54:03.481247Z",
+    "op": "query_relationships",
+    "ms": 2.0309999999999997,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot"
+    ]
+  },
+  {
+    "t": "2026-11-19T12:54:03.483139Z",
+    "op": "query_relationships",
+    "ms": 1.7910840000000001,
+    "succeeded": true,
+    "ctx": [
+      "in map_profile::fetch_relationship with relationship: SelectedForSlot",
+      "in map_profile::relationship_read with relationship: SelectedForSlot"
+    ]
+  }
+]

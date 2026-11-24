@@ -389,3 +389,41 @@ healthy baseline would test recurrence without further source changes.
 Evidence: `evidence/2026-11-04-step5/startup-profile-fresh.json` and
 `fresh-calls.json`. Full local log snapshot:
 `/private/tmp/map-step5-fresh-2026-11-04/snapshot.log`.
+
+
+## November 19: initialization-backport application capture
+
+[Evidence and bounded diagnosis](evidence/2026-11-19-holochain-backport/README.md).
+The completed Canvas profile is **18.790 s**, versus the latest stored post-clean
+November 4 baseline of **94.944 s** (80.2% less time). First DescribedBy is
+**3.721 s** versus **86.263 s** (95.7% less); close/repeat is **0.274 s** versus
+**8.604 s** (96.8% less). Corresponding SDK counts are 431 vs 429, 383 vs 383,
+and 372 vs 372. Canvas construction falls 80.275 -> 16.576 s; startup selection
+falls 44.861 -> 10.576 s summed across the same 12 calls.
+
+The deeper workloads differ: completed startup guest calls rise **299 -> 592**,
+including relationship queries **169 -> 401**. Selection/Usage commands account
+for 207 of the 232 additional relationship reads. Seven saved-Usage clone operations occur, causing all seven bulk membership fetches and 74 exact-holon reads
+inside `clone_saved_usage`; the baseline instead initializes fresh defaults.
+Additional reads target ForSubjectType, UsesVisualizer, SelectedForSlot,
+ApplicableToType, Extends and SourceOf. This strongly supports a retained-data
+path difference plus intervening MAP changes, not a backport-created doubling
+of an otherwise identical workload. Exact per-source allocation remains open.
+The relationship-call median nevertheless falls 307.363 -> 2.013 ms.
+
+The initial 48,270 no-peer publication warnings are three retry sweeps over the
+same 16,090 routing locations. A later frozen snapshot has five sweeps / 80,450
+warnings. No eligible remote publication destination is expected for an isolated
+agent; this is not a local read/Commit failure, but it does not demonstrate remote
+replication. The production-mode log exposes warnings normally suppressed by
+MAP's dev filter. None of the bursts overlaps the supplied UI timing windows.
+
+Startup RecordVisualizerUse rises 86 -> 132 ms (+46 ms); first-navigation use
+recording rises 102 -> 115 ms (+13 ms). Other positive command-time deltas are
+only about 1–3 ms. This single run does not establish persistent regressions.
+
+The launch reuses retained conductor data and has no load_holons call, so no
+cold Core Schema or activation improvement is measured. November 4 and November
+19 differ in code/data, and baseline WASM_LOG=warn differs from the new INFO
+capture. The matched native invocation diagnostic, rather than this historical
+whole-application comparison, isolates the backport's contribution.

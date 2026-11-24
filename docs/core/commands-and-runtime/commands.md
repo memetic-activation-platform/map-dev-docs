@@ -619,7 +619,7 @@ Discrete actions:
 
 The read-only key composition action returns a composed key, explicit
 keylessness, or a composition failure. The
-[producer delivery unit](../validation/commit-validation-impl-plan.md#val-c3e--producer-helper-and-committed-keylessness)
+[producer delivery unit](../validation/commit-validation-impl-plan.md#val-c3e-producer-helper-and-committed-keylessness)
 assigns the action name.
 
 Discrete actions:
@@ -668,7 +668,7 @@ These may remain available as internal/runtime APIs without becoming command-lev
 
 The explicit compose-and-set action sets the staged key or clears it for
 explicit keylessness. Composition failure leaves the staged key intact. The
-[producer delivery unit](../validation/commit-validation-impl-plan.md#val-c3e--producer-helper-and-committed-keylessness)
+[producer delivery unit](../validation/commit-validation-impl-plan.md#val-c3e-producer-helper-and-committed-keylessness)
 assigns the action name.
 
 Discrete actions:
