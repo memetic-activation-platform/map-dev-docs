@@ -1,8 +1,8 @@
 # MAP Agent Spaces — Reconciled Design Specification
 
-**Version:** 0.11 (keyless PersonAgent creation)
+**Version:** 0.12 (supported first-space lifecycle and available choices)
 
-**Date:** 2026-11-16
+**Date:** 2026-11-25
 
 **Project:** MAP / Agent Spaces  
 **Status:** Design direction with explicit implementation gates; not a claim of implemented behavior
@@ -21,7 +21,7 @@ The conceptual progression is:
 
 This specification reconciles the earlier Agent Spaces design draft (2026-11-04), the Agent Spaces implementation plan (2026-11-09), and the bootstrap/acquisition design (2026-11-10). It supersedes the earlier proposed `AgentSpace extends HolonSpace; ISpace extends AgentSpace; WeSpace extends AgentSpace` inheritance hierarchy. It retains the earlier specifications' Persona, participation, privacy, collective agency, and DAHN ownership requirements.
 
-**Scope:** Agent/space ontology, I-Space and We-Space roles, Holochain grounding, CoreSchema access, onboarding and acquisition, authorization, ownership, contextual identity, Agreement eligibility, Dancers, persistence, and staged delivery boundaries. Detailed authentication protocols, TrustChannel transport, full Promise Weave, collective governance, and multi-AgentSpace runtime infrastructure remain separate design work.
+**Scope:** Agent/space ontology, I-Space and We-Space roles, Holochain grounding, CoreSchema access, onboarding and acquisition, authorization, ownership, contextual identity, Agreement eligibility, Dancers, persistence, and staged delivery boundaries. Detailed authentication protocols, TrustChannel transport, full Promise Weave, collective governance, and multi-AgentSpace runtime infrastructure remain separate design work. The initial personal lifecycle covers provisioning, constitution and compatible Open. Upgrade, DHT migration and rehabilitation of incompatible Spaces retain a separate future design boundary (§6.7); retaining an incompatible store does not provide recovery.
 
 **Normative language:** MUST and MUST NOT state target design invariants. Proposed names and deferred capabilities are not implemented contracts until their owning schema/design decisions are approved. An unclaimed HolonSpace may be provisioned before its sovereign association exists. This does not relax the complete-interior requirement for any BioSocialAgent admitted as committed state.
 
@@ -202,7 +202,7 @@ The future initial connection cannot depend circularly on an existing PersonAgen
 
 ### 6.1 Independent lifecycle dimensions
 
-The installation lifecycle distinguishes **Provision** (durable installation/space identity, initial content and completion evidence), **Open** (reuse completed state and rebuild runtime/caches without reprovisioning), and **Upgrade** (explicit versioned changes with compatibility and recovery). Once startup has adopted the local Space identity, host consumers reuse its bound reference rather than repeating persisted-designation discovery. Ordinary holon content reads retain the existing Reference Layer/cache-manager routing and automatic backend fetch on a content-cache miss; application call sites must not implement a separate host/guest fallback. An initially unknown Space identity is resolved from the persisted local designation by the infrastructure resolver. Reusing Space identity does not establish sovereign authority or replace any explicitly required fresh sovereign-membership read.
+The supported first-space lifecycle distinguishes **Provision** (durable installation/space identity, initial content and completion evidence), **constitution** (establishing the sovereign association under the approved contracts), and **Open** (reuse compatible completed state and rebuild runtime/caches without reprovisioning). Upgrade is a separate future version-transition capability, not an implicit part of Open or a prerequisite for this initial lifecycle (§6.7). Once startup has adopted the local Space identity, host consumers reuse its bound reference rather than repeating persisted-designation discovery. Ordinary holon content reads retain the existing Reference Layer/cache-manager routing and automatic backend fetch on a content-cache miss; application call sites must not implement a separate host/guest fallback. An initially unknown Space identity is resolved from the persisted local designation by the infrastructure resolver. Reusing Space identity does not establish sovereign authority or replace any explicitly required fresh sovereign-membership read.
 
 Possible reference-backed HolonSpace and aspect-specific I-Space/We-Space
 wrappers are under [design discussion](../architecture/holon-layered-representation-design-spec.md#holonspace-domain-wrapper).
@@ -222,7 +222,7 @@ Acquisition is the constitutive transition establishing AgentSpace. Its complete
 
 There is no separate persistent Active sovereignty state. Runtime conditions such as **Closed, Opening, Ready, and Closing** are independent: an acquired space remains acquired while closed, and reopening it does not authorize or require reacquisition. These conceptual states do not imply new HolonTypes. Readiness is contextual to the dependencies of a Dance; it is not a global assertion that every schema and operation is available. Dependency-driven schema availability is the future direction: existing local schemas satisfy declared needs, missing dependencies may come from registered sources and future spaces may use remotely stewarded schemas. No general resolver or distributed registry is required for the initial deployment.
 
-Provision/Open/Upgrade classification must be derived from authoritative durable evidence and compatible versions, independently of runtime readiness. The required distinctions and safety outcomes are:
+Available lifecycle actions MUST be derived from authoritative durable evidence, current code/schema compatibility and applicable authority, independently of runtime readiness. Welcome communicates the choices that are valid now. Detailed diagnostics may support that determination internally, but do not constitute a continuation or recovery capability. The required distinctions and safety outcomes are:
 
 | Evidence classification | Required behavior |
 | --- | --- |
@@ -233,11 +233,10 @@ Provision/Open/Upgrade classification must be derived from authoritative durable
 | Acquisition request outcome unknown | Query existing committed constitutive state under the approved lookup/retry contract; unavailable or ambiguous evidence must not trigger a fresh acquisition. Preserve any established sovereign association while recovering remaining work. |
 | Acquired and closed | Open reconstructs the existing authority without reacquisition or bootstrap escalation. |
 | Acquired and ready | Admit operations only under applicable sovereign/delegated authority. |
-| Upgrade required | Use an explicit supported versioned upgrade; opening is not implicit content replay. |
-| Upgrade interrupted | Detect it and apply the approved deterministic recovery policy. |
-| Incompatible persistent state | Refuse incompatible operation without replacing identities or reopening bootstrap privileges. |
+| Incompatible persistent state | Refuse incompatible Open or constitution without replacing identities or reopening bootstrap privileges. Where supported, offer an explicit choice to start a separate fresh environment; this does not recover the old Space. |
+| No supported continuation established | Withhold the unavailable action. Do not offer speculative repair/retry or infer permission to acquire again. |
 
-These are required classifications, not additional sovereignty states or HolonTypes. The acquisition predicate is settled above; provisioning/loading evidence, lookup/retry mechanics and supported recovery/compatibility transitions retain their owning implementation gates. Initial personal authority is resolved in §6.4. Compatibility includes installation and HolonSpace identity, Agent lineage, CoreSchema version, Agent Spaces schema version, established-association evidence and authorization-state interpretation. Upgrade must preserve those identities and the established lineage pair; its supported transitions and interruption policy must be explicit. No general-purpose migration framework is prescribed.
+These distinctions determine the permitted choices; they are not additional sovereignty states or HolonTypes. Provisioning/loading evidence and lookup/retry mechanics retain their owning implementation gates. Existing Complete/Rejected/Incomplete remediation remains distinct from rehabilitation of an incompatible Space. If a supported continuation is not established, refusal is a valid outcome rather than a promise of recovery. Initial personal authority is resolved in §6.4. Compatibility includes installation and HolonSpace identity, Agent lineage, the code that consumes the CoreSchema and Agent Spaces definitions, established-association evidence and authorization-state interpretation. Compatible acquired state permits authorized Open; eligible compatible unclaimed state permits admitted constitution. Creating a separate fresh environment is a distinct choice and transfers neither the prior identity nor its contents.
 
 ### 6.2 Creation, acquisition and Commit remediation
 
@@ -297,9 +296,19 @@ The matrix is Agent Spaces domain policy. [Client Security](../security/map-clie
 
 ### 6.6 Restart and recovery integration
 
-Open consumes Client Security's valid-credential authorization contract and shared persistence's completed-acquisition evidence. It recovers the same PersonAgent and HolonSpace lineages and reconstructs runtime context without reacquisition, initial-content reload or bootstrap reopening. Missing credentials fail closed under Client Security; missing, partial or incompatible domain evidence follows the lifecycle classification in §6.1.
+Open consumes Client Security's valid-credential authorization contract and shared persistence's completed-acquisition evidence. It reopens the same PersonAgent and HolonSpace lineages and reconstructs runtime context without reacquisition, initial-content reload or bootstrap reopening. Missing credentials fail closed under Client Security; missing, partial or incompatible domain evidence follows the lifecycle classification in §6.1.
 
 Credential-loss/compromise recovery and rotation/revocation belong to Client Security and future authorized recovery work; they are not ordinary Open. General Declaration/Agreement implementation, collective governance, external identity proofing and cross-device sovereign recovery are not prerequisites for the initial personal lifecycle. Deferred capabilities do not relax required restart authorization or sovereign continuity.
+
+### 6.7 Future Upgrade, migration and rehabilitation design
+
+Retaining an incompatible Space preserves an artifact, not a supported recovery path. Listing or selecting its directory does not establish that available code can reconnect to it, interpret its schemas or rehabilitate its state. The current runtime MUST NOT imply recoverability from retention alone. Starting a fresh environment is not an Upgrade, identity continuation or transfer of the old Space's contents.
+
+Upgrade and rehabilitation require design at the boundaries between code, schema components and persisted state. CoreSchema components are correlated with the coordinator/host code that relies on their definitions; compatibility cannot be established from a retained directory or schema version label alone. Integrity-zome changes require migration to a new DHT rather than an in-place coordinator update.
+
+Future design must determine which compatible combinations and transitions can be supported. Possibilities include selecting or rebuilding a prior compatible code state, updating older schema elements, or moving data to a new DHT. None is selected or promised here. The design must define component boundaries, authorization, identity/content treatment, transition prerequisites, interruption behavior and evidence of compatibility before offering such a choice. In particular, migration must not assume that technical identity or the existing sovereign lineage pair automatically carries across DHTs.
+
+The first-space lifecycle does not depend on implementing these capabilities. Its obligations are accurate supported choices, compatible authorized Open, safe refusal of incompatible operation and no false recovery claim. Existing Commit remediation/resubmission remains baselined and is not an incompatible-Space rehabilitation mechanism.
 
 ## 7. Stewardship, semantic ownership, and contextual disclosure
 
@@ -365,7 +374,7 @@ Supporting these distinctions does not require speculative transport, remote res
 
 ## 10. Persistence and runtime requirements
 
-Provisioning MUST record durable completion independently of incidental schema presence. Opening MUST reconstruct the same installation, HolonSpace, Agent association, and saved holons without reprovisioning. Upgrades MUST be explicit, versioned, and recoverable. Interrupted provisioning/acquisition, duplicate calls, conflicting associations, incompatible versions, and partial durable state require defined detection and recovery; neither an in-memory space ID nor a successful transport response alone proves readiness.
+Provisioning MUST record durable completion independently of incidental schema presence. Compatible authorized Open MUST reconstruct the same installation, HolonSpace, Agent association, and saved holons without reprovisioning. Interrupted provisioning/acquisition, duplicate calls, conflicting associations and partial durable state use the existing shared evidence and Commit contracts to determine supported continuation or refusal; neither an in-memory space ID nor a successful transport response alone proves readiness. Incompatible versions require safe refusal, not an implied repair or Upgrade. Future version transitions and rehabilitation follow the separate design boundary in §6.7.
 
 Existing Reference Layer binding, TransactionContext mutation/Commit, and wire projection boundaries must be preserved. No direct-storage shortcut or competing mutation API should be introduced. Descriptor recognition and validation follow their owning specifications; opening is not permission to replay initial content acceptance on every startup.
 
@@ -417,9 +426,9 @@ Home Space correspondence enforcement and both historical sovereign-continuity o
 - **D1 — Sovereign relationship semantics and shared enforcement.** §2.3 settles endpoints, Lineage/Lineage binding, definitional status, cardinalities and historical continuity. Agent Spaces owns those declarations. Shared relationship/reference/validation/persistence owners resolve source-version and inverse traversal, authoritative history, current-version/branch resolution and reusable historical enforcement. Home Space correspondence and both continuity invariants remain prerequisites, not an AS2-local validator. Pairwise deletion execution remains separately owned.
 - **D2 — Initial constitution authority: architecturally resolved.** Local Sovereign Constitution (§6.4) is the intended production model. Remaining local authorization and assurance decisions belong to Client Security §8. Commitment/conflict/recovery mechanisms belong to shared transactions/persistence. Agent Spaces defines constitution eligibility, required effects and completion semantics and consumes these contracts.
 - **D3 — Sovereign execution integration.** Client Security owns trusted principal/author/executor/delegation resolution. Agent Spaces integrates that authority with acquired sovereignty and runtime readiness; it does not design a general authorization engine.
-- **D4 — Lifecycle evidence and recovery.** The completed-constitution predicate is resolved as committed IsInteriorOf, with no completion artifact or Recognized stage. Existing Complete/Rejected/Incomplete Commit semantics, including partial-persistence remediation and resubmission, are accepted; an all-or-nothing rollback correction is not a prerequisite. Existing-state lookup, competing attempts and retry identity remain shared mechanism gates; Agent Spaces owns their lifecycle outcomes. Provisioning/schema-loading completion and supported Open/Upgrade recovery still require bounded evidence contracts, not a global schema-readiness marker. Current restart authorization belongs to Client Security. No persistent Active state or reacquisition is introduced.
+- **D4 — Lifecycle evidence and recovery.** The completed-constitution predicate is resolved as committed IsInteriorOf, with no completion artifact or Recognized stage. Existing Complete/Rejected/Incomplete Commit semantics, including partial-persistence remediation and resubmission, are accepted; an all-or-nothing rollback correction is not a prerequisite. Existing-state lookup, competing attempts and retry identity remain shared mechanism gates; Agent Spaces owns their lifecycle outcomes. Provisioning/schema-loading completion and compatible authorized Open still require bounded evidence contracts, not a global schema-readiness marker. Unsupported continuation is withheld; incompatible-Space rehabilitation is separate future design (§6.7). Current restart authorization belongs to Client Security. No persistent Active state or reacquisition is introduced.
 - **D5 — Architectural choices resolved; bounded delivery checks remain.** §§2.2.1–2.2.2 approve hierarchy/abstractness, name properties, keyless PersonAgent instances, package identity/location, Core-only dependency and configured import route. Shared optional-template composition belongs to #868/#87 and is not required by the current NoneRule contract. Tooling/packaging compatibility is checked during implementation without another type system or loader. Identical-version reuse is the target; current repeated-create rejection must be disclosed until shared loader reconciliation exists.
-- **D6 — Existing CoreSchema integration (AS2):** preserve the same first personal HolonSpace and locally bootstrapped content through constitution; reconcile current MAP.CoreSchemaSpace naming assumptions without creating a replacement space. Define compatible Open/Upgrade over both schema versions, association evidence and authorization state, including supported transitions and interrupted-upgrade recovery, without duplicate canonical content or a general migration framework. Deployment-controlled future sourcing remains distinct.
+- **D6 — Existing CoreSchema integration:** preserve the same first personal HolonSpace and locally bootstrapped content through constitution; reconcile current MAP.CoreSchemaSpace naming assumptions without creating a replacement space. Establish compatible Open over the consuming code, local schemas, association evidence and authorization state, without duplicate canonical content. Incompatibility permits refusal or a supported explicit fresh-environment choice, not inferred recovery. Upgrade/rehabilitation component boundaries and transitions are deferred under D14. Deployment-controlled future sourcing remains distinct.
 
 ### Personal state and DAHN integration
 
@@ -433,10 +442,13 @@ Home Space correspondence enforcement and both historical sovereign-continuity o
 - **D11 — We-Space participation:** qualified roles, admission, routing and shared/personal configuration; complementary space aspects and Agent-side participation are settled.
 - **D12 — Agreements and collective governance:** accountable-party eligibility, constitution and representative authority, AgreementParticipation, Roles, TrustChannels and external commitments. Collective emergence and acquisition of an existing We-Space are supported architecturally; exact governance remains open.
 - **D13 — Sovereignty succession:** authorized transfer, recovery and decommissioning without reopening bootstrap privileges.
+- **D14 — Upgrade, DHT migration and rehabilitation:** establish compatible code/schema component boundaries, supported transitions, identity/content treatment and interruption policies (§6.7). Consider prior-code selection/rebuild and schema updates without presuming either is a supported repair. Retaining an incompatible store does not resolve this gate.
 
 
 
 ## 14. Design provenance
+
+- Supported first-space lifecycle reconciliation, 2026-11-25: available choices derive from compatibility, durable evidence and authority; incompatible-Space retention provides no recovery. Upgrade, DHT migration and rehabilitation retain a separate future design boundary. Baselined Commit semantics and shared validation/security ownership are unchanged.
 
 Conformance requires evidence that the stated invariants hold, including persistent identity, authorization separation, acquisition uniqueness, restart continuity, and Agent-owned DAHN isolation. The concrete validation procedures, test suites, profiling, and implementation sequencing are defined only in `agent-spaces-impl-plan.md`.
 

@@ -2,15 +2,23 @@
 
 ## Status and intended outcome
 
-**Version:** 0.15 (Welcome constitution and retained reopening)
+**Version:** 0.16 (supported first-space choices; Upgrade deferred)
 
-**Date:** 2026-11-17
+**Date:** 2026-11-25
 
-**Status:** AS1 merged and verified; AS2-P is implemented and verified within its bounded D4 contract. Constitution, authorized acquired-space Open and Upgrade remain gated. See the dated delivery records below.
+**Status:** AS1 merged and verified; AS2-P has bounded foundation evidence, and PR #880 adds constitution/Open engineering integration. Complete constitution and authorized acquired-space Open retain their shared validation and Client Security handoffs. AS2 now covers the supported first-space lifecycle and currently valid choices; Upgrade, DHT migration and rehabilitation are separate future design work, not AS2 completion gates. See the dated delivery records below.
 
-Implement the target architecture defined exclusively by [Agent Spaces design specification](agent-spaces-design-spec.md) v0.10 through reviewable increments. The initial delivery establishes a durable first personal HolonSpace hosting local CoreSchema, an established PersonAgent identity, atomic PersonAgent creation/acquisition and authorized runtime opening, and Agent-owned VisualizerUsages used by DAHN selection. The first AgentSpace must reopen without reprovisioning. Multi-AgentSpace infrastructure is anticipated in early interfaces but **not implemented or required through AS5**; it is a separate AS6 undertaking. Personas, shared We-Spaces, and governed collectives follow in AS7–AS8.
+Implement the target architecture defined exclusively by [Agent Spaces design specification](agent-spaces-design-spec.md) v0.12 through reviewable increments. The initial delivery establishes a durable first personal HolonSpace hosting local CoreSchema, an established PersonAgent identity, atomic PersonAgent creation/acquisition and authorized runtime opening, and Agent-owned VisualizerUsages used by DAHN selection. The first AgentSpace must reopen without reprovisioning. Multi-AgentSpace infrastructure is anticipated in early interfaces but **not implemented or required through AS5**; it is a separate AS6 undertaking. Personas, shared We-Spaces, and governed collectives follow in AS7–AS8.
 
 **Document boundary:** The design specification alone defines target semantics, invariants, and unresolved design gates. This implementation plan contains only delivery sequence, dependencies, repository touchpoints, implementation tasks, migration steps, and verification evidence. Where a design gate remains open, the step is to resolve it **in the design specification first**, then implement it; this plan does not settle it by implication. Candidate names below are references to design-spec proposals, not approvals.
+
+## Scope and delivery reconciliation — 2026-11-25
+
+[#870](https://github.com/evomimic/map-holons/issues/870) now scopes AS2 to supported first-space provisioning, constitution and compatible Open. Upgrade/rehabilitation are deferred under design §6.7/D14. This supersedes the older AS2-U sequence and Upgrade checklist requirements, while preserving constitution, sovereignty and authorized-Open guarantees and their shared handoffs.
+
+[PR #880](https://github.com/evomimic/map-holons/pull/880), reviewed head `0e26cd97`, merged as `4c24ab5ccf85fc77fc2a8d895879853cfe96b8c2`, extends existing constitution and packaged Navigator mechanisms: root packaged startup, named Space-successor continuity, broader real-conductor restart evidence and explicit separate-environment selection on incompatibility. Its engineering profile is not complete CS-L1 or historical-sovereignty acceptance. The issue records source/test evidence and the outstanding name-key/package-policy reconciliation; those policies are not changed by this scope update. Older dated observations below remain historical checkpoints rather than current completion claims.
+
+Validation enhancements belong to Rashaan's [Commit Validation implementation plan](../validation/commit-validation-impl-plan.md). Client Security owns #872 and its security handoffs. Agent Spaces consumes those outputs. Baselined Complete/Rejected/Incomplete, partial persistence, retained identities/work and supported remediation/resubmission are unchanged; this plan adds no shared validator, rollback or transaction redesign.
 
 ## Authority and boundaries
 
@@ -68,8 +76,9 @@ The current refactor separates Agent Spaces behavior from the Tauri container:
 
 Status observations reuse adopted Space identity and read sovereign membership
 fresh. They do not separately look up and discard the Agent Spaces schema root
-or PersonAgent descriptor. Provision/Open/Upgrade retain their compatibility
-responsibilities; PersonAgent creation resolves its descriptor when needed.
+or PersonAgent descriptor. Provision and compatible Open retain their compatibility
+responsibilities; PersonAgent creation resolves its descriptor when needed. Upgrade
+and incompatible-Space rehabilitation are separate future design work.
 Membership classification preserves the existing zero/one/ambiguous behavior;
 this refactor does not add historical lineage enforcement or new acquisition
 arbitration. The shared operations can later be exposed by domain wrappers once
@@ -94,15 +103,11 @@ Space, recreate the PersonAgent, replay imports, rotate credentials or modify
 ordinary Commit outcomes. An interrupted attempt is reconciled by inspecting
 the installed definition and explicitly retrying the same approved package.
 This is coordinator-code maintenance, not delivery of general schema migration,
-credential recovery or the complete semantic Agent Spaces Upgrade milestone.
+credential recovery or a supported semantic Agent Spaces Upgrade. That broader capability is future design work outside AS2.
 
 `npm run welcome:build -w map-host` builds the hApp and packaged Welcome bundle;
 `npm run welcome:start -w map-host` launches that existing bundle without rebuilding.
-The separate root `npm start` command currently builds the hApp and runs Tauri
-in development mode with the development UI and store configuration. Ordinary
-host Cargo builds do not refresh the packaged macOS app bundle. Build/launch
-entrypoint unification remains separate work; these paths must not be described
-as equivalent merely because `MAP_START_MODE` is set to `prod`.
+PR #880 changed root `npm start` to build and launch the packaged Welcome flow. The earlier development-mode/root-entrypoint distinction is historical; ordinary host Cargo builds still do not refresh the packaged macOS app bundle. Reusing a retained compatible environment is Open evidence, not incompatible-Space recovery.
 
 ## Local Welcome-to-Navigator handoff
 
@@ -178,7 +183,7 @@ Follow design-spec §§2, 5–10 and 12 for authoritative constraints. For imple
 | --- | --- | --- |
 | AS0 — Resolve first delivery contracts | None | Owning design-spec gates D1–D8 resolved for the affected increments; schema/package and migration contracts reviewed |
 | AS1 — Load minimal Agent/PersonAgent schema | AS0 decisions needed for AS1 | Minimal non-Core Agent/PersonAgent descriptors and sovereign relationship contracts load; plain HolonSpace remains usable |
-| AS2 — First sovereign AgentSpace | AS1, applicable AS0 decisions | Initial personal HolonSpace with local CoreSchema, PersonAgent constituted with its interior, runtime ready; Provision/Open/Upgrade and restart verified |
+| AS2 — First sovereign AgentSpace | AS1, applicable AS0 decisions | Initial personal HolonSpace with local CoreSchema, PersonAgent constituted with its interior, runtime ready; Provision/constitution/compatible Open and restart verified; valid choices reflect current compatibility and authority |
 | AS3 — Persist Agent-owned personal Usages | AS2, Usage design gates | Personal configuration stored and retrievable through authorized Agent/context access |
 | AS4 — Agent/context selection | AS3 | Rust selection reuses correctly scoped personal-state index; defaults remain write-free |
 | AS5 — Profile and close first milestone | AS4 | Measured selection costs, correct ownership and restart behavior; no multi-space prerequisite |
@@ -249,24 +254,27 @@ Do not populate missing optional names with empty-string defaults, require those
 
 **Removal of the workaround.** Once #868 and the applicable shared composition/producer/Commit-validation increments land, use their ordinary compose-and-set path in producers and exercise optional inputs and key mismatch rejection through the integrated implementation. Reuse the same declared rule and expected key strings. No rekeying is intended solely because explicit authoring is replaced by shared composition; any actual output mismatch requires explicit reconciliation rather than rewriting historical keys. Preserve ordinary lineage identity, historical key claims and exact references. Product/runtime producer behavior belongs to its delivery milestone; AS1 adds no onboarding implementation.
 
-### AS2 — Provision, acquire, open, and upgrade the first AgentSpace
+### AS2 — Supported first-space provisioning, constitution, and Open
 
-**Lifecycle delivery:** provision one eligible unclaimed HolonSpace with its local semantic foundation; support human-initiated Local Sovereign Constitution through Client Security; establish PersonAgent and sovereign association using shared commitment/validation; Open/restart and perform supported Upgrade without replacing identities or repeating acquisition. Apply design v0.11 §§5–6 and 11–13. AS1 is merged via [PR #871](https://github.com/evomimic/map-holons/pull/871), merge `36a577c2fa5b6c78419897ecdfcca4e56b32b79b`, reviewed head `70de9d6f`; its fixtures do not establish acquisition guarantees.
+**Lifecycle delivery:** provision one eligible unclaimed HolonSpace with its local semantic foundation; support human-initiated Local Sovereign Constitution through Client Security; establish PersonAgent and sovereign association using shared commitment/validation; Open/restart compatible state without replacing identities or repeating acquisition; present only currently valid supported choices. Upgrade and rehabilitation are outside this milestone. Apply design v0.12 §§5–6 and 11–13. AS1 is merged via [PR #871](https://github.com/evomimic/map-holons/pull/871), merge `36a577c2fa5b6c78419897ecdfcca4e56b32b79b`, reviewed head `70de9d6f`; its fixtures do not establish acquisition guarantees.
 
-#### Reconciled implementation units — proposal for review, 2026-11-16
+<a id="reconciled-implementation-units--proposal-for-review-2026-11-16"></a>
 
-AS2 remains the lifecycle milestone tracked by [#870](https://github.com/evomimic/map-holons/issues/870). [CS-L1 #872](https://github.com/evomimic/map-holons/issues/872) supplies its bounded security mechanisms. Their completion criteria are not interchangeable with checkpoints, preparatory code slices or PR boundaries. The following decomposition makes those boundaries explicit without changing the design specification. The first-personal-constitution PR contract below is proposed for review before further implementation; no additional implementation is authorized by labelling a prerequisite complete.
+#### Reconciled implementation units — updated scope, 2026-11-25
 
-**Recommended next feature PR: AS2-C — First personal constitution.** Its result is an actual constituted PersonAgent/AgentSpace, not another unavailable Welcome action. Preparatory mechanisms may have prerequisite PRs only with their own independently useful, tested contract and named consumer. A combined integration PR may contain AS2 behavior and necessary CS-L1 integration without transferring shared security ownership to AS2. Neither parent issue closes merely because that PR merges.
+AS2 remains the lifecycle milestone tracked by [#870](https://github.com/evomimic/map-holons/issues/870). [CS-L1 #872](https://github.com/evomimic/map-holons/issues/872) supplies its bounded security mechanisms. Their completion criteria are not interchangeable with checkpoints, preparatory code slices or PR boundaries. The following decomposition now follows the revised supported-first-space boundary in #870 and design v0.12. The earlier AS2-U delivery requirement is superseded by separate future design work; AS2-P/C/O remain the lifecycle outcomes. Existing engineering-profile evidence does not establish complete shared guarantees.
+
+**Next Agent Spaces increment: currently valid first-space choices.** Reuse the existing startup, constitution and Welcome paths to expose supported Provision, admitted constitution, compatible authorized Open or explicit fresh-environment creation. Do not make expanded diagnostic messages the feature. Work on choice derivation/presentation can proceed now; actions requiring undelivered validation/security guarantees remain unavailable in the supported flow. Full AS2-C acceptance still requires its handoffs. Neither parent issue closes merely because this increment merges.
 
 | Unit | Owned outcome and dependencies | Review/merge exit |
 | --- | --- | --- |
 | AS2-P — Durable first-space foundation | AS2 owns Provision versus Open classification, fixed local foundation and retained Space identity; consumes CS-L1.1's supported packaged execution boundary. This is a prerequisite contract, not personal constitution. | The supported packaged path provisions exactly once, reopens the same unclaimed Space/content without create-import replay, and refuses or explicitly remediates incomplete/incompatible state without replacement. Live startup must reach a terminal verified state, not only a responsive Welcome window. |
 | AS2-C — First personal constitution | Consumes AS2-P, CS-L1.1/2, shared key/relationship/validation/Commit handoffs; integrates CS-L1.3 principal binding and durable retirement in the constitution transaction. | Explicit Welcome initiation produces the complete supported personal constitution, preserves the existing Space, exposes its actual committed outcome and passes the detailed contract below. Acquired-state recognition and retired acquisition authority survive restart; operational authorized Open/Navigator may remain unavailable. |
 | AS2-O — Authorized Open and Navigator handoff | AS2 owns runtime reconstruction/presentation; consumes CS-L1.4 retained-credential authorization and a reconciled finite Navigator operation inventory. | Valid credentials open the same acquired Agent/Space after process/conductor restart without schema replay, reacquisition or bootstrap reopening; the authorized built-in Navigator experience appears. Missing/inconsistent credentials deny operation while preserving sovereignty. Only explicitly inventoried operations are exposed. |
-| AS2-U — Supported Upgrade | AS2 integrates one declared version transition with the owning schema/security/persistence compatibility contracts and CS-L1.4's bounded Upgrade scope. | A real supported transition, including interruption/remediation and incompatible-state rejection, preserves Agent/Space lineages and acquired authority. Initial import and no-op reopening do not count as Upgrade. |
 
-CS-L1.1–4 are delivery labels defined in the [Client Security plan](../security/map-client-security-impl-plan.md#reconciled-cs-l1-implementation-units--proposal-for-review-2026-11-16), not new issues or a new security framework. CS5 assurance accompanies every exposed path; it is not a final permission to defer necessary security checks. AS2-C requires the security properties it exercises, not all future security capabilities. AS2-O and AS2-U remain required to finish AS2, even though they are separate reviewable outcomes.
+**Former AS2-U:** removed from AS2 delivery and closure criteria. Upgrade, DHT migration and rehabilitation require the separate future design described below.
+
+CS-L1.1–4 are delivery labels defined in the [Client Security plan](../security/map-client-security-impl-plan.md#reconciled-cs-l1-implementation-units--proposal-for-review-2026-11-16), not new issues or a new security framework. CS5 assurance accompanies every exposed path; it is not a final permission to defer necessary security checks. AS2-C requires the security properties it exercises, not all future security capabilities. AS2-O remains required to finish the supported lifecycle. AS2-U is no longer a milestone requirement. Consume the applicable CS-L1 contracts; do not implement Client Security mechanisms or validation enhancements inside the Agent Spaces increment.
 
 ##### Current-work allocation
 
@@ -296,7 +304,7 @@ The handoff is a concrete supported contract plus evidence on a named revision. 
 | Admission/custody / CS-L1.1/2 | Verified packaged request boundary, backend credential custody, exact installation/Space/operation scope and enforcement against reachable alternate paths | Partial boundary and deny-only code exist. Resolve and verify custody and scoped allowed admission in the owning Client Security contract. An empty-passphrase Lair instance, localhost, author key or supplied flag is not the required handoff. |
 | Binding/retirement / CS-L1.3 integrated with AS2-C | Durable meaning and binding of principal/author/executor authority, retirement and retry/consumption behavior tied to committed constitutive state | Not delivered. Settle the minimal representation/lookup contract in the owning security/persistence architecture, then integrate and test with real constitution. Do not require CS-L1's complete AS2 integration to be finished before building this integration; that would be circular. |
 
-Minimum compatible schema/security evidence interpretation is required for AS2-C; a generalized Upgrade/migration implementation is not. Mechanism design choices still open in the owning specifications must be settled there before enabling the corresponding path. Local Sovereign Constitution and the trusted packaged-Welcome boundary remain approved; no external identity proofing or independent native confirmation is reopened.
+Minimum compatible schema/security evidence interpretation is required for AS2-C; Upgrade, migration and rehabilitation implementation are not prerequisites. Mechanism design choices still open in the owning specifications must be settled there before enabling the corresponding path. Local Sovereign Constitution and the trusted packaged-Welcome boundary remain approved; no external identity proofing or independent native confirmation is reopened.
 
 ##### Proposed first-personal-constitution PR acceptance contract
 
@@ -311,29 +319,45 @@ Minimum compatible schema/security evidence interpretation is required for AS2-C
 7. **Accepted Commit outcomes preserved.** Complete/Rejected/Incomplete remain distinct. Rejected leaves remediable staged work/diagnostics; Incomplete retains saved work, staged work, identities and diagnostics for remediation/resubmission of the same acquisition. Fault injection demonstrates applicable failures and retries. No new rollback prerequisite or intentionally split constitution is introduced.
 8. **Duplicates, concurrency and ambiguous responses.** Repeated clicks, competing local attempts and response loss recover the original allowed outcome or an explicit conflict/incomplete/unknown result. They cannot create a second PersonAgent lineage/association as a retry strategy. An unavailable or ambiguous authoritative query cannot trigger fresh acquisition; committed historical association remains authoritative even if a current prospective inverse appears empty.
 9. **Durable retirement and minimal restart recognition.** After completed constitution, restart rediscovers the same Agent/Space association and cannot reissue acquisition-only authority, even when the technical author retains invocation rights. Missing credentials deny privileged execution without erasing sovereignty or offering reacquisition. This is the minimum restart/retirement proof for AS2-C, not a claim that full authorized Open or Navigator is delivered.
-10. **Bounded user-visible result.** Through explicitly inventoried constitution-result/identity reads, Welcome can show that constitution completed or explain the supported blocked/remediation outcome. Unsupported operational Dancers, mutations, generic dispatch and Navigator actions remain unavailable or protected. No standing bootstrap/admin bypass results from successful constitution.
+10. **Currently valid choices.** Through explicitly inventoried lifecycle/identity reads, Welcome offers only supported actions under current compatibility, evidence and authority. Show completed constitution or an unavailable continuation accurately; internal findings do not require a detailed diagnostic experience. Offer retry/remediation only when the existing contract actually supports it, and never imply that retaining an incompatible Space makes it recoverable. Unsupported operational Dancers, mutations, generic dispatch and Navigator actions remain unavailable or protected. No standing bootstrap/admin bypass results from successful constitution.
 11. **Real-boundary evidence.** Proposed AS2-C scenario labels are ConstitutionHappyPath, RejectedRemediation, IncompleteResubmission, DuplicateAndConflict, LostResponse, RestartRetirement and UnauthorizedConstitution; these are planned acceptance cases, not existing test identifiers. Before enablement, map them to actual IPC/runtime/zome entrypoints and real tests. Use fresh references and process/conductor restart where claimed; reference shared mechanism suites without duplicating them or treating mocks as proof of actual admission.
 12. **Review scope and closure.** Record exact source/dependency revisions, supported configuration, security assumptions, passed checks and limitations. All first-constitution requirements above must pass or the PR remains draft/not merge-ready. The PR references #870/#872 as partial delivery; it does not close either milestone or claim complete CS-L1, production readiness, authorized Navigator, Upgrade or AS3 personalization.
 
 ##### Execution and review sequence
 
-1. Review this decomposition/AS2-C acceptance contract and resolve only the remaining concrete custody, authority-binding and shared history/enforcement handoffs in their owning specifications. Publish exact dependency/test mappings; do not reopen approved authority/ontology decisions.
-2. Consume completed AS2-P and finish the bounded shared key/relationship/validation and CS-L1.1/2 prerequisites. They may proceed independently where dependencies permit. A prerequisite PR must state its contract, consumer, negative evidence and remaining feature limitations explicitly; no requirement to merge an arbitrary checkpoint.
-3. Deliver AS2-C together with the necessary CS-L1.3 integration and acquisition-specific Commit/retry evidence. This is the next feature PR target; judge it by actual constitution rather than preparation volume.
-4. Deliver AS2-O with CS-L1.4 and a closed list of authorized Navigator operations, then AS2-U with its actual compatibility transition. These complete the broader AS2 lifecycle and bounded CS-L1 integration. Only then close the parent issues if all their requirements are satisfied.
+1. Deliver the currently-valid-choices increment described below using existing lifecycle paths. Keep baselined Commit outcomes, retention and supported remediation/resubmission intact.
+2. Consume Rashaan's [Commit Validation track](../validation/commit-validation-impl-plan.md) for reusable semantic enforcement and the [Client Security plan](../security/map-client-security-impl-plan.md) for admission, custody, authority binding, retirement and authorized Open. Resolve missing contracts in their owning tracks; do not turn them into Agent Spaces implementation scope.
+3. Integrate available handoffs and verify AS2-C, then AS2-O with its finite authorized operation inventory. Keep engineering evidence distinct from completed supported security/sovereignty acceptance. No additional acquisition authority is enabled by choice/presentation work alone.
+4. Close #870 only when its revised supported-first-space requirements are met. Upgrade, DHT migration and rehabilitation are not closure gates; #872 retains its own security completion criteria.
 
-**Tracking reconciliation still required:** #870 and #872 contain older commitment wording about full-write-set/physical atomicity that must be aligned with the accepted Complete/Rejected/Incomplete remediation/resubmission contract. #870 also retains the superseded candidate completion-record/unfinished-predicate language and stale pinned document versions. Propose targeted issue edits after this workplan/PR contract is reviewed; this pass changes neither issue body. No new shared issue identifiers, guarantees or delivered revisions are invented here.
+**Tracking alignment:** #870 was updated on 2026-11-25 to record PR #880, preserve baselined Commit behavior and focus on valid first-space choices. Its former Upgrade requirement is superseded. Any older Client Security tracking language about physical atomicity or Upgrade must be reconciled in that owning track; it does not expand this Agent Spaces increment. No new shared issue identifiers or delivered guarantees are implied.
+
+##### Currently-valid-choices increment
+
+| Current condition | Available behavior |
+| --- | --- |
+| No provisioned Space and provisioning is permitted | Provision one first Space/foundation, then offer constitution only when eligible and admitted. |
+| Compatible provisioned unclaimed Space with required handoffs | Continue constitution in that existing Space. An empty current inverse alone does not prove eligibility. |
+| Compatible acquired AgentSpace with valid authority/readiness | Open the same Agent/Space/content without import replay or reacquisition. |
+| Incomplete, unknown, ambiguous or unauthorized state | Offer only continuation established by existing contracts; otherwise withhold the unavailable action. Do not infer a fresh acquisition or invent a repair/retry. |
+| Incompatible Space | Refuse Open/constitution. Offer a separate fresh environment only where supported and explicitly selected; this does not recover or transfer the old Space. |
+
+Implement through existing startup/Welcome/orchestration paths; no general environment manager, detailed-diagnostics project, new persistence protocol or cross-process recovery engine is included. Verify that available choices match the evidence, existing compatible restart preserves identities/content, unavailable actions do not execute, and incompatible-store retention/listing/selection is never presented as rehabilitation. Reuse existing tests and engineering-profile evidence where applicable; record the configuration and missing handoffs.
+
+##### Separate future design: Upgrade, migration and rehabilitation
+
+Design §6.7/D14 owns this deferred capability boundary. Before planning implementation, identify code/schema component compatibility and consider prior-code selection/rebuild, older-schema updates and migration to a new DHT for integrity-zome changes. Define authorization, identity/content treatment and interruption behavior for any actual supported transition. Retaining a prior Space directory does not supply any of these operations. Neither fresh-environment creation, initial import, coordinator-only maintenance nor no-op Open demonstrates rehabilitation or a semantic Upgrade. No new future-work issue, transition protocol or migration implementation is created by this plan update.
 
 #### AS2-owned implementation
 
-1. Refactor the existing bootstrap/import lifecycle into explicit Provision/Open/Upgrade. Preserve existing TransactionContext, Reference Layer and transport binding paths. Recheck `core_schema_bootstrap.rs`, `space_imports.rs`, `ensure_core_schema_space()` and guest completion/index handling on the implementation baseline; do not create a competing bootstrap.
+1. Integrate the existing bootstrap/import lifecycle as supported Provision, constitution and compatible Open, exposing only currently valid choices. Preserve existing TransactionContext, Reference Layer and transport binding paths. Recheck `core_schema_bootstrap.rs`, `space_imports.rs`, `ensure_core_schema_space()` and guest completion/index handling on the implementation baseline; do not create a competing bootstrap.
 2. Provision one unclaimed ordinary HolonSpace with packaged local CoreSchema and Agent Spaces. Reconcile `MAP.CoreSchemaSpace` naming/key assumptions without replacing/retyping the space, duplicating content or requiring a descriptive-property rewrite. Display identity may be presentation-only.
 3. Provide foundational Welcome and scoped definition imports. Request constitution authorization through the CS-L1 contract; do not implement credential issuance/custody or a capability framework in AS2.
 4. Deliver the canonical HasInterior Lineage-binding schema delta, retaining definitional status and derived IsInteriorOf. Declare Home Space and historical continuity requirements using the approved shared mechanisms. General evaluators and binding-aware traversal are prerequisites, not AS2 implementations.
 5. Orchestrate one complete constitution: stage PersonAgent in its intended Home Space, declared HasInterior and required authorization/completion effects using ordinary bound references and transaction APIs. Consume shared admission, validation and commitment results. Do not intentionally split Agent creation and acquisition into separate completed transactions or author the inverse independently. Preserve partially saved work and diagnostics on Incomplete; remediate and resubmit the same acquisition with retained identities.
 6. Use committed IsInteriorOf as completed constitution, preserving authored HasInterior and the owning lineage lookup contract. Integrate conflict/interruption/retry outcomes through existing persisted-state queries; no completion artifact, Recognized state or read-time acquisition revalidation. Keep current authorization/compatibility and legitimate provisioning/loading checks distinct.
 7. Integrate durable acquisition-privilege retirement and authorized runtime reconstruction through CS-L1. Admit the built-in House Troupe under the approved containing-space policy, not a supplied identity or author key. Enumerate required supported operations in the CS-L1 integration inventory; no general membership/role engine, negotiated Agreements or TrustChannels. All exposed privileged operations require authorization; unsupported paths remain unavailable/protected.
-8. Implement valid-credential Open/restart and explicit supported Upgrade transitions. Preserve Agent/Space/content identity; reject unsupported or incompatible transitions safely. Do not claim an upgrade protocol from an initial import or no-op. No general migration framework or credential recovery is required.
+8. Implement compatible valid-credential Open/restart and safe incompatible-state refusal. Preserve Agent/Space/content identity on Open. Where supported, fresh-environment creation is a separate explicit choice; retained incompatible state is not recovery. Upgrade, DHT migration and rehabilitation remain separate future design work.
 
 There is no persistent Active sovereignty transition. Closed/Opening/Ready/Closing remains runtime state.
 
@@ -345,10 +369,10 @@ These labels identify bounded work, not newly created GitHub issues. Owners must
 | --- | --- | --- |
 | [CS-L1 #872](https://github.com/evomimic/map-holons/issues/872) | [Client Security plan](../security/map-client-security-impl-plan.md#minimum-operation-inventory): approved local trust contract, scoped constitution, credential custody, durable retirement, opening/restarting the same acquired AgentSpace and only the finite operations mapped to AS2-Local-Lifecycle, with security evidence for one supported configuration | General Dancer authorization, arbitrary delegation, WeSpace roles, universal policy engine, adaptive risk, rotation/revocation, credential recovery and TrustChannels |
 | Local acquisition commitment | Existing shared Commit contract: preserve Complete/Rejected/Incomplete, saved work and diagnostics; verify acquisition remediation/resubmission, paired inverse completion, conflicts and committed-state retry queries without duplicate identities or associations | Rollback redesign, new transaction subsystem, completion artifact, general journal or cross-cell coordination |
-| Relevant relationship/constraint enforcement | Shared Commit validation: required endpoints/cardinalities/inverses, Home Space correspondence, both historical invariants and affected saved endpoints through reusable assessment | Unrelated constraint coverage or general dynamic rule loading |
+| Relevant relationship/constraint enforcement | Rashaan's [shared Commit Validation track](../validation/commit-validation-impl-plan.md): required endpoints/cardinalities/inverses, Home Space correspondence, both historical invariants and affected saved endpoints through reusable assessment | Unrelated constraint coverage or general dynamic rule loading |
 | Lineage/reference behavior | Shared relationship/reference infrastructure: binding-aware comparisons, successor/inverse traversal and same-lineage accounting needed by the sovereign pair | General cache or version-adoption redesign |
-| Required key composition | Shared key infrastructure, including #868 / DevDocs #87: compose/set and conformance for constitution types | Unrelated key features |
-| Compatibility contracts | Each owner defines supported schema/evidence/security formats; AS2 integrates explicit transitions and rejection | General schema migration |
+| Approved type key policy | Consume the approved schema policy; keyless PersonAgent under NoneRule does not depend on #868 / DevDocs #87. Reconcile the shipped name-key policy separately. | Shared key composition remains independently owned, not an AS2 implementation task |
+| Compatibility contracts | Each owner defines supported current code/schema/evidence/security interpretations; AS2 selects valid first-space actions and refuses incompatible Open | Upgrade, code/schema reversion or repair, DHT migration and rehabilitation |
 
 No missing prerequisite may be replaced by UI gating, an AS2-local validator, a bootstrap flag or incomplete persistence presented as successful acquisition. Completing every future security/transaction capability is not required.
 
@@ -367,14 +391,14 @@ No missing prerequisite may be replaced by UI gating, an AS2-local validator, a 
 | Binding normalization, source versions, inverse accounting and authoritative lookup | Shared relationships/references/persistence | Verify endpoint evolution and historical continuity |
 | Key composition/conformance | Shared key infrastructure | Use for PersonAgent production |
 | Required acquisition effects and completed-constitution predicate | Agent Spaces | Identify full domain effects and classify outcomes |
-| Atomic persistence, concurrency, stale reads, caught failures and lost-response retry | Shared transactions/persistence | Consume approved complete outcome and recovery |
+| Baselined Commit outcomes, concurrency, stale reads, caught failures and lost-response retry | Shared transactions/persistence | Consume existing outcomes and supported remediation/resubmission |
 | Authorization evidence meaning / reliable storage / domain completion | Client Security / shared persistence / Agent Spaces respectively | Integrate without prescribing a record type |
-| Provision/Open/Upgrade classification and supported transitions | Agent Spaces, consuming each owner's compatibility contract | Implement lifecycle outcomes |
+| Supported Provision/constitution/Open choices and incompatible-state refusal | Agent Spaces, consuming each owner's compatibility contract | Offer only currently valid actions; retention does not imply recovery |
 | Mechanism-level tests and assurance | Corresponding shared owner | Selected real-lifecycle acceptance scenarios |
 
 #### Acceptance and evidence
 
-AS2 acceptance demonstrates one durable Space with local schemas; explicit human constitution through approved admission; PersonAgent Home Space and declared/derived association; independent Agent/Space version evolution; rejection of removal, replacement and conflicting acquirers; deterministic duplicate/interruption/lost-response outcomes; valid-credential restart without reload/reacquisition/bootstrap reopening; missing-credential denial; scoped imports with unauthorized Dancer denial; and supported Upgrade/incompatible-state handling. Include non-root references, affected saved endpoints and historically acquired Spaces with prospectively empty inverses.
+AS2 acceptance demonstrates one durable Space with local schemas; explicit human constitution through approved admission; PersonAgent Home Space and declared/derived association; independent Agent/Space version evolution; rejection of removal, replacement and conflicting acquirers; deterministic duplicate/interruption/lost-response outcomes; valid-credential restart without reload/reacquisition/bootstrap reopening; missing-credential denial; scoped imports with unauthorized Dancer denial; and currently valid first-space choices with incompatible-state refusal. Upgrade, migration and rehabilitation are not AS2 acceptance requirements. Include non-root references, affected saved endpoints and historically acquired Spaces with prospectively empty inverses.
 
 Shared owners supply mechanism-level security tests, reusable validator tests and persistence fault/conflict evidence. AS2 repeats selected end-to-end scenarios through the real conductor and published contracts; it does not own every attack/fault test or certify the entire security roadmap. Required security assurance for the supported deployment cannot be waived. Map the finite CS-L1 operation inventory to actual AS2-Local-Lifecycle entrypoints and test identifiers before enabling them; shared versioning/validation tests do not implicitly expand it. Record exact dependency revisions, configuration and unverified guarantees.
 
@@ -394,7 +418,7 @@ The current engineering `npm start` path uses ordinary conductor startup rather 
 
 The supported packaged path preserves the existing provisioning mechanism. The guest writes `LocalHolonSpace` only after a Complete bootstrap Commit. Host startup now also requires the actual LoadHolons `LoadCommitStatus` to be Complete before advancing. Rejected, Incomplete and transport/error outcomes retain ordinary transaction/result state for diagnostics and supported remediation/resubmission; no rollback or new completion artifact is introduced.
 
-Provision loads the fixed configured definition imports through the existing loader and verifies the newly loaded packages once. Normal Open adopts the existing local Space, checks the supported Core identity, resolves the sovereign association and reuses committed definitions. It does not reread the package import JSON or repeat the 31-definition type/relationship audit. This supersedes the earlier retained-Open audit recorded in the historical evidence below. It does not replay imports, activate a Dancer, create a replacement Space or interpret an empty sovereign inverse as acquisition eligibility. Missing or incompatible dependencies are reported when required by the requested operation; incompatible CoreSchema identity blocks Open for explicit remediation/Upgrade. Existing Commit remediation and retained identities remain authoritative.
+Provision loads the fixed configured definition imports through the existing loader and verifies the newly loaded packages once. Normal Open adopts the existing local Space, checks the supported Core identity, resolves the sovereign association and reuses committed definitions. It does not reread the package import JSON or repeat the 31-definition type/relationship audit. This supersedes the earlier retained-Open audit recorded in the historical evidence below. It does not replay imports, activate a Dancer, create a replacement Space or interpret an empty sovereign inverse as acquisition eligibility. Missing or incompatible dependencies are reported when required by the requested operation; incompatible CoreSchema identity blocks Open. Retaining the store is not remediation or Upgrade; a fresh environment, where supported, is a separate explicit choice. Existing Commit remediation and retained identities remain authoritative.
 
 This is a bounded AS2 dependency check under D4, not a new full-Core manifest audit or a claim that every Dance is ready. The separately owned bootstrap manifest-readiness gap remains recorded below and in the Core bootstrap plan. No generalized resolver, persistent readiness marker, acquisition privilege or change to AS1 TDL was added.
 
@@ -492,7 +516,7 @@ Implementation slices, to be separately scoped and ordered after design review:
 2. Obtain and verify a trusted reference to the existing authoritative `MAP.CoreSchemaSpace` using approved bootstrap information. Resolve schema identity, compatible versions, and authentication without assuming a preexisting PersonAgent, Agreement, or TrustChannel.
 3. Read and reference authorized remote CoreSchema descriptors through the approved reference layer. Preserve Home Space/version identity and use permitted immutable caching; do not load a second authoritative CoreSchema graph.
 4. Add necessary inter-space transport, routing, request authorization, and failure handling through the appropriate owning runtime design. Do not bypass reference, validation, or projection boundaries.
-5. Make PersonAgent onboarding, atomic creation/acquisition, runtime readiness, Provision/Open/Upgrade, and recovery repeatable for the second independent space without hardcoded founder IDs or development filesystem paths.
+5. Make PersonAgent onboarding, logical creation/acquisition, runtime readiness and compatible Provision/Open repeatable for the second independent space without hardcoded founder IDs or development filesystem paths. Upgrade and rehabilitation require their separate design; provisioning a second Space does not establish recovery of the first.
 6. Verify isolation between distinct Agents and spaces, including personal Usages and configuration. Document what is and is not supported for multi-device Persona/key continuity; do not claim it implicitly.
 
 **Exit evidence:** two independently provisioned spaces reopen with distinct identities and authoritative holons; the second accesses the existing CoreSchema without creating a competing authoritative copy; remote references and caches preserve identity/version; failures, unauthorized reads, and partial provisioning are handled under approved contracts; the first space's personal state remains isolated. Any capabilities not yet supplied (e.g., complete TrustChannel governance) are explicitly recorded as later gates.
@@ -582,7 +606,9 @@ unit does not silently narrow their target state.
 - [ ] Constitution issuance/custody, scope, trusted invocation and replay/conflict prevention are verified; acquisition-only privileges are durably retired and cannot bypass ordinary authorization after acquisition or restart.
 - [ ] Closed/reopening runtime does not remove acquired sovereignty; no persistent Active state or reacquisition is introduced.
 - [ ] Dancer definitions/packages can load before acquisition; exposed operational execution requires appropriate acquired authority and readiness. Unsupported privileged paths are denied; general Dancer/delegation authorization is not a CS-L1 milestone requirement.
-- [ ] Provision, Open, and Upgrade are distinct; valid-credential restart reopens the same Agent, space, and saved holons without reprovisioning. Missing credentials fail closed; loss/compromise recovery is not claimed.
+- [ ] Valid-credential compatible Open/restart reopens the same Agent, Space and saved holons without reprovisioning; missing credentials fail closed.
+- [ ] Welcome offers only currently valid supported first-space choices. Incompatible Open is refused; a supported explicit fresh-environment choice is not reported as recovery.
+- [ ] Retention/listing/selection of an incompatible Space makes no reconnect/rehabilitation claim. Upgrade, DHT migration and rehabilitation are separate future design work, not completion gates.
 - [ ] No multi-AgentSpace infrastructure is required to pass the first milestone.
 
 ### AS3–AS5: Agent-owned DAHN state
@@ -679,7 +705,7 @@ CS-L1 authorization and historical/lineage enforcement remain dependencies. Acqu
 
 ### Earlier next-step note — superseded by the reconciled implementation units
 
-The earlier sequence prioritized the [Client Security implementation contract](../security/map-client-security-impl-plan.md#repository-grounding-and-implementation): map the finite lifecycle inventory to actual Tauri IPC, Rust runtime and conductor/zome entrypoints; establish backend admission, credential custody, eligible-Space scope, retirement and restart checks under the approved packaged-Welcome boundary. Verify denial through alternate callers, untrusted content and supplied identity/bootstrap flags. Independent native confirmation and a new credential framework are not prerequisites. This remains a shared security handoff consumed by AS2; it does not broaden AS2 or replace existing Commit semantics. The reconciled AS2-P/C/O/U units and prerequisite matrix above now govern sequencing: CS-L1 is not one opaque prerequisite that must finish before AS2 begins. Required key, relationship/lineage, validation and acquisition-retry evidence remain explicit parallel handoffs.
+The earlier sequence prioritized the [Client Security implementation contract](../security/map-client-security-impl-plan.md#repository-grounding-and-implementation): map the finite lifecycle inventory to actual Tauri IPC, Rust runtime and conductor/zome entrypoints; establish backend admission, credential custody, eligible-Space scope, retirement and restart checks under the approved packaged-Welcome boundary. Verify denial through alternate callers, untrusted content and supplied identity/bootstrap flags. Independent native confirmation and a new credential framework are not prerequisites. This remains a shared security handoff consumed by AS2; it does not broaden AS2 or replace existing Commit semantics. The revised AS2-P/C/O units and prerequisite matrix above govern sequencing; the former AS2-U requirement is deferred: CS-L1 is not one opaque prerequisite that must finish before AS2 begins. Required key, relationship/lineage, validation and acquisition-retry evidence remain explicit parallel handoffs.
 
 
 ## Keyless PersonAgent creation increment — 2026-11-16
