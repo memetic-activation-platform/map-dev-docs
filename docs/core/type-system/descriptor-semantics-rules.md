@@ -615,6 +615,56 @@ families contribute constraints and validation bindings only. See
         iff
     P declares a local DefaultValue
 
+#### Contextual ValueType resolution
+
+A property's **declared ValueType** is the unique descriptor selected by its
+local `ValueType` relationship. Its **contextual ValueType** is the descriptor
+governing that property's value in the context of a particular holding holon.
+Contextual resolution is distinct from effective inheritance computation;
+"effective" continues to describe products flattened over an Extends lineage.
+
+For holon `H` and property descriptor `P` belonging to H's property contract:
+
+    DeclaredValueType : PropertyDescriptor -> ValueDescriptor
+
+    DeclaredValueType(P) = the unique target of P.ValueType
+
+    ContextualValueType : (Holon, PropertyDescriptor) -> ValueDescriptor
+
+For an ordinary property occurrence:
+
+    ContextualValueType(H, P) = DeclaredValueType(P)
+
+For the canonical `DefaultValue.PropertyType` occurrence on PropertyType `H`:
+
+    ContextualValueType(H, DefaultValue.PropertyType) = DeclaredValueType(H)
+
+This dependent case exposes the existing default-declaration semantics. It does
+not introduce a new schema declaration, configurable resolution path, or second
+ValueType selection. Canonical member identity and descriptor-role rules govern
+recognition; an unrelated property with the same display name does not acquire
+these semantics. The holding PropertyType's existing `ValueType` relationship
+remains authoritative.
+
+Resolution belongs to the shared core descriptor semantics and is consumed by
+both validation and DAHN. It uses the bound holder and property definition,
+without reading the property's stored value or testing whether it is populated.
+The contextual type is therefore available for an absent optional value as well
+as a present one. Resolution neither supplies nor materializes a default.
+
+The result retains the exact declared and contextual descriptor identities and
+the semantic provenance for their relationship. Missing, ambiguous, or unusable
+type dependencies are explicit resolution failures; they do not authorize a
+fallback to the broad declared representation type. A contextual type need not
+nominally extend the declared representation descriptor: the dependent-default
+rule permits its value contract within BaseValue's broad representation domain.
+Its own effective constraints still come from its descriptor lineage.
+
+For example, the `DefaultValue` field on `InstanceDeletionAllowed.PropertyType`
+has declared ValueType `BaseValueValueType.ValueType` and contextual ValueType
+`MapBooleanValueType.BooleanValueType`. The latter is selected by the holding
+PropertyType, not inferred from a stored `true` value.
+
 #### DS-DEFAULT-001: Defaults require required properties
 
 A default may be defined only for a required property:
@@ -626,13 +676,18 @@ default, and required with a default. Optional-with-default is intentionally not
 omission of an optional property means absence rather than implicit value selection.
 
 `DefaultValue.PropertyType` uses `BaseValueValueType.ValueType` so its representation can hold any
-runtime `BaseValue`. The value is then dependently validated against the selected `ValueType` of
-the property descriptor that declares the default.
+runtime `BaseValue`. The contextual ValueType of a default is the selected `ValueType` of
+the property descriptor that declares it, as defined by contextual ValueType resolution above.
 
 #### DS-DEFAULT-002: Default value conformance
 
-The default must satisfy the same effective value type and constraints as an explicitly populated
-value. An invalid default makes the property descriptor invalid.
+Every declared default must conform to the contextual ValueType of its `DefaultValue`
+property occurrence, including that ValueType's effective constraints. An invalid default
+makes the property descriptor invalid.
+
+The rule consumes shared core contextual ValueType resolution. It does not independently
+derive the target type. The resolved contract is the same one governing an explicitly
+populated value of the carrying PropertyType.
 
 This rule validates the declaration of a default. It does not authorize the kernel to materialize
 that default into another holon.
@@ -1336,8 +1391,8 @@ refills a removed value or reads a fallback.
 
 #### DS-PROP-002: Property value conformance
 
-Each present value must satisfy the effective value type, native representation, and value
-constraints. A property name carries at most one property value; optionality is expressed by
+Each present value must satisfy its contextual ValueType, native representation, and that
+type's effective value constraints, using shared core contextual ValueType resolution. A property name carries at most one property value; optionality is expressed by
 `IsValueRequired`, while multiplicity within a value is modeled by an applicable array value type.
 When semantic inheritance supplies property values across a descriptor lineage, more than one
 distinct contribution is a `ConflictingEffectivePropertyValues` error rather than a cardinality
@@ -1640,7 +1695,7 @@ as proposed where discussed; they are not deferred exceptions to existing rules.
 | `DS-CONTRACT-003` | Every effective member definition is well formed |
 | `DS-CONTRACT-004` | Contract members have the required instance kinds |
 | `DS-DEFAULT-001` | Only required properties declare defaults |
-| `DS-DEFAULT-002` | Every default conforms to its effective value definition |
+| `DS-DEFAULT-002` | Every default conforms to its contextual ValueType and that type's effective constraints |
 | `DS-REL-001` | Declared and inverse relationship pairing is bijective |
 | `DS-REL-002` | Inverse endpoints correspond to declared endpoints |
 | `DS-REL-003` | Both directions declare valid deletion semantics |

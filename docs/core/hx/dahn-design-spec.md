@@ -1,4 +1,4 @@
-# DAHN Design Specification v2.21
+# DAHN Design Specification v2.23
 
 ## Status
 
@@ -9,6 +9,19 @@ This version re-baselines the DAHN design around the architecture that has emerg
 It supersedes the Phase-0-specific visualizer selection, canvas, affordance hierarchy, and dynamic-loading models in v1.4 while preserving still-valid MAP/DAHN boundary decisions.
 
 ## Change Log
+
+### v2.23
+
+- adopts shared core contextual ValueType resolution for typed Value selection;
+- retains holder/property context without selecting from actual value contents;
+- distinguishes contextual typing from effective inheritance and preserves type-dependent reuse scopes.
+
+### v2.22
+
+- establishes on-demand evaluation with registry-retained bindings and exact selected versions;
+- makes reconsideration of established choices agent-directed;
+- distinguishes Space Session retirement and reconstruction from selection;
+- defers notifications, change monitoring, and automatic staleness detection.
 
 ### v2.21
 
@@ -1319,7 +1332,7 @@ the PersonAgent owning personal records.
 | --- | --- |
 | `OwnerSubject` | The selected owner's bound subject. |
 | `ScalarPropertyLabel` | The owner subject and each applicable scalar property descriptor. Bind the descriptor's display label, using its established property-name fallback. The label is a String presentation; choosing it does not determine Value selection or retrieve the property's stored value. |
-| `ScalarPropertyValue` | The owner subject and each applicable scalar property descriptor. Select using its declared ValueType and applicable non-value context; bind the actual value during realization. |
+| `ScalarPropertyValue` | The owner subject and each applicable scalar property descriptor. Retain the holding holon and resolve its contextual ValueType through shared core; bind the actual value during realization. |
 | `AffordedAction` | The owner subject and each applicable Dance affordance identity. Selecting the action presentation does not invoke it; runtime invocation still targets the bound subject through the existing action contract. |
 | `SelectedCollection` | The identity of a collection source within the owner's declared composition, supplied by an initial declaration or a later activation request. No collection population read is required merely to select its Visualizer. |
 
@@ -1350,14 +1363,49 @@ Neither viewport visibility nor a saved child Visualizer choice/configuration
 activates a Slot. Personal activation-policy overrides require a separate contract;
 personal Visualizer choice continues to apply after a Slot is activated.
 
-Value binding selection uses the declared ValueType and applicable non-value
-semantic context, including the Slot contract, role, interaction mode, personal
-policy, and relevant property descriptors. Stored value contents, including
-whether an optional value is populated, do not determine the selected Visualizer
+Value binding selection uses the contextual ValueType returned by shared core and
+applicable non-value semantic context, including the Slot contract, role,
+interaction mode, personal policy, and relevant property descriptors. Stored value contents,
+including whether an optional value is populated, do not determine the selected Visualizer
 or partition reusable binding keys. Selection does not fetch property values
 merely to choose their Visualizers; realization binds the actual values. An unset
 optional date and a populated date therefore use the same selection context when
 their other semantic inputs agree.
+
+#### Contextual ValueType and bound value context
+
+The [core contextual ValueType definition](../type-system/descriptor-semantics-rules.md#contextual-valuetype-resolution)
+governs typed Value requests. Declared ValueType is the property's local schema
+selection; contextual ValueType resolves that contract for its holding holon.
+"Effective" continues to refer to inheritance-derived products, such as the
+contextual type's effective constraints.
+
+Composition retains both the holder and PropertyDescriptor through nested Slots,
+discovery, preference resolution, usage binding, and realization. A bare
+PropertyDescriptor cannot distinguish the DefaultValue field of a Boolean
+property from that of a string property. Shared core resolves this context;
+DAHN and JavaScript do not recognize DefaultValue or infer semantic types from
+native value representations. A request transports bound input identities, not
+an authoritative client-supplied replacement ValueType.
+
+For InstanceDeletionAllowed.DefaultValue, the declared type is BaseValueValueType
+and the contextual type is MapBooleanValueType. Typed Value selection starts at
+the contextual descriptor and uses the ordinary eligibility, preference, default,
+and discovery policies. It does not require an intermediate BaseValue Visualizer
+merely because the declared representation is broad. A deliberately selected
+broad-value presentation may delegate children using the same core-resolved
+context; it must not implement a separate type-selection algorithm.
+
+Missing, ambiguous, or unusable contextual dependencies are explicit errors.
+Absence of an optional stored value is a realization condition, not a type error
+or permission to choose another renderer. A contextual array remains an array;
+dependent typing does not turn it into a scalar. Delegation must terminate when
+the contextual type remains broad, rather than recursively selecting itself.
+
+Reusable bindings retain the contextual descriptor and the exact holder/schema
+dependencies governing its resolution. Equal property identities alone are not
+equal contextual scopes; changed type context must not reuse an incompatible
+winner. Value contents and populated/unset state remain outside selection keys.
 
 Presentation activation covers every logical constituent produced by the
 Slot's declared subject binding in the owner's current presentation, regardless
@@ -1510,7 +1558,7 @@ then cross-cutting personal preference, then compatible developer default, then
 localized discovery when the default contract permits it. Applicable pins retain
 their governing authority.
 
-For a typed Value request, use the property's declared ValueType. Within the
+For a typed Value request, use the core-resolved contextual ValueType. Within the
 cross-cutting tier, examine the exact descriptor and then successive supertypes
 along the supported singular Extends lineage, choosing the most specific valid
 preference whose Visualizer is eligible for the actual Slot and context. Do not
@@ -2010,7 +2058,7 @@ Examples:
         -> set of Property Descriptors in the context of a bound Holon
 
     Value
-        -> actual value + declared ValueType + applicable role/property context
+        -> actual value + core-resolved contextual ValueType + bound holder/property context
 
     Action
         -> Dance Descriptor / active action affordance
@@ -2272,7 +2320,7 @@ The starting descriptor depends on what is being presented:
 | --- | --- |
 | Node, PropertyMap, or ActionBar | The bound owner Holon's HolonType. |
 | Action | The afforded Dance descriptor itself; activation retains its actual affording subject separately. |
-| Value | The bound value's declared ValueType. |
+| Value | The bound property's contextual ValueType, resolved by shared core using its holder. |
 
 The request may carry a subject-category tag so the receiving code can obtain
 the correct starting descriptor. That tag identifies the kind of input; it
@@ -2583,8 +2631,9 @@ is introduced.
 #### Subject matching and precedence
 
 The Slot's subject-binding operation supplies the descriptor used for matching.
-A typed Value Slot uses the property's declared ValueType, including when its
-value is unset. Default resolution does not retrieve actual values or use value
+A typed Value Slot uses the property's contextual ValueType resolved by shared
+core, including when its value is unset. Ordinary properties retain their declared
+ValueType. Default resolution does not retrieve actual values or use value
 contents/populated state as conditions.
 
 Personal precedence applies first: explicit current or applicable local choice,
@@ -2699,11 +2748,17 @@ a universal collective winner.
 
 ### 14.5.3 Matching context and state ownership
 
-Reusable resolution context includes the applicable Agent Space/personal policy,
-the Slot Contract, relevant subject descriptor/Type, and every input that can
-change eligibility or selection, including Theme/MDS, required/offered Operators,
-runtime support, authorization, applicable prepared defaults, and applicable
-explicit choices or constraints.
+For the personal experience, the admitted PersonAgent and their I-Space are fixed
+by the registry owner rather than varying dimensions on every lookup. Other
+principals or runtime space proxies must not reuse that owner's results.
+An evaluation captures the actual owner/Slot contract, subject descriptor or
+declared and contextual ValueTypes, holder/schema dependencies, Theme/MDS context,
+selected definitions and implementation,
+required/offered Operators, personal configuration, and explicit constraints.
+These establish the scope of reuse; routine reuse does not compare the answer
+with newly available candidates, defaults, or policy scores. Current execution
+authorization and runtime admission remain required at their designated
+boundaries; they do not initiate replacement selection.
 Subject instance details are additional dimensions only when they affect those
 semantics. Equivalent contracts may share work across distinct slots only when
 their effective requirements, subject bindings, and applicable personal choices
@@ -3015,9 +3070,15 @@ all Node Visualizers.
 A Collection View has an entry point for its selected Collection Visualizer,
 such as Table, Grid, or Gallery. Table owns the row presentation; rows do not
 have independent Row Visualizers or row-specific V controls. In a homogeneous
-holon collection, each property column has one declared ValueType and one
-selected Value Visualizer. Every cell in that column uses the same selected
-definition, with separate cell instances receiving their own values.
+holon collection whose property occurrences share one contextual type scope,
+each property column has one selected Value Visualizer. Every cell in that
+column uses the same selected definition, with separate cell instances receiving
+their own values. A shared declared BaseValue type does not establish a shared
+contextual scope: DefaultValue cells on different PropertyTypes can have different
+governing types. A column-wide broad-value presentation may retain one selected
+outer definition and delegate typed children using each cell's core-resolved
+context. Such children do not silently replace the column's selected Visualizer;
+their bindings retain their own contextual dependencies.
 
 A compact V in the column heading identifies that selected Value Visualizer.
 Its tooltip gives the Visualizer display name, and inspection captures the

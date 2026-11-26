@@ -44,7 +44,7 @@ A PropertyMap Visualizer can compose the two parts independently:
 | Child role | Bound subject | Selection and context |
 | --- | --- | --- |
 | Property-name label | PropertyName string | A conforming String Visualizer, with label-role and presentation context. |
-| Property value | Actual property value | A conforming Value Visualizer applicable to the declared ValueType, with property descriptor, mode, and relevant Holon context. |
+| Property value | Actual property value | A conforming Value Visualizer applicable to the contextual ValueType resolved by shared core, retaining the holder, property descriptor, mode, and relevant Holon context. |
 
 This is the established composition direction, not a mandatory concrete slot
 naming scheme or a requirement that every PropertyMap realization use identical
@@ -53,7 +53,10 @@ and substitutability boundary. It does not require fresh discovery for each
 occurrence: compatible labels/values reuse established bindings under
 [DAHN resolution precedence](../../dahn-design-spec.md#1452-reuse-and-personal-preference).
 The Selection Service resolves concrete children from declared contracts,
-subjects, personal policy, and reusable bindings. Automatic defaults render
+core-resolved contextual ValueTypes, subjects, personal policy, and reusable
+bindings. The property holder remains bound through child composition; a bare
+property descriptor does not establish the contextual type. Resolving this type
+does not fetch the stored value or distinguish populated and absent fields. Automatic defaults render
 without durable personal Usages; binding
 caches retain reusable automatic results. Personal settings come from indexed
 agent/context records or subordinate composition configuration, including

@@ -30,7 +30,7 @@ unless explicitly declared as independently selected slots.
 
 | Role | Subject or binding context | Boundary |
 | --- | --- | --- |
-| Value cell participation, where established | A projected property or value for the row member | Declared ValueType anchors selection; optional PropertyDescriptor, row Holon, source affordance, and edit mode provide context. An array element uses its declared element ValueType. |
+| Value cell participation, where established | A projected property or value for the row member | Shared core contextual ValueType anchors property-value selection using the bound row Holon and PropertyDescriptor; source affordance and edit mode provide additional context. An array element uses its declared element ValueType. |
 
 ## Internal behavior and state
 
@@ -125,13 +125,20 @@ For holon collections:
 
 - columns correspond to exposed projected properties.
 - each column uses one Value Visualizer selected through its PropertyDescriptor
-  and declared ValueType in Table's owned Value slot;
+  and core-resolved contextual ValueType in Table's owned Value slot;
 - every cell in a column uses that selected definition, with a separate instance
   receiving the cell's value;
 - one compact V on the column heading exposes its selected Value Visualizer,
   including display-name tooltip and column-scoped inspection;
 - Table owns row presentation: there are no independently selected Row
   Visualizers and no row-specific or per-cell V controls.
+
+The shared column selection assumes one contextual type scope. Equal declared
+BaseValue types alone do not establish that scope: DefaultValue cells on
+different PropertyTypes can be governed by different ValueTypes. A column-wide
+broad presentation may delegate typed children using each cell's core-resolved
+context, retaining one outer column selection and the children's own contextual
+dependencies. Native value tags do not authorize cell-specific type inference.
 
 Column descriptor bindings are supplied separately from plain projected values.
 Synthetic identity columns use the canonical identity-property descriptor.
