@@ -210,8 +210,7 @@ The exact algorithms and error conditions belong exclusively to the
 
 Holon identity and semantic keys are distinct. A holon's semantic key is
 selected through the effective `InstanceKeyRule` of its describing holon type.
-Keylessness is explicit through `NoneRule.KeyRuleType`; it is not represented by
-an absent rule.
+The canonical `NoneRule` instance expresses explicit keylessness.
 
 Descriptor holons use the same mechanism as ordinary holons. Their keys follow
 the key rule selected by their concrete meta-type rather than a declaration

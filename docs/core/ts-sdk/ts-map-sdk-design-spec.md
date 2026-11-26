@@ -129,6 +129,9 @@ Examples:
 - `all_related_holons()`
 - `predecessor()`
 
+Expose read-only key composition through the shared
+[Commands contract](../commands-and-runtime/commands.md#5411-readableholonaction).
+
 Characteristics:
 - Non-mutating
 - Idempotent
@@ -147,6 +150,10 @@ Examples:
 - `with_property_value(name, value)`
 - `remove_property_value(name)`
 - `add_related_holons(relationship, holons)`
+
+Expose explicit compose-and-set on staged references. The clone operation accepts
+an optional replacement key and clears the copied key when omitted. See
+[Commands](../commands-and-runtime/commands.md#531-transactionaction).
 
 
 Characteristics:

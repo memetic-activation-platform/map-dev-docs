@@ -240,7 +240,6 @@ This keeps loader behavior simple and aligned with key-rule ownership of key str
   populate some defaults against the contract currently available
 - Resolve `Extends` links next so descriptor ancestry is queryable
 - Preserve authored relationship input for common Commit validation; do not infer inverse orientation from targets
-- Inline embedded keyless holons
 - Populate remaining relationship links against the now-queryable descriptor graph
 
 When a write source resolves to a saved holon not yet staged, assembly writes to its staged
@@ -308,18 +307,11 @@ occurrence the import authored.
 
 ---
 
-## 📌 Keyed vs Keyless Holons
+## 📌 Import keys
 
-| Feature                              | Keyed Holons | Keyless Holons |
-|-------------------------------------|--------------|----------------|
-| Has `key`                           | Yes          | No             |
-| Can be referenced via `$ref`        | Yes          | No             |
-| Must be embedded                    | Optional     | Required       |
-| Can be relationship target          | Yes          | No             |
-
-Keyless holons:
-- exist only within parent context
-- must not be referenced independently
+Every imported holon requires an authored key and a keyed effective rule.
+`$ref` resolves through authored keys. Create holons governed by the keyless
+strategy through programmatic staging.
 
 ---
 
@@ -333,7 +325,6 @@ Keyless holons:
 
 ### 2. Loader Resolution Diagnostics
 - `$ref` targets must resolve
-- No references to keyless holons
 - Key uniqueness enforced
 - Relationship input is preserved for source-contract assessment by Commit
 - Loader-specific relationship/reference diagnostics reported

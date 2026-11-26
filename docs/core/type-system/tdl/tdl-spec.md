@@ -210,7 +210,7 @@ The TDL is designed to satisfy the following constraints:
    its containing TDL file.
 5. A TDL file contributes holons to **exactly one schema**. Implicit `ComponentOf` applies only to
    descriptor declarations, not generic instances. A generic `Constraint`, `ValidationRule`, or
-   configured key-rule instance explicitly authors its required `RuleOf` relationship to its one
+   key-rule instance explicitly authors its required `RuleOf` relationship to its one
    origin Schema; `Rules` is the derived inverse. A concrete `KeyRuleType` declaration remains a
    descriptor Component and does not author `RuleOf` merely by describing such instances.
 6. The specialized `depends_on` clause establishes the dependency closure needed for resolution
@@ -427,11 +427,28 @@ The `type` key resolves the descriptor that describes the declared holon and low
 holon's unique `DescribedBy` target. The authored key must conform to the effective instance key
 rule supplied by that describing type. A holon descriptor's own `instance_keyrule` clause is
 different: it populates `InstanceKeyRule` and governs holons described by that descriptor, not the
-key of the descriptor itself.
+key of the descriptor itself. The clause references a rule instance.
+
+#### Local semantic names
+
+An explicit `TypeName` property assignment takes precedence over shorthand.
+When omitted, use the first segment of the authored key for ordinary
+descriptors and standalone abstract variants. Use the inline label for an
+inline variant, the last key segment for a standalone concrete variant, and
+the bracketed name for a relationship descriptor. For example, a standalone
+concrete variant keyed `DeletionSemantic.MapEnumValueType.Allow` defaults to
+`Allow`.
+Reject conflicting explicit declarations. Every explicit or shorthand
+`TypeName` must satisfy the
+[local name contract](../schema-design-spec.md#81-common-type-descriptor-surface).
+Preserve an explicit name that differs from shorthand when emitting TDL.
+Relationship name and endpoint declarations must remain consistent with the
+qualified relationship key.
 
 References elsewhere in TDL use keys. A reference may resolve to a holon in the current schema
-package or dependency closure. Key binding must produce exactly one resolved holon identity; later
-semantic validation uses that identity and does not repeatedly group or resolve by key. Binding
+package and its dependency closure. An authored reference must bind to exactly
+one version, even when competing versions share a lineage. Later semantic
+validation uses the resolved version identity. Binding
 must not fall back to `type_name`, display name, declaration form, or suffix inference.
 
 The current unqualified-key model requires keys to be unique within that bound closure. How
@@ -848,10 +865,10 @@ enum DeletionSemantic.MapEnumValueType {
 Variants may be declared inline, but each inline variant remains a descriptor declaration and must
 include the `variant` keyword and an explicit `type` clause.
 
-The lowered variant descriptor's required local `TypeName` is its canonical stored enum token. For
-an inline declaration such as `variant Allow`, `Allow` supplies that local name. The enclosing enum
-and the effective enum-variant key rule determine the descriptor key; the qualified key and display
-metadata do not replace the local name as the value token.
+The lowered variant descriptor's local `TypeName` is its canonical stored enum
+token. An inline label such as `Allow` supplies shorthand under the
+[local semantic name rules](#local-semantic-names). The effective key rule uses
+the declaring enum for the key prefix.
 
 Compilation rules:
 
@@ -881,9 +898,14 @@ variant <VariantKey> {
 Example:
 
 abstract variant EnumVariantValueType.ValueType {
-  type MetaValueType.MetaTypeDescriptor
+  type MetaEnumVariantValueType.MetaValueType
   extends ValueType.TypeDescriptor
 }
+
+The two abstract anchors retain the authored keys
+`EnumVariantValueType.ValueType` and `MapEnumVariantValueType.EnumVariantValueType`.
+Their local names are `EnumVariantValueType` and `MapEnumVariantValueType`,
+respectively, as determined by the first-segment shorthand.
 
 This standalone form remains valid for cases where a variant needs to be
 declared or documented separately from the enum's inline `variants` block.
@@ -892,9 +914,10 @@ Compilation rules:
 
 - Require exactly one explicit `type` clause and lower it to `DescribedBy`.
 - Lower `extends` only when explicitly authored.
-- An inline variant lowers its enclosing enum key to `VariantOf`.
-- A standalone variant must explicitly provide the equivalent enum ownership relationship through
-  syntax defined by the bound enum-variant schema.
+- An inline variant contributes an authored `Variants` occurrence on its
+  enclosing enum. A standalone concrete variant is selected through an authored
+  `Variants` occurrence on the declaring enum. Commit derives `VariantOf`.
+  See the [concrete variant publication rule](../schema-design-spec.md#93-descriptor-keys).
 - Preserve the variant's required local `TypeName`; do not derive enum membership from its key or
   display metadata.
 
@@ -1061,7 +1084,7 @@ Rules:
   its compatible subtypes. It lowers properties on this already-authored instance; it does not
   synthesize a holon or relationship occurrence.
 - Do not imply `ComponentOf`; that file-level convenience applies only to descriptor declarations.
-- `rule_of <SchemaKey>` is valid only on a generic `Constraint`, `ValidationRule`, or configured
+- `rule_of <SchemaKey>` is valid only on a generic `Constraint`, `ValidationRule`, or
   key-rule instance. It lowers to exactly one `RuleOf -> <SchemaKey>` occurrence. It is package
   provenance, not a component declaration, and the compiler must not infer it from the file,
   `DescribedBy`, or any type that adopts the rule. This clause is required for those instances and
@@ -1265,35 +1288,11 @@ Guest-side Holon Validation and runtime descriptor behavior access these rules t
 `HolonDescriptor` and its typed descriptor wrappers. TDL parsing does not own or execute an
 alternate contract, semantic-inheritance, or conformance algorithm.
 
-Effective key-rule validation uses the same kernel semantics:
-
-- `(HolonType.TypeDescriptor)-[InstanceKeyRule]->(KeyRuleType.HolonType)` has cardinality `1..1`;
-  the kernel assigns it `Override`.
-- `instance_key_rule(T)` is the unique target in `EffectiveValues(T, InstanceKeyRule)`.
-- `holon_key_rule(H) = instance_key_rule(D(H))`.
-- Key-rule resolution does not perform an additional fallback through `DescribedBy`.
-- Recognize the canonical key-rule descriptors `TypeNameRule.KeyRuleType`,
-  `SchemaNameRule.KeyRuleType`, `EnumVariantRule.KeyRuleType`,
-  `RelationshipRule.KeyRuleType`, `ExtendedTypeRule.KeyRuleType`,
-  `DescribedTypeRule.KeyRuleType`, `ConstraintInstanceRule.KeyRuleType`, and
-  `NoneRule.KeyRuleType`.
-- `TypeKindRule.KeyRuleType` is retired from the Schema 2.0 corpus.
-- Treat `NoneRule.KeyRuleType` as explicit keylessness, not as an absent `InstanceKeyRule`.
-- `MetaTypeDescriptor.HolonType` supplies `ExtendedTypeRule.KeyRuleType` as the inherited default
-  for descriptor holons. It composes local `type_name` with the immediate `Extends` target's local
-  `type_name`, falling back to local `type_name` when `Extends` is absent.
-- Because `Extends` is definitional, changing the immediate parent is a key-affecting breaking
-  change for descriptor versions subsequently created under `ExtendedTypeRule`.
-- `FormatRule.KeyRuleType` is concrete. Configured format rules are generic holon instances whose
-  own keys are governed by `DescribedTypeRule.KeyRuleType`.
-- `ConstraintInstanceRule.KeyRuleType` derives a configured constraint instance key as
-  `<ConstraintName>.<local TypeName of direct DescribedBy constraint type>`. It requires exactly
-  one valid local `ConstraintName` and a concrete direct describing type that descends from
-  `ConstraintType.HolonType`; the TDL-authored key must match. This structural resolver does not
-  create the instance or infer its `Constraints` attachment.
-- Validate the required inputs for the selected key rule.
-- Every descriptor key is authored. Report a diagnostic when it differs from the key generated by
-  the effective instance key rule of the descriptor's explicit type.
+The [descriptor-kernel rules](../descriptor-semantics-rules.md#39-effective-key-rule-selection)
+govern effective key-rule selection. `instance_keyrule` lowers to a reference
+to the selected instance. TDL preserves authored keys and lowers declarations
+mechanically. Runtime key conformance checks the authored key against the
+[composition contract](../schema-design-spec.md#96-key-composition-and-identity-contract).
 
 A persisted holon's key is explicit stored state. A later schema version that changes the effective
 key rule, an input to that rule, or a relevant descriptor ancestor does not recompute or mutate the
@@ -1443,7 +1442,7 @@ value MapStringValueType.StringValueType {
 
 holon Schema.HolonType {
   type MetaHolonType.MetaTypeDescriptor
-  instance_keyrule SchemaNameRule.KeyRuleType
+  instance_keyrule Canonical.SchemaNameRule
   extends HolonType.TypeDescriptor
 
   relationships {
@@ -1488,8 +1487,8 @@ This section provides a concise list of the rules used on decompile (from JSON->
 | descriptor property | Lower the authored property key and value into `LoaderRefRep`. | Emit schema-defined descriptor properties through the same fixed form. |
 | `source` | On relationship descriptors, lower to `SourceType <SourceTypeKey>`. | Collapse the populated `SourceType` relationship when representable exactly. |
 | `target` | On relationship descriptors, lower to `TargetType <TargetTypeKey>`. | Collapse the populated `TargetType` relationship when representable exactly. |
-| `instance_keyrule` | Lower to `InstanceKeyRule <KeyRuleKey>` on a holon-type descriptor. The target governs holons described by that descriptor, not the descriptor's own key. | Collapse the populated `InstanceKeyRule` target to `instance_keyrule`. |
-| `rule_of` | On a generic `Constraint`, `ValidationRule`, or configured key-rule instance, lower the explicit Schema reference to its required `RuleOf` relationship. Never infer it from the containing file. | Collapse the required `RuleOf` occurrence on those instance families to `rule_of <SchemaKey>`. |
+| `instance_keyrule` | Lower the rule instance reference to `InstanceKeyRule` on a holon-type descriptor. The selected instance governs holons described by that descriptor. | Emit the selected instance reference through `instance_keyrule`. |
+| `rule_of` | On a generic `Constraint`, `ValidationRule`, or key-rule instance, lower the explicit Schema reference to its required `RuleOf` relationship. Never infer it from the containing file. | Collapse the required `RuleOf` occurrence on those instance families to `rule_of <SchemaKey>`. |
 | `relationships { ... }` | Resolve each map entry name through the describing type's effective relationship contract and lower its target keys to a populated descriptor relationship. `InstanceProperties` targets property keys; `InstanceRelationships` targets declared relationship keys. A declared relationship authors its inverse pairing as `HasInverse -> <InverseRelationshipKey>`. | Emit locally populated relationship target collections as map entries, preserving member names, complete target collections, and ordering when applicable. Emit declared-side `HasInverse`; do not emit a redundant inverse-side pairing clause. |
 | `header { ... }` | Lower header fields such as description/display fields/type plural metadata to descriptor properties.                                                                                                                                                                                            | Collapse header-shaped descriptor properties back into `header { ... }` whenever they are representable by the header surface; omit compiled-form duplicates that are fully implied by concise header syntax.                                                                                                                                                                                                                                                                          |
 | `cardinality` | Valid only on an explicit `CardinalityConstraint` instance. Lower the minimum and finite optional maximum to properties of that same instance; `*` omits its maximum property. It never creates a holon, key, ownership fact, or `Constraints` occurrence. | Collapse only an explicit cardinality-constraint instance whose bound properties can be represented exactly. Never emit it on a relationship declaration. |
@@ -1666,7 +1665,7 @@ PropertyAssignmentClause ::= Identifier PropertyValue ;
 PropertyValue           ::= Literal | DescriptorKey ;
 SourceClause            ::= "source" DescriptorKey ;
 TargetClause            ::= "target" DescriptorKey ;
-InstanceKeyRuleClause   ::= "instance_keyrule" DescriptorKey ;
+InstanceKeyRuleClause   ::= "instance_keyrule" Reference ;
 CardinalityClause       ::= "cardinality" Integer ".." CardinalityMaximum ;
 CardinalityMaximum      ::= Integer | "*" ;
 DeletionSemanticClause  ::= "deletion_semantic" Reference ;
@@ -1776,7 +1775,7 @@ If any variant carries residue that cannot be represented inline, the emitter sh
 
 The emitter may emit a `variant` declaration when the variant membership is mechanically established by explicit authored facts, such as being targeted by exactly one emitted enum's `Variants` relationship.
 
-The emitter must not infer variant status from key shape alone. A key such as `EnumName.MemberName` is not sufficient by itself to prove enum membership.
+Variant membership comes from the authored `Variants` occurrences. Preserve the local `TypeName` using an explicit assignment when emitted shorthand would supply a different name.
 
 ### C.7 Descriptor-Oriented Holon Declarations
 

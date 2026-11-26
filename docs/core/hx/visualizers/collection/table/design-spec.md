@@ -283,7 +283,7 @@ keyless target alone MUST NOT suppress this default. Empty collections use the
 declared type's policy.
 
 Whether a HolonType defines a key is descriptor-governed: use its
-effective `InstanceKeyRule`; `NoneRule.KeyRuleType` denotes explicit keylessness.
+effective `InstanceKeyRule`. The canonical `NoneRule` instance denotes explicit keylessness.
 Do not infer keyedness from a nonempty sample, an arbitrary property named Key,
 or a fallback identity label. Key ordering uses the actual semantic member keys,
 not versioned-key or display-label substitutes. Missing key values follow the

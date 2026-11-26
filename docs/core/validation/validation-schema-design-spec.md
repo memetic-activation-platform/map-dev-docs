@@ -248,7 +248,7 @@ a family. Narrower placement is a deliberate scoping decision, not the default.
 
 Core owns the required `Rule -[RuleOf]-> Schema` and materialized inverse
 `Schema -[Rules]-> Rule` pair. `RuleOf` records the single owning package for each concrete
-`Constraint`, `ValidationRule`, or configured key-rule instance. It does not activate a rule or
+`Constraint`, `ValidationRule`, or key-rule instance. It does not activate a rule or
 replace `Constraints` or `ValidationBindings`. The Schema Design Specification owns the complete
 ownership semantics; this package boundary ensures the pair remains available to the validation
 vocabulary. `RuleOf` names an exact Schema version; the Lineage-bound `Rules` inverse records
@@ -549,7 +549,7 @@ inventory row.
 | `RelationshipOccurrenceGrouping.ValidationRule` | Fixed kernel | `DS-OCC-001` |
 | `AdditionalRelationshipPolicy.ValidationRule` | Fixed kernel | `DS-OCC-004` |
 | `ExplicitKeylessness.ValidationRule` | Fixed kernel | `DS-KEY-004` |
-| `KeyPresenceAndValue.ValidationRule` | Fixed kernel | `DS-KEY-005` |
+| `KeyPresenceAndValue.ValidationRule` | Fixed kernel | `DS-KEY-005`, including missing or conflicting required declaring-owner evidence on creates and new immutable versions |
 | `KeyUniqueness.ValidationRule` | Contextual, local HolonSpace | `DS-KEY-006` |
 | `ConcreteDescribingType.ValidationRule` | Fixed kernel | `DS-CONFORM-001` |
 | `NoUndescribedProperties.ValidationRule` | Fixed kernel | `DS-PROP-003` |

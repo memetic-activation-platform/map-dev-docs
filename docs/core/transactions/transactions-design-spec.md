@@ -271,6 +271,11 @@ relationship changes can remain graph-only against the saved source.
 
 `stage_new_holon` (`stage_new`) and `stage_new_from_clone` establish new lineages independently of
 key equality. Changing a key through `stage_new_version` does not establish a new lineage.
+`stage_new_from_clone` replaces the copied key when a key is supplied and clears it
+when omitted. Constructors leave key composition to producers. An unchanged set
+of identifying inputs can yield the source key, whose existing lineage claim
+prevents a new clone lineage from claiming it. Use the
+[explicit producer composition contract](../type-system/schema-design-spec.md#96-key-composition-and-identity-contract).
 Every staged candidate retains its own temporary ID, even where no-op/graph-only candidates share
 the saved source's definition identity. Pool insertion rejects repeated IDs without overwriting
 entries; key-index collision handling must not hide distinct candidates from enumeration.

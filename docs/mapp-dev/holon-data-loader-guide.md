@@ -118,14 +118,8 @@ Each relationship is defined as:
 ]
 ```
 
-#### 3. Embedded holon (keyless)
-```
-{
-  "type": "<TypeRef>",
-  "properties": { ... },
-  "relationships": [ ... ]
-}
-```
+Loader references use authored keys. Use programmatic staging to create holons
+that are keyless under their effective key rule.
 
 ---
 
@@ -282,7 +276,6 @@ conformance. The same Commit boundary applies to loader, API, Dance, and program
 This guide defines how to author valid MAP import data using:
 
 - A consistent holon structure
-- Clear distinction between keyed and keyless holons
 - A simplified, key-based `$ref` system
 - Two-pass resolution enabling flexible authoring
 

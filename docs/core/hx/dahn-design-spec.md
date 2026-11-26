@@ -4293,14 +4293,37 @@ required DesignToken set is a subset of the effective MDS's guaranteed set.
 
 ## 45.3 Themes and Complete Assignment
 
-A Theme realizes exactly one MDS through `ForMetaDesignSystem`. It owns
-`ThemeTokenAssignment` intersection holons, each of which binds exactly one
-Theme, one DesignToken, and a concrete `PresentationValue`. The assignment's
-semantic identity is the ordered `(Theme, DesignToken)` pair.
+A Theme realizes exactly one MDS through `ForMetaDesignSystem`. Its
+`HasThemeTokenAssignment` occurrences are definitional and Version-bound.
+Each selects an exact `ThemeTokenAssignment` version. The derived
+`AssignedForTheme` inverse is Lineage-bound with `ExactlyOne` cardinality.
+`ForDesignToken` is Version-bound. The assignment's logical pair consists of
+the Theme and DesignToken lineages, and each pair admits at most one assignment
+lineage.
+
+`ThemeTokenAssignmentPairRule` configures `RelationshipPairRule` with
+`FirstKeyRelationship` selecting `AssignedForTheme` and
+`SecondKeyRelationship` selecting `ForDesignToken`, by exact descriptor
+identity. It renders `{0}.{1}.ThemeTokenAssignment` from the exact participant
+versions' stored keys. Every new assignment version requires a Theme candidate
+in the same Commit whose authored `HasThemeTokenAssignment` selects the exact
+assignment candidate. The Theme input follows the
+[declaring-owner evidence contract](../type-system/schema-design-spec.md#declaring-owner-evidence).
+
+A Theme successor can reuse a saved assignment version after a Theme rekey,
+preserving the assignment's key and token reference. Changing an assigned value
+or explicitly adopting a token successor requires an assignment successor and
+a Theme successor that selects it. Recompose the new assignment version's key.
+Changing either participant lineage requires a new assignment lineage.
+
+Editing a token property, including its description, creates a token version.
+Existing Theme versions keep their exact token selection through their assignments.
+Displaying the edited description through the Theme's selected token requires
+adopting the new token version through the successor chain.
 
 A Theme is valid for its MDS when, and only when, it has exactly one assignment
 for every DesignToken defined by that MDS, and no assignments for other tokens.
-Each assigned value must conform to that token's DesignTokenType. These are
+Each assigned value must conform to the DesignTokenType of the selected token version. These are
 schema validation rules, not optional runtime fallbacks.
 
 This direct Theme-to-MDS dependency is intentional: it states the compatibility

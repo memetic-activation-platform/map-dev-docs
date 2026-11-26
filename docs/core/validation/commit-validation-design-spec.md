@@ -51,8 +51,12 @@ Consumers such as Agent Spaces own their declarative domain commitments, includi
   required. `Abandoned` and already `Committed` entries remain observable lifecycle records in the
   Nursery and are not live validation or node-persistence candidates. Already committed entries
   may remain eligible for relationship persistence retry.
-- `LocalHolonSpace` bootstrap is the sole intended permanent exception to that public-gate rule. It
-  remains a narrowly scoped bootstrap path, not a second general ingress or mutation API.
+- [Core Schema bootstrap](../core-schema-bootstrap/core-schema-bootstrap-design-spec.md#first-space-bootstrap)
+  stages the described `CoreSchemaSpace` and Core Schema graph through the ordinary loader and
+  persists them through Commit. The
+  [internal provisioning mode](../core-schema-bootstrap/core-schema-bootstrap-design-spec.md#bootstrap-authorization-boundary)
+  begins without a current Space and authorizes the fixed `LocalHolonSpace` infrastructure
+  locator write after the graph commits.
 - Holon deletion is outside this specification. Current `DeleteHolon` paths perform immediate
   deletion without Commit, while descriptor-independent PVL validates the structural deletion
   target. A future deletion-semantics design must define `Allow` / `Block` / `Cascade` behavior
@@ -857,6 +861,17 @@ checks pass on the combined collection. Matching targets alone do not establish 
 Undefined combinations fail explicitly. A graph-only candidate changes the saved source's graph;
 a version-producing sibling publishes its own explicitly staged relationships. Neither silently
 merges the other's edits, and persistence is independent of candidate processing order.
+
+#### Key composition evidence
+
+For `ForCreate` and `ForUpdateNewVersion`, assess the subject's authored key
+with the [shared composition contract](../type-system/schema-design-spec.md#96-key-composition-and-identity-contract).
+Collect required declaring-owner evidence from final authored forward occurrences
+of live candidates in the assessment. Match the exact subject candidate and
+retain the declaring candidate's lineage, stored key, and occurrence provenance.
+Map missing or conflicting required evidence to a `DS-KEY-005` finding on the
+subject. Incomplete preparation leaves the check unevaluable and must block the affected candidate under the
+readiness and blocking rules. Operational read failures remain errors.
 
 #### Key uniqueness evidence
 

@@ -167,8 +167,8 @@ DescribedBy: HolonSpace.HolonType
 `HolonSpace.HolonType` must declare `HolonSpaceName`, `DisplayName`, and
 `Description` as required instance properties. Its `InstanceKeyRule` is the
 configured `HolonSpaceNameRule`, an ordinary instance described by
-`FormatRule.KeyRuleType` with key `HolonSpaceNameRule.FormatRule`, template `$0`, and the single ordered
-`HolonSpaceName.PropertyType` parameter.
+`FormatRule.KeyRuleType` with key `HolonSpaceNameRule.FormatRule`, template `{0}`, and the single
+ordered `HolonSpaceName.PropertyType` parameter.
 
 Every persisted `HolonSpace` is a DHT anchor and is non-deletable. This is a
 general descriptor-driven policy, not a CoreSchemaSpace exception:

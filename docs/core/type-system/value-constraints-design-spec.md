@@ -202,8 +202,10 @@ is a semantic-versioned validation change, not an incidental dependency refresh.
 
 TypeScript/browser counts are advisory unless they execute the same versioned implementation.
 
-Constraint failures are conformance violations and should identify the value
-type, constraint type, configured boundary, and observed value or measure.
+Constraint failures are conformance violations and identify the value type
+and constraint type. Measured constraints report the observed measure and its
+configured bound. Template syntax constraints report the syntax reason and a
+half-open UTF-8 byte span in the decoded value.
 
 ## Boundaries
 
@@ -284,7 +286,9 @@ For authored literals, `validate_literal` returns these domain errors:
 
 - A violated constraint returns `HolonError::ValueConstraintViolation`, carrying the stable
   family code, value-type identity, constraint identity, constraint-type identity,
-  contributing-descriptor identity, and detail including the measured value and configured bound.
+  contributing-descriptor identity, and the evaluator's typed violation evidence.
+  `Measured` carries the observed measure and configured bounds. `TemplateSyntax`
+  carries the parser's reason and half-open UTF-8 byte span in the decoded template.
 - Invalid configuration or an unusable/non-concrete constraint-type lineage returns
   `DescriptorSchemaInvalid` with `SchemaInvalidityKind::InvalidConstraintConfiguration`.
   A non-applicable attachment uses `IncompatibleConstraintFamily` instead.
@@ -295,10 +299,12 @@ For authored literals, `validate_literal` returns these domain errors:
   subject and completes independent assessment.
 - Acquisition and backend errors pass through unchanged.
 
-The stable scalar-family codes, shared by Commit findings and literal errors, are
-`StringLengthOutOfRange`, `BytesLengthOutOfRange`, and `NumericValueOutOfRange` for string length,
-byte length, and signed integer range respectively. Evaluators return violation details without
-provenance; each consumer supplies the constrained subject and contribution attribution.
+Commit findings and literal errors share the stable codes `StringLengthOutOfRange`
+for string length, `BytesLengthOutOfRange` for byte length, `NumericValueOutOfRange`
+for signed integer range, and `PositionalStringTemplateSyntaxInvalid` for the
+presence-only [positional string template syntax constraint](positional-string-template-spec.md#schema-representation).
+Evaluators return violation details. Each consumer attaches the constrained
+subject and contribution provenance.
 
 Executable schemas must not attach effective constraint instances whose
 validation semantics are unavailable. These declarations create contracts the

@@ -238,8 +238,8 @@ it to omit structural requirements or populate an invalid value.
 
 ### 3.10 Keys and defaults remain explicit state
 
-Holon types select an effective `InstanceKeyRule`; explicit `NoneRule.KeyRuleType` represents
-keylessness. Descriptor holons use the key rule selected by their describing meta-type. The retired
+Holon types select an effective `InstanceKeyRule`. The canonical `NoneRule` instance
+expresses keylessness. Descriptor holons use the rule selected by their describing meta-type. The retired
 `TypeKindRule.KeyRuleType` is not part of Schema 2.0.
 
 A persisted key is historical explicit state and is not recomputed because a later schema changes
