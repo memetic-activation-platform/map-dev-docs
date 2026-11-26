@@ -9,7 +9,7 @@ not create a separate selection authority.
 
 ## Semantic subject and specialization
 
-One value governed by its declared ValueType and applicable semantic context.
+One value governed by its contextual ValueType and applicable semantic context.
 Value Visualizers support diverse ways of presenting and interacting with that
 value, including inspection, permitted editing, validation feedback, compact
 representation, and specialized interaction. Semantic validation stays with MAP.
@@ -22,8 +22,10 @@ renderer per ValueType. This specification retains `Value` as the family name;
 
 ## Selection and binding
 
-A composition owner defines the slot's required contract, bound value, declared
-ValueType, property metadata where applicable, interaction mode, and constraints.
+A composition owner defines the slot's required contract and bound semantic
+context, including the holder and property descriptor where applicable. Shared
+core resolves the contextual ValueType from that binding; declared ValueType,
+interaction mode, and constraints remain part of the contract.
 DAHN selection chooses an applicable, conforming Visualizer; the runtime binds
 it to the actual value and context. A ValueType is selection input, not a
 hard-coded renderer assignment. Compatible occurrences can reuse an established
@@ -34,9 +36,13 @@ Usage discovery. Associated personal Usages participate under the full
 [DAHN precedence](../../dahn-design-spec.md#1452-reuse-and-personal-preference),
 which also honors cross-cutting preferences before service-prepared defaults.
 
-Selection is type-based, not value-content-based. It uses the declared ValueType
-and applicable Slot, role, interaction-mode, descriptor, and personal-policy
-context. Actual contents and populated/unset state do not change selection or
+Selection is type-based, not value-content-based. It uses the contextual ValueType
+resolved by shared core and applicable Slot, role, interaction-mode, descriptor,
+and personal-policy context. Ordinary property occurrences resolve to their
+declared ValueType; the DefaultValue occurrence on a PropertyType resolves to
+that holder's selected ValueType under the existing default semantics. See the
+[core definition](../../../type-system/descriptor-semantics-rules.md#contextual-valuetype-resolution).
+Neither DAHN nor a Visualizer implements a separate DefaultValue typing rule. Actual contents and populated/unset state do not change selection or
 binding reuse. An unset optional date still resolves its normal eligible Date
 Visualizer. Values are read and bound for realization, not fetched merely to
 select a Visualizer.

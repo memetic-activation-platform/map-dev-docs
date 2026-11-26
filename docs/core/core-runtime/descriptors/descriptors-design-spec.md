@@ -238,6 +238,46 @@ must not conceal graph traversal.
 Effective values are computed views. They are not copied into authoritative
 local descriptor state.
 
+### 8.3 Contextual ValueType resolution
+
+The shared core descriptor layer owns contextual ValueType resolution for a
+property occurrence bound to its holding holon. The
+[kernel definition](../../type-system/descriptor-semantics-rules.md#contextual-valuetype-resolution)
+is authoritative. Declared ValueType is the property's local `ValueType` target;
+contextual ValueType is the type governing that occurrence. "Effective" retains
+its inheritance-flattening meaning, including the resolved type's effective
+constraints.
+
+Ordinary occurrences resolve to their declared ValueType. The canonical
+`DefaultValue` occurrence on a PropertyType resolves to that holding PropertyType's
+selected ValueType under the existing default-declaration semantics. This
+interpretation has one core implementation; validation and DAHN do not each
+recognize DefaultValue and derive its target independently. No redundant schema
+rule, new relationship path declaration, or inspection of native value contents
+is required.
+
+The runtime input is a bound holder and PropertyDescriptor. The result supplies
+the exact declared and contextual ValueDescriptors and semantic provenance.
+Resolution does not read the stored field, materialize a default, validate a
+value, or select a Visualizer. A missing or unusable dependency is an explicit
+error, distinct from an absent optional value. Contextual results are not global
+properties of a PropertyDescriptor: two holders can give the same DefaultValue
+field different contextual types.
+
+Acquisition and semantic interpretation remain separate. Ordinary consumers use
+bound references and existing prepared descriptor products. Validation supplies
+its prepared facts and structural diagnoses to the same core interpretation,
+so incomplete candidate definitions can be diagnosed without recursively
+constructing an EHD. This does not add a dependency from holons_core to
+holons_validation, or turn DAHN selection into validation execution.
+
+DAHN retains holder/property context through child composition and uses the
+resolved contextual descriptor for typed Value selection. Validation passes that
+descriptor to its existing value-assessment path. Reuse retains the exact
+definition dependencies and applicable Session or frozen-scope lifetime; it must
+not share a contextual answer solely because two occurrences use the same field
+descriptor.
+
 ## 9. Runtime API and Encapsulation
 
 Typed Rust wrappers are part of the general MAP core-struct pattern. Descriptor
@@ -534,6 +574,7 @@ The result supplies:
 | `effective_constraints()` | `EffectiveConstraints` |
 | `effective_key_rule()` | Singular access to `EffectiveInstanceKeyRule` |
 | `instance_type_kind()` | Optional nearest defining anchor, prepared from the same lineage |
+| `instance_deletion_allowed()` | Restrictive permission prepared from the same lineage, retaining its semantic error |
 
 Name-based lookup and permission-to-use-contract helpers operate on the same
 prepared products. Effective-schema methods move from HolonDescriptor and
@@ -569,6 +610,58 @@ still applies. Construction and singular-only navigation do not initiate this
 warming. An instance availability request for one partition reads that partition
 directly, so singular-only availability does not traverse the plural collection.
 The SDK's typed plural accessor reaches the same Rust operation.
+
+#### Ordinary consumption and structural prerequisites
+
+Ordinary inherited HolonType schema reads acquire EffectiveHolonDescriptor. A
+missing prepared result invokes ordinary acquisition or reports its error; it
+does not authorize a second inheritance-computation path. This includes saved
+cloning, full saved-relationship enumeration, ordinary declaration lookup,
+and effective instance deletion permission. Saved cloning reads only authored
+declarations, including maximum-zero declarations omitted from navigation.
+
+`instance_relationships()` retains every effective declared occurrence for
+diagnostics. `declared_relationships()` supplies the authored contract for
+cloning and declaration lookup, rejecting duplicate base names with
+DuplicateInheritedDeclaration. `get_declared_relationship_by_name()` searches
+that contract, not inverse or navigation-only definitions.
+`get_relationship_by_name()` searches prepared navigation; distinct identities
+matching the requested name produce AmbiguousRelationshipTraversal. Repeated
+occurrences of one identity remain observable without becoming name ambiguity.
+
+Construction and structural prerequisites use explicitly internal assembly
+operations. Default population assembles preparation requests; staged mutation
+classification establishes lifecycle before assessment; definitional comparison
+also participates in unfinished schema assembly. Dance invocation and command
+scope binding are prerequisites of the construction Dance itself. These
+operations may read an already-published saved product or a completed product in
+the active frozen-validation scope without initiating construction. Otherwise
+their named assembly helpers use the shared kernel computation. This exception
+is justified by the operation's construction dependency, not by cache absence.
+No assembly result is retained across mutable edits outside frozen validation.
+
+Commit persistence reuses one bounded source-contract projection for both inverse
+name and endpoint-binding resolution. It restores an existing saved effective
+product when available; during bootstrap it computes that projection from the
+accepted authored contract without constructing a new EHD while its runtime
+prerequisites are themselves being committed. This projection belongs to one
+committed source in the current invocation and is not an editing-time cache.
+
+`instance_deletion_allowed()` is a prepared restrictive permission. The
+constructor reads the self-first resolved lineage without another Extends walk;
+the first false value disallows deletion, so a subtype cannot widen an ancestor's
+restriction. Missing or malformed declaration values retain the established
+semantic error for this product. Operational reads abort preparation, even if
+the provider's error has a semantic-looking shape. Other structurally readable
+products remain available when the permission alone has a semantic error.
+The guarded HolonDescriptor convenience accessor delegates to this same product.
+
+The permission is transported as a value-or-error entry in the existing compact
+PreparedSchema property. It contains no bound references, adds no authored
+permission property, and shares the result's Session or frozen-scope retirement.
+Missing prepared permission is an explicit product error, never a request to
+traverse the source lineage again. Exact immutable schema versions and their
+lineage dependencies govern reuse; no successor selection is introduced.
 
 ### 14.3 NavigableRelationships and instance availability
 
@@ -1044,7 +1137,7 @@ operational failures abort preparation without publishing a successful partial e
 
 | Descriptor kind | Prepared semantic payload | Supporting payload / exclusions |
 | --- | --- | --- |
-| HolonType | Instance properties; declared instance relationships; singular and plural navigable relationships (combined accessor preserves occurrences); afforded Dances; afforded Commands; constraints; validation bindings; effective instance key rule; effective Instance TypeKind | Exact described type, prepared relationship policies and declaring origins. Navigation excludes maximum-zero occurrences. The two navigation partitions are projections, not separate inherited vocabularies. |
+| HolonType | Instance properties; declared instance relationships; singular and plural navigable relationships (combined accessor preserves occurrences); afforded Dances; afforded Commands; constraints; validation bindings; effective instance key rule; effective Instance TypeKind; restrictive instance deletion permission | Exact described type, prepared relationship policies and declaring origins. Navigation excludes maximum-zero occurrences. The two navigation partitions are projections, not separate inherited vocabularies. |
 | ValueType | Effective Instance TypeKind; native value-kind classification (including array classification); afforded operators; constraints; validation bindings | Self-first lineage and per-occurrence declaring origins. Native value kind is distinct from the general TypeKind projection. Enum variants and array element declarations retain their local kernel semantics. |
 | PropertyType | Effective Instance TypeKind; constraints; validation bindings | Self-first lineage and per-occurrence declaring origins. Property name, requiredness, and ValueType are fixed concrete declarations, not inherited override products. Abstract property families can contribute constraints and bindings; concrete properties cannot be extended. |
 | RelationshipType (declared and inverse) | Final membership cache policy: Reuse, Fresh, or bounded age with its age parameter | Exact relationship identity; direction and definitional inputs; inherited MembershipCacheMaxAgeMillis resolved from one lineage. Declared/inverse policies remain distinct. Omitted maximum age resolves to Fresh unless declared-definitional Reuse applies. Local source/target declarations remain references; this contract does not imply eager target hydration or inheritance of every relationship field. |

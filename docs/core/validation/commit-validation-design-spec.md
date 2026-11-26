@@ -1293,28 +1293,44 @@ name and ValueType are fixed concrete declarations, not inherited override produ
 Requiredness is the property's own `IsValueRequired` value or, when absent, the `DefaultValue`
 its governing meta-type declares for `IsValueRequired`; it is not inherited (see [Property
 requiredness](../type-system/schema-design-spec.md#property-requiredness)). Its subject consists
-of the property identity, that descriptor, and an optional value. It determines
+of the property identity, that descriptor, and an optional value. Shared core contextual
+ValueType resolution uses the bound holder before constructing the narrower validation
+subject; it does not enlarge that subject's authority. Property Validation determines
 required-property presence and other property-level commitments without receiving its containing
 holon.
 
-For a present value, Property Validation resolves the selected `ValueType`, creates the narrower
-Value Validation input, and delegates. An absent optional property does not enter Value Validation.
+For a present value, validation consumes the contextual ValueType resolved by shared core,
+creates the narrower Value Validation input, and delegates. Ordinary properties resolve to
+their declared `ValueType`. For a default declaration, the existing DS-DEFAULT-002 semantics
+resolve the carrying PropertyType's selected `ValueType`. An absent optional property does not
+enter Value Validation, although its contextual type can still be resolved for presentation.
+
+The [core contextual ValueType model](../type-system/descriptor-semantics-rules.md#contextual-valuetype-resolution)
+owns this derivation. Validation's prepared descriptor packages and structural diagnoses
+supply its facts to the same interpretation used by ordinary core consumers. Resolution
+does not require successful EHD construction or a read of the field's actual value.
+`DefaultValueConformance` consumes the shared target and delegates to ordinary value
+assessment; it does not maintain a second DefaultValue-specific type-resolution algorithm.
+Missing, ambiguous, or unusable dependencies retain their attributed findings and operational
+failure distinctions. They do not cause validation to fall back to BaseValue's broad contract.
 
 `PropertyValueConformance` (`DS-PROP-002`) dispatches for execution evidence and
 binding-compatibility proof. It records no independent findings in scalar value validation.
 The fixed property traversal records `UnresolvedLocalDependency` for a populated property without
-exactly one usable authored `ValueType`. This selection is distinct from inherited
-property-member contributions in a HolonType contract, whose repetitions and conflicts retain
-their evidence. Native-kind rules own representation mismatch findings; fixed attachment traversal
-owns scalar evaluation. The property handler repeats neither. Value-constraint findings use the
-canonical `PropertyValueConformance` identity as `rule_key` whether or not its handler is bound;
-binding neither activates nor suppresses evaluation.
+exactly one usable authored `ValueType` or usable contextual resolution. The contextual value
+descriptor governs the value. This selection is distinct from inherited property-member
+contributions in a HolonType contract, whose repetitions and conflicts retain their evidence.
+Native-kind rules own representation mismatch findings; fixed attachment traversal owns scalar
+evaluation. The property handler repeats neither. Value-constraint findings use the canonical
+`PropertyValueConformance` identity as `rule_key` whether or not its handler is bound; binding
+neither activates nor suppresses evaluation.
 
 ## 10. Value Validation
 
-Value Validation is governed only by the `ValueType` selected by its `PropertyType`. It assesses
-intrinsic validity of the value for that type, including native `BaseValue`/`ValueType` kind
-compatibility and every effective configured value constraint, such as length, range, pattern, or
+Value Validation is governed by the contextual ValueType supplied by shared core resolution.
+It receives the resolved ValueDescriptor and value, not authority to rediscover the holder or
+reinterpret DefaultValue semantics. It assesses intrinsic validity of the value for that type,
+including native `BaseValue`/`ValueType` kind compatibility and every effective configured value constraint, such as length, range, pattern, or
 allowed values. Enum membership and other fixed type semantics remain rules or descriptor-kernel
 algorithms where they are not configured constraints.
 

@@ -1,5 +1,65 @@
 # Descriptor Implementation Plan
 
+## Ordinary HolonType consumer migration follow-up — November 25
+
+[map-holons #884](https://github.com/evomimic/map-holons/issues/884) delivers one
+consumer-migration PR on the existing consolidation substrate. This follow-up
+does not reopen lineage version-resolution policy or claim another Session
+retention redesign. The runtime design specification §14.2 owns the semantic
+boundary and prepared deletion product; this section records delivery scope.
+
+The implementation completes declared-only lookup and authored-contract
+enumeration, prepares restrictive deletion permission in existing PreparedSchema
+metadata, and routes ordinary saved cloning, declaration lookup, and full saved
+relationship enumeration through acquisition. Prepared navigation owns named
+ambiguity; the older parallel name resolver and test-only union are retired.
+Lossless instance declaration collections remain available for diagnostics.
+
+Direct HolonType computation is confined to the following prerequisites:
+
+| Caller / computation | Reason retained |
+| --- | --- |
+| ComputedEffectiveSchema and navigable_occurrences_in_lineage | Construct prepared products from one resolved lineage, preserving occurrences and origins |
+| WritableHolon::populate_defaults → instance_properties_for_assembly | Default population assembles the requests and carriers needed for acquisition |
+| StagedReference → relationship_declaration_for_assembly | Classifies authored changes and lifecycle before assessment, including incomplete definitions |
+| Definitional comparison → instance_relationships_for_assembly | Compares unfinished schema during loader/Commit assembly without recursive preparation |
+| Dance binding and affordance validation → get_dance_by_name_for_assembly | Bind the construction Dance before its effective result exists |
+| HolonSpace/Transaction command-scope binding → get_relationship_by_name_for_assembly and TransactionDescriptor::afforded_commands | Resolve transaction scope and inherited command affordances before bootstrap construction can execute |
+| Commit RelationshipCommitSource::declared_relationship | Share one retained projection for inverse-name and endpoint bindings after assessment; bootstrap may still be committing the runtime schema, so persistence cannot initiate full EHD construction |
+| Guest bind_relationship_policy candidate discovery | Bind the complete D(H) declaration contract plus SourceOf along H's own ancestry when no authoritative association is available; filtered navigation of D(H) alone is insufficient |
+
+Assembly helpers reuse completed saved or active frozen-validation products where
+available, without constructing them. Ordinary cache misses do not enter these
+fallbacks. Full saved membership enumeration acquires effective names and final
+policies before taking relationship-cache locks, retaining guest binding for
+descriptor-source own-ancestry candidates.
+
+Verification covers prepared deletion restriction and error transport, distinct
+navigation-name ambiguity versus repeated identity, declared maximum-zero and
+inverse separation, frozen assembly reuse/retirement, saved clone behavior, and
+existing bootstrap/loader/Commit boundaries. Existing lineage-edge instrumentation
+checks target-lineage reuse; it does not claim no dependency construction or a
+startup wall-time improvement. Record executed checks and environment limits in
+the implementing PR; this plan does not assert that the PR is merged.
+
+## Shared contextual ValueType delivery — November 26
+
+[map-holons PR #887](https://github.com/evomimic/map-holons/pull/887) implements
+[#884](https://github.com/evomimic/map-holons/issues/884) and
+[#886](https://github.com/evomimic/map-holons/issues/886) at
+`0d692abebe17c6b6accd782f5e9c807f95f2bd7c`. Core owns holder-aware contextual
+ValueType interpretation; validation supplies prepared facts, and DAHN preserves
+holder context through composition, selection, transport, and retained reuse.
+The production-schema acceptance covers Boolean and string DefaultValue
+presentations, including direct holder transport and contextual dependencies.
+
+CI run `45848936320` passed on that exact head, including formatting, light,
+and all three heavy-test jobs. The maintainer reported successful hApp and host
+builds, nominal `npm test`, and `npm start` demonstrating the DefaultValue fix.
+These results record implementation evidence, not a claim that the runtime PR
+has merged. Lineage version-resolution policy
+[#885](https://github.com/evomimic/map-holons/issues/885) remains separate.
+
 ## Current consolidation status — November 4
 
 All five consolidation units are implemented on branch
